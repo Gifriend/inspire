@@ -42,6 +42,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
+        path: '/home',
+        name: AppRoute.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
         path: '/dashboard',
         name: AppRoute.dashboard,
         builder: (context, state) => const DashboardScreen(),

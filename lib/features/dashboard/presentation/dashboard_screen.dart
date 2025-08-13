@@ -100,8 +100,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       disablePadding: true,
@@ -229,7 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black,
                           blurRadius: 20,
                           offset: Offset(0, 5),
                         ),
@@ -317,6 +315,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       },
                     ),
                   ),
+                  Gap.h72,
                 ],
               ),
             ),
@@ -349,7 +348,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey,
                     spreadRadius: 0,
                     blurRadius: 3,
                     offset: Offset(0.0, 2),
@@ -378,7 +377,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (icon is IconData) {
       return Icon(icon, size: 24.0, color: Colors.grey[700]);
     } else if (icon is SvgGenImage) {
-      return icon.svg(width: 24.0, height: 24.0, color: Colors.grey[700]);
+      return icon.svg(width: 24.0, height: 24.0);
     } else if (icon is AssetGenImage) {
       return icon.image(width: 24.0, height: 24.0, color: Colors.grey[700]);
     } else {
@@ -395,13 +394,6 @@ Widget _buildHealthBookCard(Map<String, dynamic> pengumuman) {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
