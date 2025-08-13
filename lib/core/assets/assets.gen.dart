@@ -124,6 +124,14 @@ class $AssetsImagesGen {
   /// File path: assets/images/pdf.png
   AssetGenImage get pdf => const AssetGenImage('assets/images/pdf.png');
 
+  /// File path: assets/images/pengumuman-1.png
+  AssetGenImage get pengumuman1 =>
+      const AssetGenImage('assets/images/pengumuman-1.png');
+
+  /// File path: assets/images/pengumuman-2.png
+  AssetGenImage get pengumuman2 =>
+      const AssetGenImage('assets/images/pengumuman-2.png');
+
   /// File path: assets/images/pengumuman.png
   AssetGenImage get pengumuman =>
       const AssetGenImage('assets/images/pengumuman.png');
@@ -203,6 +211,8 @@ class $AssetsImagesGen {
     money,
     moneyFailed,
     pdf,
+    pengumuman1,
+    pengumuman2,
     pengumuman,
     pin1,
     prescription,

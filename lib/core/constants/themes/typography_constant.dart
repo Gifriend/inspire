@@ -29,6 +29,11 @@ class BaseTypography {
     fontWeight: FontWeight.w400,
   );
 
+  static TextStyle titleSmall = TextStyle(
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w400,
+  );
+
   static TextStyle bodyLarge = TextStyle(
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,

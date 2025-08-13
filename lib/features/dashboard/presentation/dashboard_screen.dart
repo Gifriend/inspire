@@ -1,181 +1,327 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final PageController _pageController = PageController(viewportFraction: 0.75);
+  Timer? _autoScrollTimer;
+  int _currentPage = 0;
+  bool _userInteracting = false;
+
+  final List<Map<String, dynamic>> pengumumanVew = [
+    {
+      'id': '1',
+      'title': 'Pengumuman',
+      'category': 'Harapan lomba Genera-z berbakti',
+      'image': Assets.images.pengumuman2.path,
+      'description':
+          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
+    },
+    {
+      'id': '2',
+      'title': 'Pengumuman',
+      'category': 'Harapan lomba Genera-z berbakti',
+      'image': Assets.images.pengumuman2.path,
+      'description':
+          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
+    },
+    {
+      'id': '3',
+      'title': 'Pengumuman',
+      'category': 'Harapan lomba Genera-z berbakti',
+      'image': Assets.images.pengumuman2.path,
+      'description':
+          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
+    },
+    {
+      'id': '4',
+      'title': 'Pengumuman',
+      'category': 'Harapan lomba Genera-z berbakti',
+      'image': Assets.images.pengumuman2.path,
+      'description':
+          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    startAutoScroll();
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = null;
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!_userInteracting && _pageController.hasClients && mounted) {
+        _currentPage = (_currentPage + 1) % pengumumanVew.length;
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  void _stopAutoScroll() {
+    if (mounted) {
+      setState(() {
+        _userInteracting = true;
+      });
+
+      // Resume auto scroll after 5 seconds of inactivity
+      Timer(const Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            _userInteracting = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       disablePadding: true,
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Gap.h24,
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: BaseSize.w20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Selamat Datang!',
-                      style: BaseTypography.headlineSmall,
-                    ),
-                    Row(
-                      children: [
-                        SvgPicture.asset(Assets.icons.fill.notification.path),
-                        Gap.w12,
-                        SvgPicture.asset(Assets.icons.fill.user.path),
-                      ],
-                    ),
-                  ],
-                ),
+      child: Stack(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height / 2.75,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: BaseColor.primaryInspire,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(BaseSize.radiusXl),
+                bottomRight: Radius.circular(BaseSize.radiusXl),
               ),
-              Gap.h20,
-              Padding(
-                padding: EdgeInsets.only(
-                  left: BaseSize.w12,
-                  right: BaseSize.w12,
-                ),
-                child: Container(
-                  height: 175.0,
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade300,
-                    borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        bottom: 5,
-                        right: 15,
-                        child: Row(
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Gap.h24,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: BaseSize.w20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('IPK: 4.00'),
-                            Gap.w12,
-                            Text('SKS lulus: 120'),
+                            Text(
+                              'Selamat Datang Kembali,',
+                              style: BaseTypography.titleSmall.toWhite,
+                            ),
+                            Text(
+                              'Gifriend Yedija Talumingan',
+                              style: BaseTypography.titleMedium.toBold.toWhite,
+                            ),
                           ],
                         ),
+                        // Row(
+                        //   children: [
+                        //     SvgPicture.asset(Assets.icons.fill.notification.path),
+                        //     Gap.w12,
+                        //   ],
+                        // ),
+                      ],
+                    ),
+                  ),
+                  Gap.h24,
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: BaseSize.w12,
+                      right: BaseSize.w12,
+                    ),
+                    child: Container(
+                      height: 125.0,
+                      decoration: BoxDecoration(
+                        color: BaseColor.white,
+                        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                       ),
-                      Row(
+                      child: Stack(
                         children: [
-                          Container(
-                            padding: EdgeInsets.only(left: BaseSize.w20),
-                            child: Image.asset(
-                              Assets.icons.app.user.path,
-                              height: BaseSize.h72,
-                              width: BaseSize.w64,
+                          Positioned(
+                            bottom: 5,
+                            right: 15,
+                            child: Row(
+                              children: [
+                                Text(
+                                  'IPK: 4.00',
+                                  style: BaseTypography.bodySmall,
+                                ),
+                                Gap.w12,
+                                Text(
+                                  'SKS lulus: 120',
+                                  style: BaseTypography.bodySmall,
+                                ),
+                              ],
                             ),
                           ),
-                          Gap.w12,
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Row(
                             children: [
-                              Text(
-                                'Gifriend Yedija Talumingan',
-                                style: BaseTypography.bodyMedium,
+                              Container(
+                                padding: EdgeInsets.only(left: BaseSize.w20),
+                                child: Image.asset(
+                                  Assets.icons.app.user.path,
+                                  height: BaseSize.h72,
+                                  width: BaseSize.w64,
+                                ),
                               ),
-                              Gap.h6,
-                              Text(
-                                'Teknik Informatika',
-                                style: BaseTypography.bodyMedium,
-                              ),
-                              Gap.h6,
-                              Text(
-                                '220211060328',
-                                style: BaseTypography.bodyMedium,
+                              Gap.w12,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Gifriend Yedija Talumingan',
+                                    style: BaseTypography.bodyMedium,
+                                  ),
+                                  Gap.h6,
+                                  Text(
+                                    'Teknik Informatika',
+                                    style: BaseTypography.bodyMedium,
+                                  ),
+                                  Gap.h6,
+                                  Text(
+                                    '220211060328',
+                                    style: BaseTypography.bodyMedium,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              Gap.h24,
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 16),
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: BaseColor.white,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      blurRadius: 20,
-                      offset: Offset(0, 5),
+                  Gap.h24,
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: BaseColor.white,
+                      borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 20,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  childAspectRatio: 1,
-                  children: [
-                    _buildMenuItem(
-                      icon: Assets.icons.fill.calendar,
-                      label: 'kalender',
-                      onTap: () {
-                        // context.pushNamed(AppRoute.ebookMenu);
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 1,
+                      children: [
+                        _buildMenuItem(
+                          icon: Assets.icons.fill.calendar,
+                          label: 'kalender',
+                          onTap: () {
+                            // context.pushNamed(AppRoute.ebookMenu);
+                          },
+                        ),
+                        _buildMenuItem(
+                          icon: Assets.images.khs,
+                          label: 'KHS',
+                          onTap: () {
+                            // context.pushNamed(AppRoute.videoMenu);
+                          },
+                        ),
+                        _buildMenuItem(
+                          icon: Assets.images.pengumuman,
+                          label: 'Pengumuman',
+                          onTap: () {
+                            // context.pushNamed(AppRoute.peopleData);
+                          },
+                        ),
+                        _buildMenuItem(
+                          icon: Assets.images.transkrip,
+                          label: 'Transkrip',
+                          onTap: () {},
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.book,
+                          label: 'E-LEarning',
+                          onTap: () {},
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.other_houses_outlined,
+                          label: 'Lainnya',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                  Gap.h24,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Pengumuman',
+                          style: BaseTypography.titleLarge.toBold,
+                        ),
+                        Text('Lihat semua', style: BaseTypography.titleMedium),
+                      ],
+                    ),
+                  ),
+                  Gap.h20,
+                  SizedBox(
+                    height: 280.0,
+                    child: PageView.builder(
+                      physics: const ClampingScrollPhysics(),
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        if (mounted) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                          _stopAutoScroll();
+                        }
+                      },
+                      itemCount: pengumumanVew.length,
+                      itemBuilder: (context, index) {
+                        final pengumuman = pengumumanVew[index];
+                        return _buildHealthBookCard(pengumuman);
                       },
                     ),
-                    _buildMenuItem(
-                      icon: Assets.images.khs,
-                      label: 'KHS',
-                      onTap: () {
-                        // context.pushNamed(AppRoute.videoMenu);
-                      },
-                    ),
-                    _buildMenuItem(
-                      icon: Assets.images.pengumuman,
-                      label: 'Pengumuman',
-                      onTap: () {
-                        // context.pushNamed(AppRoute.peopleData);
-                      },
-                    ),
-                    _buildMenuItem(
-                      icon: Assets.images.transkrip,
-                      label: 'Transkrip',
-                      onTap: () {},
-                    ),
-                    _buildMenuItem(
-                      icon: Assets.images.chatBoxOnly,
-                      label: 'chat',
-                      onTap: () {},
-                    ),
-                    _buildMenuItem(
-                      icon: Assets.icons.fill.other,
-                      label: 'Lainnya',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Gap.h24,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Pengumuman', style: BaseTypography.titleLarge),
-                    Text('Lihat semua', style: BaseTypography.titleMedium),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -239,4 +385,99 @@ class DashboardScreen extends StatelessWidget {
       return const SizedBox.shrink();
     }
   }
+}
+
+Widget _buildHealthBookCard(Map<String, dynamic> pengumuman) {
+  return GestureDetector(
+    key: ValueKey(pengumuman['id']),
+    child: Container(
+      margin: EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Book Cover Image
+            Expanded(
+              flex: 3,
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(pengumuman['image']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  // Category Badge
+                  Positioned(
+                    top: 8,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: BaseColor.black,
+                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                      ),
+                      child: Text(
+                        pengumuman['category'],
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Book Info
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      pengumuman['title'],
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Gap.h4,
+                    Expanded(
+                      child: Text(
+                        pengumuman['description'],
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
