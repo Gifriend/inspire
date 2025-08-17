@@ -1,22 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 
-class PresensiDetailScreen extends StatelessWidget {
+import '../../../presentation.dart';
+
+class PresensiDetailScreen extends ConsumerWidget {
   const PresensiDetailScreen({super.key, required this.type});
 
   final PresensiType type;
 
+  String _getTitle() {
+    switch (type) {
+      case PresensiType.uas:
+        return 'Presensi UAS';
+      case PresensiType.kelas:
+        return 'Presensi Kelas';
+      case PresensiType.event:
+        return 'Presensi Event';
+    }
+  }
+
+  String _getSubtitle() {
+    switch (type) {
+      case PresensiType.uas:
+        return 'Presensi UAS';
+      case PresensiType.kelas:
+        return 'Presensi Kelas';
+      case PresensiType.event:
+        return 'Presensi Event';
+    }
+  }
+
+  String _getInputHint() {
+    switch (type) {
+      case PresensiType.uas:
+        return 'Masukkan Kode Presensi UAS';
+      case PresensiType.kelas:
+        return 'Masukkan Kode Presensi Kelas';
+      case PresensiType.event:
+        return 'Masukkan Kode Presensi Event';
+    }
+  }
+
+  String _getHistoryText() {
+    switch (type) {
+      case PresensiType.uas:
+        return 'Lihat Riwayat Presensi UAS Anda';
+      case PresensiType.kelas:
+        return 'Lihat Riwayat Presensi Kelas Anda';
+      case PresensiType.event:
+        return 'Lihat Riwayat Presensi Event Anda';
+    }
+  }
+
+  void _handleSubmit(WidgetRef ref) {
+    final controller = ref.read(
+      presensiDetailControllerProvider(type).notifier,
+    );
+
+    switch (type) {
+      case PresensiType.uas:
+        controller.submitPresensiUAS();
+        break;
+      case PresensiType.kelas:
+        controller.submitPresensiKelas();
+        break;
+      case PresensiType.event:
+        controller.submitPresensiEvent();
+        break;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(presensiDetailControllerProvider(type));
+    final controller = ref.read(
+      presensiDetailControllerProvider(type).notifier,
+    );
+
     return ScaffoldWidget(
       disablePadding: true,
       disableSingleChildScrollView: true,
       backgroundColor: BaseColor.cardBackground1,
       appBar: AppBar(
+        leading: IconButton(
+          padding: EdgeInsets.zero,
+          icon: Icon(Icons.arrow_back_ios_new, color: BaseColor.white),
+          onPressed: context.pop,
+        ),
         title: Text(
-          'Presensi',
+          _getTitle(),
           style: BaseTypography.headlineSmall.toBold.toWhite,
         ),
         backgroundColor: BaseColor.primaryInspire,
@@ -27,7 +103,10 @@ class PresensiDetailScreen extends StatelessWidget {
           Gap.h16,
           Padding(
             padding: EdgeInsets.only(left: BaseSize.w24),
-            child: Text('Presensi', style: BaseTypography.titleLarge.toBold),
+            child: Text(
+              _getSubtitle(),
+              style: BaseTypography.titleLarge.toBold,
+            ),
           ),
           Gap.h40,
           Padding(
@@ -42,27 +121,44 @@ class PresensiDetailScreen extends StatelessWidget {
                 children: [
                   Gap.h20,
                   Text(
-                    'Masukkan Kode Presensi',
+                    _getInputHint(),
                     style: BaseTypography.titleMedium.toBold,
                   ),
                   Gap.h24,
-                  InputWidget.text(borderColor: BaseColor.black),
+                  InputWidget.text(
+                    borderColor: BaseColor.black,
+                    onChanged: controller.updatePresensi,
+                    errorText: state.errorPresensi,
+                  ),
                   Gap.h24,
                   GestureDetector(
-                    onTap: () {},
+                    onTap: state.loading == true
+                        ? null
+                        : () => _handleSubmit(ref),
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: BaseSize.w72,
                         vertical: BaseSize.h12,
                       ),
                       decoration: BoxDecoration(
-                        color: BaseColor.blue,
+                        color: state.loading == true
+                            ? BaseColor.blue.withOpacity(0.6)
+                            : BaseColor.blue,
                         borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                       ),
-                      child: Text(
-                        'Kirim',
-                        style: BaseTypography.titleMedium.toWhite.toBold,
-                      ),
+                      child: state.loading == true
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: BaseColor.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Kirim',
+                              style: BaseTypography.titleMedium.toWhite.toBold,
+                            ),
                     ),
                   ),
                   Gap.h24,
@@ -72,10 +168,7 @@ class PresensiDetailScreen extends StatelessWidget {
           ),
           Gap.h24,
           Center(
-            child: Text(
-              'Lihat Riwayat Presensi Anda',
-              style: BaseTypography.titleMedium,
-            ),
+            child: Text(_getHistoryText(), style: BaseTypography.titleMedium),
           ),
         ],
       ),

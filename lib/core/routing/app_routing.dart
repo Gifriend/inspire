@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/features/presentation.dart';
 
+import 'routing.dart';
+
 class AppRoute {
   static const String main = 'main';
   static const String viewAll = 'view-all';
@@ -55,6 +57,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.dashboard,
         builder: (context, state) => const DashboardScreen(),
       ),
+      presensiRouting,
       // authenticationRouting,
       // dashboardRouting,
       // accountRouting,

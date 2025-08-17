@@ -3,34 +3,44 @@ import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/routing/app_routing.dart';
 import 'package:inspire/features/presentation.dart';
 
-final PresensiRouting = GoRoute(
-  path: '/publishing',
+// SOLUSI 1: Path relatif yang benar (RECOMMENDED)
+final presensiRouting = GoRoute(
+  path: '/presensi',
   name: AppRoute.presensi,
   builder: (context, state) => const PresensiScreen(),
   routes: [
     GoRoute(
-      path: 'presensi-detail',
+      path: 'detail', // Tanpa '/' di awal untuk nested route
       name: AppRoute.presensiDetail,
       builder: (context, state) {
         final params = (state.extra as RouteParam?)?.params;
         final type = params?[RouteParamKey.presensiType] as PresensiType?;
 
-        assert(type != null, 'RouteParamKey.activityType cannot be null');
+        assert(type != null, 'RouteParamKey.presensiType cannot be null');
 
         return PresensiDetailScreen(type: type!);
       },
     ),
-    // GoRoute(
-    //   path: 'map',
-    //   name: AppRoute.publishingMap,
-    //   builder: (context, state) {
-    //     final params = (state.extra as RouteParam?)?.params;
-    //     final ot = params?[RouteParamKey.mapOperationType] as MapOperationType?;
-    //
-    //     assert(ot != null, 'RouteParamKey.mapOperationType cannot be null');
-    //
-    //     return MapScreen(mapOperationType: ot!);
-    //   },
-    // ),
   ],
 );
+
+// SOLUSI 2: Flat structure (Alternative)
+final presensiRoutingFlat = [
+  GoRoute(
+    path: '/presensi',
+    name: AppRoute.presensi,
+    builder: (context, state) => const PresensiScreen(),
+  ),
+  GoRoute(
+    path: '/presensi-detail', // Path terpisah
+    name: AppRoute.presensiDetail,
+    builder: (context, state) {
+      final params = (state.extra as RouteParam?)?.params;
+      final type = params?[RouteParamKey.presensiType] as PresensiType?;
+
+      assert(type != null, 'RouteParamKey.presensiType cannot be null');
+
+      return PresensiDetailScreen(type: type!);
+    },
+  ),
+];
