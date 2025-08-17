@@ -25,6 +25,10 @@ class AppRoute {
 
   //Dashboard
   static const String dashboard = 'dashboard';
+
+  //Presensi
+  static const String presensi = 'presensi';
+  static const String presensiDetail = 'presensi-detail';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

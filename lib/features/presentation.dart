@@ -12,6 +12,9 @@ export 'login/presentation/login_screen.dart';
 export 'login/presentation/login_state.dart';
 //presensi
 export 'presensi/presentation/presensi_controller.dart';
+export 'presensi/presentation/presensi_detail/presensi_detail_controller.dart';
+export 'presensi/presentation/presensi_detail/presensi_detail_screen.dart';
+export 'presensi/presentation/presensi_detail/presensi_detail_state.dart';
 export 'presensi/presentation/presensi_screen.dart';
 export 'presensi/presentation/presensi_state.dart';
 //splash

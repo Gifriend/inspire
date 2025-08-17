@@ -31,11 +31,9 @@ class InputVariantTextWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
       decoration: BoxDecoration(
-        color: BaseColor.cardBackground1,
+        color: BaseColor.white,
         border: Border.all(color: borderColor ?? Colors.transparent),
-        borderRadius: BorderRadius.circular(
-          BaseSize.radiusMd,
-        ),
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -69,10 +67,7 @@ class InputVariantTextWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Gap.w12,
-        endIcon!.svg(
-          width: BaseSize.w12,
-          height: BaseSize.w12,
-        ),
+        endIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
       ],
     );
   }

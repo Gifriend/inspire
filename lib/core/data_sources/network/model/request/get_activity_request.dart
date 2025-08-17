@@ -5,17 +5,14 @@ class GetActivitiesRequest {
   final String churchSerial;
   final DateTimeRange? activityDateRange;
   final DateTimeRange? publishDateRange;
-  final ActivityType? activityType;
+  final PresensiType? presensiType;
   final String? activitySerial;
 
-  GetActivitiesRequest( {
+  GetActivitiesRequest({
     required this.churchSerial,
     this.activityDateRange,
     this.publishDateRange,
-    this.activityType,
+    this.presensiType,
     this.activitySerial,
   });
-
-
-
 }

@@ -56,7 +56,6 @@ class HomeScreen extends ConsumerWidget {
                 children: [DashboardScreen(), PresensiScreen()],
               ),
             ),
-            // Kondisional untuk menampilkan/menyembunyikan BottomNavBar
             if (state.selectedBottomNavIndex != 2)
               Positioned(
                 bottom: 0,

@@ -14,13 +14,13 @@ enum MaritalStatus {
   married,
 }
 
-enum ActivityType {
-  @JsonValue("SERVICE")
-  service,
+enum PresensiType {
+  @JsonValue("KELAS")
+  kelas,
+  @JsonValue("UAS")
+  uas,
   @JsonValue("EVENT")
   event,
-  @JsonValue("ANNOUNCEMENT")
-  announcement,
   // articles,
 }
 
@@ -50,10 +50,7 @@ enum Reminder {
   final String name;
 }
 
-enum MapOperationType {
-  pinPoint,
-  read,
-}
+enum MapOperationType { pinPoint, read }
 
 enum SongPartType {
   @JsonValue("INTRO")

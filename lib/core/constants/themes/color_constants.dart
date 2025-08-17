@@ -11,7 +11,7 @@ class BaseColor {
   static const int _neutralPrimaryValue = 0xFFB8B8B8;
 
   static const Color primary1 = Color(0xFFF0FBF8);
-  static const Color primaryInspire = Color(0xFFF00A21);
+  static const Color primaryInspire = Color(0xFF702A25);
   static const Color primary2 = Color(0xFFDEF5EE);
   static const Color primary3 = Color(0xFF000000);
   static const Color primary4 = Color(0xFF28A745);

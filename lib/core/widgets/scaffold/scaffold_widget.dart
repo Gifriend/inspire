@@ -44,30 +44,26 @@ class ScaffoldWidget extends StatelessWidget {
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         appBar: appBar,
         body: Padding(
-                padding: EdgeInsets.only(
-                  left: disablePadding ? 0 : BaseSize.w12,
-                  right: disablePadding ? 0 : BaseSize.w12,
-                ),
-                child: disableSingleChildScrollView
-                    ? childWrapper
-                    : Column(
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              child: Column(
-                                children: [
-                                  Gap.h48,
-                                  childWrapper,
-                                  Gap.h64,
-                                ],
-                              ),
-                            ),
-                          ),
-                          persistBottomWidget ?? const SizedBox(),
-                        ],
+          padding: EdgeInsets.only(
+            left: disablePadding ? 0 : BaseSize.w12,
+            right: disablePadding ? 0 : BaseSize.w12,
+          ),
+          child: disableSingleChildScrollView
+              ? childWrapper
+              : Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          children: [Gap.h20, childWrapper, Gap.h64],
+                        ),
                       ),
-              ),
+                    ),
+                    persistBottomWidget ?? const SizedBox(),
+                  ],
+                ),
+        ),
         backgroundColor: backgroundColor ?? BaseColor.white,
         bottomNavigationBar: bottomNavigationBar,
       ),

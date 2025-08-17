@@ -12,7 +12,7 @@ class CardOverviewListItemWidget extends StatelessWidget {
 
   final String title;
   final VoidCallback onPressedCard;
-  final ActivityType type;
+  final PresensiType type;
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +37,7 @@ class CardOverviewListItemWidget extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: BaseTypography.bodySmall,
             ),
-            ChipsWidget(
-              title: type.name,
-            ),
+            ChipsWidget(title: type.name),
           ],
         ),
       ),
