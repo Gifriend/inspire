@@ -7,7 +7,7 @@ part of 'presensi_detail_controller.dart';
 // **************************************************************************
 
 String _$presensiDetailControllerHash() =>
-    r'6c5c9acfb0adc822ee63abc8ffa71e5d6d8c6ed1';
+    r'638a908a059d00478ea558668f10d9ee642252e3';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,9 +32,9 @@ class _SystemHash {
 
 abstract class _$PresensiDetailController
     extends BuildlessAutoDisposeNotifier<PresensiDetailState> {
-  late final PresensiType activityType;
+  late final PresensiType presensiType;
 
-  PresensiDetailState build(PresensiType activityType);
+  PresensiDetailState build(PresensiType presensiType);
 }
 
 /// See also [PresensiDetailController].
@@ -47,15 +47,15 @@ class PresensiDetailControllerFamily extends Family<PresensiDetailState> {
   const PresensiDetailControllerFamily();
 
   /// See also [PresensiDetailController].
-  PresensiDetailControllerProvider call(PresensiType activityType) {
-    return PresensiDetailControllerProvider(activityType);
+  PresensiDetailControllerProvider call(PresensiType presensiType) {
+    return PresensiDetailControllerProvider(presensiType);
   }
 
   @override
   PresensiDetailControllerProvider getProviderOverride(
     covariant PresensiDetailControllerProvider provider,
   ) {
-    return call(provider.activityType);
+    return call(provider.presensiType);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -81,9 +81,9 @@ class PresensiDetailControllerProvider
           PresensiDetailState
         > {
   /// See also [PresensiDetailController].
-  PresensiDetailControllerProvider(PresensiType activityType)
+  PresensiDetailControllerProvider(PresensiType presensiType)
     : this._internal(
-        () => PresensiDetailController()..activityType = activityType,
+        () => PresensiDetailController()..presensiType = presensiType,
         from: presensiDetailControllerProvider,
         name: r'presensiDetailControllerProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -92,7 +92,7 @@ class PresensiDetailControllerProvider
         dependencies: PresensiDetailControllerFamily._dependencies,
         allTransitiveDependencies:
             PresensiDetailControllerFamily._allTransitiveDependencies,
-        activityType: activityType,
+        presensiType: presensiType,
       );
 
   PresensiDetailControllerProvider._internal(
@@ -102,16 +102,16 @@ class PresensiDetailControllerProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.activityType,
+    required this.presensiType,
   }) : super.internal();
 
-  final PresensiType activityType;
+  final PresensiType presensiType;
 
   @override
   PresensiDetailState runNotifierBuild(
     covariant PresensiDetailController notifier,
   ) {
-    return notifier.build(activityType);
+    return notifier.build(presensiType);
   }
 
   @override
@@ -119,13 +119,13 @@ class PresensiDetailControllerProvider
     return ProviderOverride(
       origin: this,
       override: PresensiDetailControllerProvider._internal(
-        () => create()..activityType = activityType,
+        () => create()..presensiType = presensiType,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        activityType: activityType,
+        presensiType: presensiType,
       ),
     );
   }
@@ -142,13 +142,13 @@ class PresensiDetailControllerProvider
   @override
   bool operator ==(Object other) {
     return other is PresensiDetailControllerProvider &&
-        other.activityType == activityType;
+        other.presensiType == presensiType;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, activityType.hashCode);
+    hash = _SystemHash.combine(hash, presensiType.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -158,8 +158,8 @@ class PresensiDetailControllerProvider
 // ignore: unused_element
 mixin PresensiDetailControllerRef
     on AutoDisposeNotifierProviderRef<PresensiDetailState> {
-  /// The parameter `activityType` of this provider.
-  PresensiType get activityType;
+  /// The parameter `presensiType` of this provider.
+  PresensiType get presensiType;
 }
 
 class _PresensiDetailControllerProviderElement
@@ -172,8 +172,8 @@ class _PresensiDetailControllerProviderElement
   _PresensiDetailControllerProviderElement(super.provider);
 
   @override
-  PresensiType get activityType =>
-      (origin as PresensiDetailControllerProvider).activityType;
+  PresensiType get presensiType =>
+      (origin as PresensiDetailControllerProvider).presensiType;
 }
 
 // ignore_for_file: type=lint

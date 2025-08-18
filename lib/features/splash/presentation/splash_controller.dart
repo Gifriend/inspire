@@ -15,6 +15,6 @@ class SplashController extends _$SplashController {
 
   void init(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 5));
-    context.goNamed(AppRoute.home);
+    context.goNamed(AppRoute.login);
   }
 }

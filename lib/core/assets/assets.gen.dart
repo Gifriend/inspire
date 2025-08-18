@@ -6544,6 +6544,12 @@ class $AssetsIconsFillGen {
   /// File path: assets/icons/fill/error.svg
   SvgGenImage get error => const SvgGenImage('assets/icons/fill/error.svg');
 
+  /// File path: assets/icons/fill/eye-off.svg
+  SvgGenImage get eyeOff => const SvgGenImage('assets/icons/fill/eye-off.svg');
+
+  /// File path: assets/icons/fill/eye-on.svg
+  SvgGenImage get eyeOn => const SvgGenImage('assets/icons/fill/eye-on.svg');
+
   /// File path: assets/icons/fill/facebook_f.svg
   SvgGenImage get facebookF =>
       const SvgGenImage('assets/icons/fill/facebook_f.svg');
@@ -6601,6 +6607,9 @@ class $AssetsIconsFillGen {
 
   /// File path: assets/icons/fill/info.svg
   SvgGenImage get info => const SvgGenImage('assets/icons/fill/info.svg');
+
+  /// File path: assets/icons/fill/key.svg
+  SvgGenImage get key => const SvgGenImage('assets/icons/fill/key.svg');
 
   /// File path: assets/icons/fill/list_of_parts.svg
   SvgGenImage get listOfParts =>
@@ -6724,6 +6733,8 @@ class $AssetsIconsFillGen {
     endCall,
     ereader,
     error,
+    eyeOff,
+    eyeOn,
     facebookF,
     facebookLike,
     flash,
@@ -6740,6 +6751,7 @@ class $AssetsIconsFillGen {
     icons8Pill1,
     identification,
     info,
+    key,
     listOfParts,
     mail,
     mapPin,

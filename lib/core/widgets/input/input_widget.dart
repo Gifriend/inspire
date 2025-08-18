@@ -23,6 +23,7 @@ class InputWidget<T> extends StatefulWidget {
     this.borderColor,
     this.errorText,
     this.validators,
+    this.leadIcon,
   }) : onPressedWithResult = null,
        options = null,
        optionLabel = null,
@@ -39,6 +40,7 @@ class InputWidget<T> extends StatefulWidget {
     this.endIcon,
     this.errorText,
     this.validators,
+    this.leadIcon,
     required this.optionLabel,
   }) : controller = null,
        maxLines = 1,
@@ -56,6 +58,7 @@ class InputWidget<T> extends StatefulWidget {
     this.validators,
     required this.optionLabel,
   }) : variant = InputWidgetVariant.binaryOption,
+       leadIcon = null,
        endIcon = null,
        maxLines = null,
        hint = null,
@@ -78,6 +81,7 @@ class InputWidget<T> extends StatefulWidget {
   //variant text
   final TextEditingController? controller;
   final SvgGenImage? endIcon;
+  final SvgGenImage? leadIcon;
   final Color? borderColor;
   final Future<T?> Function()? onPressedWithResult;
   final T? currentInputValue;
@@ -157,8 +161,7 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
             : const SizedBox(),
         widget.variant == InputWidgetVariant.text
             ? InputVariantTextWidget(
-                onChanged: (value)=>
-                  onChanged(value as T),
+                onChanged: (value) => onChanged(value as T),
                 maxLines: widget.maxLines,
                 hint: widget.hint,
                 controller: widget.controller,
@@ -166,6 +169,7 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
                 textInputType: widget.textInputType,
                 borderColor: borderColor,
                 initialValue: widget.currentInputValue?.toString(),
+                leadIcon: widget.leadIcon,
                 // autoValidateMode: widget.autoValidateMode,
                 // validators: widget.validators,
               )

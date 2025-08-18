@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 
+import '../widgets.dart';
+
 class InputVariantTextWidget extends StatelessWidget {
   const InputVariantTextWidget({
     super.key,
@@ -14,6 +16,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.borderColor,
     this.errorText,
     this.initialValue,
+    this.leadIcon,
   });
 
   final String? initialValue;
@@ -22,6 +25,7 @@ class InputVariantTextWidget extends StatelessWidget {
   final int? maxLines;
   final String? hint;
   final SvgGenImage? endIcon;
+  final SvgGenImage? leadIcon;
   final TextInputType? textInputType;
   final Color? borderColor;
   final String? errorText;
@@ -38,6 +42,7 @@ class InputVariantTextWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          leadIcon == null ? const SizedBox() : _buildleadIcon(),
           Expanded(child: _buildTextFormFiled()),
           endIcon == null ? const SizedBox() : _buildEndIcon(),
         ],
@@ -59,6 +64,18 @@ class InputVariantTextWidget extends StatelessWidget {
         fillColor: BaseColor.cardBackground1,
         errorText: errorText,
       ),
+    );
+  }
+
+  Widget _buildleadIcon() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        leadIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
+        Gap.w12,
+        DividerWidget(height: BaseSize.h20),
+        Gap.w12,
+      ],
     );
   }
 

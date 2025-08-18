@@ -31,6 +31,9 @@ class AppRoute {
   //Presensi
   static const String presensi = 'presensi';
   static const String presensiDetail = 'presensi-detail';
+
+  //login
+  static const String login = 'login';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -56,6 +59,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/dashboard',
         name: AppRoute.dashboard,
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        name: AppRoute.login,
+        builder: (context, state) => const LoginScreen(),
       ),
       presensiRouting,
       // authenticationRouting,
