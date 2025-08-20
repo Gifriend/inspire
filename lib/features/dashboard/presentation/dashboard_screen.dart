@@ -269,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         _buildMenuItem(
                           icon: Icons.book,
-                          label: 'E-LEarning',
+                          label: 'E-Learning',
                           onTap: () {},
                         ),
                         _buildMenuItem(

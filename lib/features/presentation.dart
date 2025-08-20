@@ -2,6 +2,10 @@
 export 'dashboard/presentation/dashboard_controller.dart';
 export 'dashboard/presentation/dashboard_screen.dart';
 export 'dashboard/presentation/dashboard_state.dart';
+//E-Learning
+export 'elearning/presentation/elearning_controller.dart';
+export 'elearning/presentation/elearning_screen.dart';
+export 'elearning/presentation/elearning_state.dart';
 //home
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';

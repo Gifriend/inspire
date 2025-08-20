@@ -34,6 +34,10 @@ class AppRoute {
 
   //login
   static const String login = 'login';
+
+  //E-Learning
+  static const String eLearning = 'elearning';
+  static const String eLearningSearch = 'elearning-search';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
