@@ -142,8 +142,8 @@ class PresensiDetailScreen extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: state.loading == true
-                            ? BaseColor.blue.withOpacity(0.6)
-                            : BaseColor.blue,
+                            ? BaseColor.primaryInspire.withOpacity(0.6)
+                            : BaseColor.primaryInspire,
                         borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                       ),
                       child: state.loading == true

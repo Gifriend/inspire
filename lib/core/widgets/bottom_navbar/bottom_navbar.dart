@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../assets/assets.dart';
+import '../../constants/constants.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({
@@ -50,7 +51,7 @@ class BottomNavBar extends ConsumerWidget {
                       index: 1,
                     ),
                     _buildNavItem(
-                      icon: Icons.other_houses_outlined,
+                      icon: Assets.icons.fill.other,
                       label: 'Lainnya',
                       index: 3,
                     ),
@@ -82,13 +83,17 @@ class BottomNavBar extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 24, width: 24, child: _buildIcon(icon, isActive)),
-          const SizedBox(height: 4),
+          SizedBox(
+            height: BaseSize.h24,
+            width: BaseSize.w24,
+            child: _buildIcon(icon, isActive),
+          ),
+          Gap.h4,
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              color: isActive ? Colors.black : Colors.grey,
+              color: isActive ? BaseColor.primaryInspire : Colors.grey,
               fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -101,37 +106,37 @@ class BottomNavBar extends ConsumerWidget {
     try {
       if (icon is SvgGenImage) {
         return icon.svg(
-          height: 24,
-          width: 24,
+          height: BaseSize.h24,
+          width: BaseSize.w24,
           colorFilter: ColorFilter.mode(
-            isActive ? Colors.black : Colors.grey,
+            isActive ? BaseColor.primaryInspire : Colors.grey,
             BlendMode.srcIn,
           ),
         );
       } else if (icon is AssetGenImage) {
         return Image.asset(
           icon.path,
-          height: 24,
-          width: 24,
-          color: isActive ? Colors.black : Colors.grey,
+          height: BaseSize.h24,
+          width: BaseSize.w24,
+          color: isActive ? BaseColor.primaryInspire : Colors.grey,
         );
       } else if (icon is IconData) {
         return Icon(
           icon,
-          color: isActive ? Colors.black : Colors.grey,
+          color: isActive ? BaseColor.primaryInspire : Colors.grey,
           size: 24,
         );
       } else {
         return Icon(
           Icons.help_outline,
-          color: isActive ? Colors.black : Colors.grey,
+          color: isActive ? BaseColor.primaryInspire : Colors.grey,
           size: 24,
         );
       }
     } catch (_) {
       return Icon(
         Icons.error_outline,
-        color: isActive ? Colors.black : Colors.grey,
+        color: isActive ? BaseColor.primaryInspire : Colors.grey,
         size: 24,
       );
     }

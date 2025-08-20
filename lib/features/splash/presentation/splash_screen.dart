@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/features/presentation.dart';
 
+import '../../../core/constants/constants.dart';
+
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -27,11 +29,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: BaseColor.primaryInspire,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [Image.asset(Assets.icons.app.inspireHitam.path)],
+            children: [Image.asset(Assets.icons.app.logoInspire.path)],
           ),
         ),
       ),
