@@ -68,8 +68,9 @@ class LoginScreen extends ConsumerWidget {
                       label: 'Kata Sandi',
                       hint: 'Kata Sandi',
                       leadIcon: Assets.icons.fill.key,
-                      endIcon: Assets.icons.fill.eyeOn,
+                      // endIcon: Assets.icons.fill.eyeOn,
                       borderColor: BaseColor.black,
+                      obscureText: true,
                     ),
                     Gap.h40,
                     ButtonWidget.primary(

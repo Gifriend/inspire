@@ -69,7 +69,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.login,
         builder: (context, state) => const LoginScreen(),
       ),
+      GoRoute(
+        path: '/elearning',
+        name: AppRoute.eLearning,
+        builder: (context, state) => const ElearningScreen(),
+      ),
+      // GoRoute(
+      //   path: '/login',
+      //   name: AppRoute.login,
+      //   builder: (context, state) => const LoginScreen(),
+      // ),
       presensiRouting,
+      // elearningRouting,
       // authenticationRouting,
       // dashboardRouting,
       // accountRouting,

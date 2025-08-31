@@ -24,6 +24,7 @@ class InputWidget<T> extends StatefulWidget {
     this.errorText,
     this.validators,
     this.leadIcon,
+    this.obscureText = false,
   }) : onPressedWithResult = null,
        options = null,
        optionLabel = null,
@@ -46,6 +47,7 @@ class InputWidget<T> extends StatefulWidget {
        maxLines = 1,
        textInputType = null,
        borderColor = null,
+       obscureText = false,
        variant = InputWidgetVariant.dropdown;
 
   const InputWidget.binaryOption({
@@ -66,6 +68,7 @@ class InputWidget<T> extends StatefulWidget {
        onPressedWithResult = null,
        borderColor = null,
        textInputType = null,
+       obscureText = false,
        assert(
          options != null && options.length > 0,
          "options cannot be null or empty",
@@ -77,6 +80,7 @@ class InputWidget<T> extends StatefulWidget {
   final InputWidgetVariant variant;
   final void Function(T value)? onChanged;
   final String? errorText;
+  final bool obscureText;
 
   //variant text
   final TextEditingController? controller;
@@ -170,6 +174,7 @@ class _InputWidgetState<T> extends State<InputWidget<T>> {
                 borderColor: borderColor,
                 initialValue: widget.currentInputValue?.toString(),
                 leadIcon: widget.leadIcon,
+                obscureText: widget.obscureText,
                 // autoValidateMode: widget.autoValidateMode,
                 // validators: widget.validators,
               )

@@ -5,6 +5,7 @@ import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
+import 'package:inspire/features/elearning/presentation/elearning_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -270,7 +271,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildMenuItem(
                           icon: Icons.book,
                           label: 'E-Learning',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ElearningScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           icon: Icons.other_houses_outlined,
@@ -311,7 +319,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       itemCount: pengumumanVew.length,
                       itemBuilder: (context, index) {
                         final pengumuman = pengumumanVew[index];
-                        return _buildHealthBookCard(pengumuman);
+                        return _buildPengumumanBookCard(pengumuman);
                       },
                     ),
                   ),
@@ -386,7 +394,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-Widget _buildHealthBookCard(Map<String, dynamic> pengumuman) {
+Widget _buildPengumumanBookCard(Map<String, dynamic> pengumuman) {
   return GestureDetector(
     key: ValueKey(pengumuman['id']),
     child: Container(
@@ -400,7 +408,7 @@ Widget _buildHealthBookCard(Map<String, dynamic> pengumuman) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Book Cover Image
+            // Pengumuman Image
             Expanded(
               flex: 3,
               child: Stack(
@@ -437,7 +445,7 @@ Widget _buildHealthBookCard(Map<String, dynamic> pengumuman) {
               ),
             ),
 
-            // Book Info
+            // Pengumuman Info
             Expanded(
               flex: 2,
               child: Padding(

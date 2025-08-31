@@ -9,6 +9,7 @@ class BaseColor {
   static const int _bluePrimaryValue = 0xFF2196F3;
   static const int _redPrimaryValue = 0xFFFF4032;
   static const int _neutralPrimaryValue = 0xFFB8B8B8;
+  static const int _greyPrimaryValue = 0xFF9E9E9E;
 
   static const Color primary1 = Color(0xFFF0FBF8);
   static const Color primaryInspire = Color(0xFF702A25);
@@ -37,6 +38,20 @@ class BaseColor {
         70: Color(0xFF606060),
         80: Color(0xFF383838),
         90: Color(0xFF151515),
+      });
+
+  static const MaterialColor grey =
+      MaterialColor(_greyPrimaryValue, <int, Color>{
+        50: Color(0xFFFAFAFA),
+        100: Color(0xFFF5F5F5),
+        200: Color(0xFFEEEEEE),
+        300: Color(0xFFE0E0E0),
+        400: Color(0xFFBDBDBD),
+        500: Color(_greyPrimaryValue),
+        600: Color(0xFF757575),
+        700: Color(0xFF616161),
+        800: Color(0xFF424242),
+        900: Color(0xFF212121),
       });
 
   static const MaterialColor red = MaterialColor(_redPrimaryValue, <int, Color>{

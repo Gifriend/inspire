@@ -4,7 +4,7 @@ import 'package:inspire/core/constants/constants.dart';
 
 import '../widgets.dart';
 
-class InputVariantTextWidget extends StatelessWidget {
+class InputVariantTextWidget extends StatefulWidget {
   const InputVariantTextWidget({
     super.key,
     this.controller,
@@ -17,6 +17,7 @@ class InputVariantTextWidget extends StatelessWidget {
     this.errorText,
     this.initialValue,
     this.leadIcon,
+    this.obscureText = false, // Tambahan parameter untuk obscure text
   });
 
   final String? initialValue;
@@ -29,6 +30,26 @@ class InputVariantTextWidget extends StatelessWidget {
   final TextInputType? textInputType;
   final Color? borderColor;
   final String? errorText;
+  final bool obscureText; // Property untuk obscure text
+
+  @override
+  State<InputVariantTextWidget> createState() => _InputVariantTextWidgetState();
+}
+
+class _InputVariantTextWidgetState extends State<InputVariantTextWidget> {
+  late bool _obscureText;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscureText;
+  }
+
+  void _toggleObscureText() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,42 +57,43 @@ class InputVariantTextWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
       decoration: BoxDecoration(
         color: BaseColor.white,
-        border: Border.all(color: borderColor ?? Colors.transparent),
+        border: Border.all(color: widget.borderColor ?? Colors.transparent),
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          leadIcon == null ? const SizedBox() : _buildleadIcon(),
-          Expanded(child: _buildTextFormFiled()),
-          endIcon == null ? const SizedBox() : _buildEndIcon(),
+          widget.leadIcon == null ? const SizedBox() : _buildLeadIcon(),
+          Expanded(child: _buildTextFormField()),
+          _buildEndIcon(),
         ],
       ),
     );
   }
 
-  Widget _buildTextFormFiled() {
+  Widget _buildTextFormField() {
     return TextFormField(
-      controller: controller,
-      onChanged: onChanged,
-      maxLines: maxLines,
-      keyboardType: textInputType,
-      initialValue: initialValue,
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      maxLines: widget.obscureText ? 1 : widget.maxLines,
+      keyboardType: widget.textInputType,
+      initialValue: widget.initialValue,
+      obscureText: _obscureText,
       decoration: InputDecoration(
-        hintText: hint,
+        hintText: widget.hint,
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
         fillColor: BaseColor.cardBackground1,
-        errorText: errorText,
+        errorText: widget.errorText,
       ),
     );
   }
 
-  Widget _buildleadIcon() {
+  Widget _buildLeadIcon() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        leadIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
+        widget.leadIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
         Gap.w12,
         DividerWidget(height: BaseSize.h20),
         Gap.w12,
@@ -80,12 +102,56 @@ class InputVariantTextWidget extends StatelessWidget {
   }
 
   Widget _buildEndIcon() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Gap.w12,
-        endIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
-      ],
-    );
+    // Jika obscureText aktif dan tidak ada endIcon yang diberikan,
+    // tampilkan icon toggle untuk show/hide password
+    if (widget.obscureText && widget.endIcon == null) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Gap.w12,
+          GestureDetector(
+            onTap: _toggleObscureText,
+            child: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+              size: BaseSize.h18,
+              color: BaseColor.grey,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Jika obscureText aktif dan ada endIcon, tampilkan keduanya
+    if (widget.obscureText && widget.endIcon != null) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Gap.w12,
+          GestureDetector(
+            onTap: _toggleObscureText,
+            child: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+              size: BaseSize.h18,
+              color: BaseColor.grey,
+            ),
+          ),
+          Gap.w8,
+          widget.endIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
+        ],
+      );
+    }
+
+    // Jika tidak obscureText tapi ada endIcon
+    if (widget.endIcon != null) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Gap.w12,
+          widget.endIcon!.svg(width: BaseSize.w12, height: BaseSize.w12),
+        ],
+      );
+    }
+
+    return const SizedBox();
   }
 }

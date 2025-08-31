@@ -6449,6 +6449,10 @@ class $AssetsIconsAppGen {
   AssetGenImage get logoInspire =>
       const AssetGenImage('assets/icons/app/logo-inspire.png');
 
+  /// File path: assets/icons/app/logoElearn.png
+  AssetGenImage get logoElearn =>
+      const AssetGenImage('assets/icons/app/logoElearn.png');
+
   /// File path: assets/icons/app/unsrat.jpeg
   AssetGenImage get unsrat =>
       const AssetGenImage('assets/icons/app/unsrat.jpeg');
@@ -6468,6 +6472,7 @@ class $AssetsIconsAppGen {
     inspireLogoWhite,
     inspirePutih,
     logoInspire,
+    logoElearn,
     unsrat,
     user,
     vectorRektorat,
