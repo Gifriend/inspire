@@ -221,14 +221,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   Gap.h24,
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16),
+                    margin: EdgeInsets.symmetric(horizontal: BaseSize.w16),
                     padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: BaseColor.white,
                       borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black,
+                          color: Colors.grey,
                           blurRadius: 20,
                           offset: Offset(0, 5),
                         ),
@@ -250,8 +250,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           },
                         ),
                         _buildMenuItem(
-                          icon: Assets.images.khs,
-                          label: 'KHS',
+                          icon: Assets.images.krs,
+                          label: 'KRS',
                           onTap: () {
                             // context.pushNamed(AppRoute.videoMenu);
                           },

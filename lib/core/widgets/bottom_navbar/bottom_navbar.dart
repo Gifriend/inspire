@@ -27,7 +27,7 @@ class BottomNavBar extends ConsumerWidget {
             // Background bar
             Positioned.fill(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [

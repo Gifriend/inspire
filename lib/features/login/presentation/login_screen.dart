@@ -14,10 +14,11 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      // disablePadding: true,
+    return ScaffoldWidget(
+      disablePadding: true,
+      disableSingleChildScrollView: true,
       backgroundColor: BaseColor.primaryInspire,
-      body: Stack(
+      child: Stack(
         children: [
           // Positioned(
           //   top: 0,
@@ -33,11 +34,11 @@ class LoginScreen extends ConsumerWidget {
             bottom: 0,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: BaseSize.w20),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: BaseColor.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(28.0),
-                  topRight: Radius.circular(28.0),
+                  topLeft: Radius.circular(BaseSize.radiusXl),
+                  topRight: Radius.circular(BaseSize.radiusXl),
                 ),
               ),
               child: SingleChildScrollView(

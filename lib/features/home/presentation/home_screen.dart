@@ -53,7 +53,11 @@ class HomeScreen extends ConsumerWidget {
                 allowImplicitScrolling: false,
                 physics: const NeverScrollableScrollPhysics(),
                 controller: controller.pageController,
-                children: [DashboardScreen(), PresensiScreen()],
+                children: [
+                  DashboardScreen(),
+                  PresensiScreen(),
+                  ProfileScreen(),
+                ],
               ),
             ),
             if (state.selectedBottomNavIndex != 2)

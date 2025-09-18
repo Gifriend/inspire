@@ -97,8 +97,8 @@ class $AssetsImagesGen {
   /// File path: assets/images/jpg.png
   AssetGenImage get jpg => const AssetGenImage('assets/images/jpg.png');
 
-  /// File path: assets/images/khs.png
-  AssetGenImage get khs => const AssetGenImage('assets/images/khs.png');
+  /// File path: assets/images/krs.png
+  AssetGenImage get krs => const AssetGenImage('assets/images/krs.png');
 
   /// File path: assets/images/location.png
   AssetGenImage get location =>
@@ -203,7 +203,7 @@ class $AssetsImagesGen {
     homeBg,
     info,
     jpg,
-    khs,
+    krs,
     location,
     logout,
     mailList,
