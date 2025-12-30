@@ -4,11 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'core/config/app_config.dart';
 import 'core/constants/constants.dart';
+import 'core/data_sources/data_sources.dart';
 import 'core/routing/app_routing.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await hiveInit();
   runApp(ProviderScope(child: const MyApp()));
 }
 

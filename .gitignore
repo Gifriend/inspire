@@ -19,8 +19,9 @@ migrate_working_dir/
 .idea/
 
 #generated file
-.g.dart
-.freezed.dart
+*.g.dart
+*.freezed.dart
+*.gen.dart
 
 #environment
 .env

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/assets/assets.dart';
+import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/features/presentation.dart';
-
-import '../../../core/constants/constants.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -13,20 +12,18 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
-  SplashState get state => ref.watch(splashControllerProvider);
-
-  SplashController get controller =>
-      ref.read(splashControllerProvider.notifier);
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    controller.init(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(splashControllerProvider.notifier).init(context);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final splashState = ref.watch(splashControllerProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: BaseColor.primaryInspire,
@@ -34,7 +31,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [Image.asset(Assets.icons.app.logoInspire.path)],
+            children: [
+              Image.asset(Assets.icons.app.logoInspire.path),
+              const SizedBox(height: 20),
+              splashState.maybeWhen(
+                loading: () => const CircularProgressIndicator(color: Colors.white),
+                error: (message) => Text(
+                  'Error: $message',
+                  style: const TextStyle(color: Colors.red),
+                ),
+                orElse: () => const SizedBox.shrink(),
+              ),
+            ],
           ),
         ),
       ),
