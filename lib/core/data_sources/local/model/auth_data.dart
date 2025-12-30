@@ -4,7 +4,10 @@ part 'auth_data.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 class AuthData {
+  @JsonKey(name: 'access_token')
   final String accessToken;
+  
+  @JsonKey(name: 'refresh_token')
   final String refreshToken;
 
   const AuthData({

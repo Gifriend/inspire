@@ -7,11 +7,11 @@ part of 'auth_data.dart';
 // **************************************************************************
 
 AuthData _$AuthDataFromJson(Map<String, dynamic> json) => AuthData(
-  accessToken: json['accessToken'] as String,
-  refreshToken: json['refreshToken'] as String,
+  accessToken: json['access_token'] as String,
+  refreshToken: json['refresh_token'] as String,
 );
 
 Map<String, dynamic> _$AuthDataToJson(AuthData instance) => <String, dynamic>{
-  'accessToken': instance.accessToken,
-  'refreshToken': instance.refreshToken,
+  'access_token': instance.accessToken,
+  'refresh_token': instance.refreshToken,
 };
