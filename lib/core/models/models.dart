@@ -10,3 +10,4 @@ export 'elearning/session_model.dart';
 export 'elearning/material_model.dart';
 export 'elearning/assignment_model.dart';
 export 'elearning/quiz_model.dart';
+export 'krs/krs_model.dart';

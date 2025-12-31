@@ -289,7 +289,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           icon: Assets.images.krs,
                           label: 'KRS',
                           onTap: () {
-                            // context.pushNamed(AppRoute.videoMenu);
+                            // Navigate to KRS with current semester
+                            // Format: GANJIL-2024 or GENAP-2024
+                            final now = DateTime.now();
+                            final year = now.year;
+                            // Determine semester based on month (Aug-Dec = Ganjil, Jan-Jul = Genap)
+                            final semesterType = now.month >= 8 ? 'GANJIL' : 'GENAP';
+                            final semester = '$semesterType-$year';
+                            
+                            context.pushNamed(
+                              AppRoute.krs,
+                              pathParameters: {'semester': semester},
+                            );
                           },
                         ),
                         _buildMenuItem(

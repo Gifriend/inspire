@@ -29,4 +29,16 @@ class Endpoint {
   static String quizSubmit = '$elearning/quiz/submit';
   static String quizDetail(String id) => '$elearning/quiz/$id';
   static String materialDetail(String id) => '$elearning/material/$id';
+  
+  // KRS endpoints
+  static String krsBase = _baseUrl(path: "/krs");
+  static String krs(String semester) => '$krsBase/$semester';
+  static String krsAddClass = '$krsBase/add-class';
+  static String krsSubmit = '$krsBase/submit';
+  static String krsApprove(int krsId) => '$krsBase/approve/$krsId';
+  static String krsReject(int krsId) => '$krsBase/reject/$krsId';
+  static String krsCancel(int krsId) => '$krsBase/cancel/$krsId';
+  
+  // Class selection endpoint (you may need to add this to backend)
+  static String availableClasses = _baseUrl(path: "/kelas-perkuliahan/available");
 }

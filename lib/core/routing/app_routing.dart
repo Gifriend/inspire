@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/features/presentation.dart';
 
+import '../../features/krs/presentation/screens/add_class_screen.dart';
+import '../../features/krs/presentation/screens/krs_screen.dart';
 import 'routing.dart';
 
 class AppRoute {
@@ -47,6 +49,10 @@ class AppRoute {
   //Announcement
   static const String announcementList = 'announcement-list';
   static const String announcementDetail = 'announcement-detail';
+  
+  //KRS
+  static const String krs = 'krs';
+  static const String krsAddClass = 'krs-add-class';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -103,6 +109,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? '0';
           return AnnouncementDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: '/krs/:semester',
+        name: AppRoute.krs,
+        builder: (context, state) {
+          final semester = state.pathParameters['semester'] ?? '1';
+          return KrsScreen(semester: semester);
+        },
+      ),
+      GoRoute(
+        path: '/krs/:semester/add-class',
+        name: AppRoute.krsAddClass,
+        builder: (context, state) {
+          final semester = state.pathParameters['semester'] ?? '1';
+          return AddClassScreen(semester: semester);
         },
       ),
       // GoRoute(
