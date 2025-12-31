@@ -32,6 +32,7 @@ class _AnnouncementListScreenState
     final announcementState = ref.watch(announcementControllerProvider);
 
     return ScaffoldWidget(
+      disableSingleChildScrollView: true,
       appBar: AppBar(
         title: Text(
           'Pengumuman',
