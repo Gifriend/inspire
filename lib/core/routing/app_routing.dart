@@ -38,6 +38,10 @@ class AppRoute {
   //E-Learning
   static const String eLearning = 'elearning';
   static const String eLearningSearch = 'elearning-search';
+  
+  //Announcement
+  static const String announcementList = 'announcement-list';
+  static const String announcementDetail = 'announcement-detail';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -73,6 +77,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/elearning',
         name: AppRoute.eLearning,
         builder: (context, state) => const ElearningScreen(),
+      ),
+      GoRoute(
+        path: '/announcement',
+        name: AppRoute.announcementList,
+        builder: (context, state) => const AnnouncementListScreen(),
+      ),
+      GoRoute(
+        path: '/announcement/:id',
+        name: AppRoute.announcementDetail,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '0';
+          return AnnouncementDetailScreen(id: id);
+        },
       ),
       // GoRoute(
       //   path: '/login',

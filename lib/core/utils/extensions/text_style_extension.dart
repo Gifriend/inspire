@@ -13,6 +13,7 @@ extension XTextStyle on TextStyle {
   TextStyle get toInfo => copyWith(color: BaseColor.info);
   TextStyle get toWarning => copyWith(color: BaseColor.warning);
   TextStyle get toSuccess => copyWith(color: BaseColor.success);
+  TextStyle get toGrey => copyWith(color: BaseColor.grey);
 
   TextStyle get toRed50 => copyWith(color: BaseColor.red[50]);
   TextStyle get toRed100 => copyWith(color: BaseColor.red[100]);

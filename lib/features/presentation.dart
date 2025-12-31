@@ -2,6 +2,11 @@
 export 'dashboard/presentation/dashboard_controller.dart';
 export 'dashboard/presentation/dashboard_screen.dart';
 export 'dashboard/presentation/dashboard_state.dart';
+//announcement
+export 'announcement/presentation/announcement_controller.dart';
+export 'announcement/presentation/announcement_detail_screen.dart';
+export 'announcement/presentation/announcement_list_screen.dart';
+export 'announcement/presentation/announcement_state.dart';
 //E-Learning
 export 'elearning/presentation/elearning_controller.dart';
 export 'elearning/presentation/elearning_screen.dart';

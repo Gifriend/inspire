@@ -2,11 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
+import 'package:jiffy/jiffy.dart';
+
+import '../../../core/models/models.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -62,6 +67,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     startAutoScroll();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(profileControllerProvider.notifier).loadProfile();
+      ref.read(announcementControllerProvider.notifier).loadAnnouncements();
     });
   }
 
@@ -290,7 +296,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           icon: Assets.images.pengumuman,
                           label: 'Pengumuman',
                           onTap: () {
-                            // context.pushNamed(AppRoute.peopleData);
+                            context.pushNamed(AppRoute.announcementList);
                           },
                         ),
                         _buildMenuItem(
@@ -328,30 +334,97 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           'Pengumuman',
                           style: BaseTypography.titleLarge.toBold,
                         ),
-                        Text('Lihat semua', style: BaseTypography.titleMedium),
+                        GestureDetector(
+                          onTap: () {
+                            context.pushNamed(AppRoute.announcementList);
+                          },
+                          child: Text(
+                            'Lihat semua',
+                            style: BaseTypography.titleMedium.copyWith(
+                              color: BaseColor.primaryInspire,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   Gap.h20,
-                  SizedBox(
-                    height: 280.0,
-                    child: PageView.builder(
-                      physics: const ClampingScrollPhysics(),
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        if (mounted) {
-                          setState(() {
-                            _currentPage = index;
-                          });
-                          _stopAutoScroll();
-                        }
-                      },
-                      itemCount: pengumumanVew.length,
-                      itemBuilder: (context, index) {
-                        final pengumuman = pengumumanVew[index];
-                        return _buildPengumumanBookCard(pengumuman);
-                      },
-                    ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final announcementState = ref.watch(announcementControllerProvider);
+                      
+                      return announcementState.maybeWhen(
+                        loaded: (announcements) {
+                          if (announcements.isEmpty) {
+                            return Container(
+                              height: 280.0,
+                              margin: EdgeInsets.symmetric(horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: BaseColor.grey.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Belum ada pengumuman',
+                                  style: BaseTypography.bodyLarge.toGrey,
+                                ),
+                              ),
+                            );
+                          }
+                          
+                          // Only show first 5 announcements
+                          final displayAnnouncements = announcements.take(5).toList();
+                          
+                          return SizedBox(
+                            height: 280.0,
+                            child: PageView.builder(
+                              physics: const ClampingScrollPhysics(),
+                              controller: _pageController,
+                              onPageChanged: (index) {
+                                if (mounted) {
+                                  setState(() {
+                                    _currentPage = index;
+                                  });
+                                  _stopAutoScroll();
+                                }
+                              },
+                              itemCount: displayAnnouncements.length,
+                              itemBuilder: (context, index) {
+                                final announcement = displayAnnouncements[index];
+                                return _buildPengumumanBookCard(
+                                  context,
+                                  announcement,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        loading: () => Container(
+                          height: 280.0,
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: BaseColor.primaryInspire,
+                            ),
+                          ),
+                        ),
+                        error: (message) => Container(
+                          height: 280.0,
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Gagal memuat pengumuman',
+                              style: BaseTypography.bodyLarge,
+                            ),
+                          ),
+                        ),
+                        orElse: () => const SizedBox.shrink(),
+                      );
+                    },
                   ),
                   Gap.h72,
                 ],
@@ -424,21 +497,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-Widget _buildPengumumanBookCard(Map<String, dynamic> pengumuman) {
+Widget _buildPengumumanBookCard(
+  BuildContext context,
+  AnnouncementModel announcement,
+) {
   return GestureDetector(
-    key: ValueKey(pengumuman['id']),
+    key: ValueKey(announcement.id),
+    onTap: () {
+      context.pushNamed(
+        AppRoute.announcementDetail,
+        pathParameters: {'id': announcement.id.toString()},
+      );
+    },
     child: Container(
       margin: EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Pengumuman Image
+            // Pengumuman Header with gradient
             Expanded(
               flex: 3,
               child: Stack(
@@ -446,27 +535,79 @@ Widget _buildPengumumanBookCard(Map<String, dynamic> pengumuman) {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(pengumuman['image']),
-                        fit: BoxFit.cover,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          BaseColor.primaryInspire,
+                          BaseColor.primaryInspire.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.announcement,
+                        size: 64,
+                        color: Colors.white.withOpacity(0.3),
                       ),
                     ),
                   ),
                   // Category Badge
                   Positioned(
                     top: 8,
+                    left: 8,
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: BaseColor.black,
+                        color: BaseColor.black.withOpacity(0.7),
                         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                       ),
                       child: Text(
-                        pengumuman['category'],
+                        announcement.kategori,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Global Badge
+                  if (announcement.isGlobal)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                        ),
+                        child: Text(
+                          'Global',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  // Date
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                      ),
+                      child: Text(
+                        Jiffy.parse(announcement.createdAt.toString()).fromNow(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -484,7 +625,7 @@ Widget _buildPengumumanBookCard(Map<String, dynamic> pengumuman) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      pengumuman['title'],
+                      announcement.judul,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -495,12 +636,37 @@ Widget _buildPengumumanBookCard(Map<String, dynamic> pengumuman) {
                     Gap.h4,
                     Expanded(
                       child: Text(
-                        pengumuman['description'],
+                        announcement.isi,
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (announcement.dosen != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 12,
+                              color: Colors.grey[600],
+                            ),
+                            Gap.w4,
+                            Expanded(
+                              child: Text(
+                                announcement.dosen!.name,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),

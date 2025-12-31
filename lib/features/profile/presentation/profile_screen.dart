@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
-import 'package:inspire/features/profile/presentation/profile_controller.dart';
 
 import '../../../core/assets/assets.dart';
 import '../../../core/constants/constants.dart';

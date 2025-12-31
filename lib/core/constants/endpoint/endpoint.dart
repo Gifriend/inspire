@@ -13,4 +13,9 @@ class Endpoint {
   static String signing = '$auth/signing';
   static String login = '$auth/login';
   static String profile = '$auth/profile';
+  
+  // Announcement endpoints
+  static String announcement = _baseUrl(path: "/pengumuman");
+  static String announcementMahasiswa = '$announcement/mahasiswa';
+  static String announcementById(int id) => '$announcement/$id';
 }
