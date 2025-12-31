@@ -44,7 +44,7 @@ class SplashController extends _$SplashController {
           await loginService.refreshToken();
           state = const SplashState.authenticated();
           if (context.mounted) {
-            context.goNamed(AppRoute.dashboard);
+            context.goNamed(AppRoute.home);
           }
           return;
         } catch (e) {
@@ -58,7 +58,7 @@ class SplashController extends _$SplashController {
 
       state = const SplashState.authenticated();
       if (context.mounted) {
-        context.goNamed(AppRoute.dashboard);
+        context.goNamed(AppRoute.home);
       }
     } catch (e) {
       state = SplashState.error(e.toString());

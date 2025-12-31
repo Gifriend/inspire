@@ -1,20 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:inspire/features/elearning/presentation/elearning_screen.dart';
+import 'package:inspire/features/presentation.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final PageController _pageController = PageController(viewportFraction: 0.75);
   Timer? _autoScrollTimer;
   int _currentPage = 0;
@@ -59,6 +60,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     startAutoScroll();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileControllerProvider.notifier).loadProfile();
+    });
   }
 
   @override
@@ -101,6 +105,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final profileState = ref.watch(profileControllerProvider);
+    
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       disablePadding: true,
@@ -136,9 +142,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               'Selamat Datang Kembali,',
                               style: BaseTypography.titleSmall.toWhite,
                             ),
-                            Text(
-                              'Gifriend Yedija Talumingan',
-                              style: BaseTypography.titleMedium.toBold.toWhite,
+                            profileState.maybeWhen(
+                              loaded: (user) => Text(
+                                user.name,
+                                style: BaseTypography.titleMedium.toBold.toWhite,
+                              ),
+                              orElse: () => Text(
+                                'Loading...',
+                                style: BaseTypography.titleMedium.toBold.toWhite,
+                              ),
                             ),
                           ],
                         ),
@@ -197,19 +209,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    'Gifriend Yedija Talumingan',
-                                    style: BaseTypography.bodyMedium,
+                                  profileState.maybeWhen(
+                                    loaded: (user) => Text(
+                                      user.name,
+                                      style: BaseTypography.bodyMedium,
+                                    ),
+                                    orElse: () => Text(
+                                      'Loading...',
+                                      style: BaseTypography.bodyMedium,
+                                    ),
                                   ),
                                   Gap.h6,
-                                  Text(
-                                    'Teknik Informatika',
-                                    style: BaseTypography.bodyMedium,
+                                  profileState.maybeWhen(
+                                    loaded: (user) => Text(
+                                      user.prodi?.name ?? '-',
+                                      style: BaseTypography.bodyMedium,
+                                    ),
+                                    orElse: () => Text(
+                                      '-',
+                                      style: BaseTypography.bodyMedium,
+                                    ),
                                   ),
                                   Gap.h6,
-                                  Text(
-                                    '220211060328',
-                                    style: BaseTypography.bodyMedium,
+                                  profileState.maybeWhen(
+                                    loaded: (user) => Text(
+                                      user.nim,
+                                      style: BaseTypography.bodyMedium,
+                                    ),
+                                    orElse: () => Text(
+                                      '-',
+                                      style: BaseTypography.bodyMedium,
+                                    ),
                                   ),
                                 ],
                               ),

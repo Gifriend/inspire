@@ -1,22 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
+import 'package:inspire/features/presentation.dart';
+import 'package:inspire/features/profile/presentation/profile_controller.dart';
 
 import '../../../core/assets/assets.dart';
 import '../../../core/constants/constants.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileControllerProvider.notifier).loadProfile();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final profileState = ref.watch(profileControllerProvider);
     // final size = MediaQuery.of(context).size;
 
     return ScaffoldWidget(
-      // disablePadding: true,
-      // disableSingleChildScrollView: true,
-      // backgroundColor: BaseColor.white,
-      child: Column(
+      loading: profileState.maybeWhen(
+        loading: () => true,
+        orElse: () => false,
+      ),
+      child: profileState.maybeWhen(
+        loaded: (user) => Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
@@ -59,14 +78,14 @@ class ProfileScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Gifriend Yedija Talumingan',
+                        user.name,
                         style: BaseTypography.titleMedium.toBold.toWhite,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Gap.h6,
                       Text(
-                        '220211060328',
+                        user.nim,
                         style: BaseTypography.titleMedium.toWhite,
                         maxLines: 1,
                       ),
@@ -186,21 +205,10 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-        // Positioned(
-        //   top: size.height * 0.075,
-        //   left: 0,
-        //   right: 0,
-        //   height: size.height * 0.15,
-        //   child: Container(
-        //     decoration: BoxDecoration(
-        //       borderRadius: BorderRadius.circular(BaseSize.radiusLg),
-        //     ),
-        //     child: Image.asset(
-        //       Assets.icons.app.user.path,
-        //       height: BaseSize.h72,
-        //       width: BaseSize.w64,
-        //     ),
-        //   ),
+      ),
+        orElse: () => const Center(
+          child: Text('Gagal memuat profil'),
+        ),
       ),
     );
   }
