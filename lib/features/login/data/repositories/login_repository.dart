@@ -74,5 +74,5 @@ class LoginRepositoryImpl implements LoginRepository {
 }
 
 final loginRepositoryProvider = Provider<LoginRepository>((ref) {
-  return LoginRepositoryImpl(ref.read(dioClientProvider));
+  return LoginRepositoryImpl(ref.watch(dioClientProvider));
 });

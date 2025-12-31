@@ -1,24 +1,28 @@
 import 'dart:convert';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'dart:developer' as dev;
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'local.dart';
 
-part 'hive_service.g.dart';
+final hiveServiceProvider = Provider<HiveService>((ref) => HiveService());
 
+class HiveService {
+  static bool _initialized = false;
 
-@riverpod
-class HiveService extends _$HiveService{
-  @override
-  HiveService build() {
-    return HiveService();
+  Future<void> ensureInitialized() async {
+    if (_initialized) return;
+    await hiveInit();
+    _initialized = true;
   }
 
-   // Box<String> get _userSource => Hive.box<String>(HiveKey.userBox);
-   Box<String> get _authSource => Hive.box<String>(HiveKey.authBox);
+  // Box<String> get _userSource => Hive.box<String>(HiveKey.userBox);
+  Box<String> get _authSource => Hive.box<String>(HiveKey.authBox);
 
-  AuthData? getAuth() {
+  Future<AuthData?> getAuth() async {
+    await ensureInitialized();
+    _ensureAuthBox();
     final auth = _authSource.get(HiveKey.auth);
 
     if (auth == null) {
@@ -30,11 +34,21 @@ class HiveService extends _$HiveService{
   }
 
   Future saveAuth(AuthData value) async {
+    await ensureInitialized();
+    _ensureAuthBox();
     await _authSource.put(HiveKey.auth, json.encode(value.toJson()));
   }
 
   Future deleteAuth() async {
+    await ensureInitialized();
+    _ensureAuthBox();
     await _authSource.delete(HiveKey.auth);
+  }
+
+  void _ensureAuthBox() {
+    if (!Hive.isBoxOpen(HiveKey.authBox)) {
+      throw Exception('Box auth belum dibuka. Pastikan hiveInit() sudah dipanggil.');
+    }
   }
 }
 

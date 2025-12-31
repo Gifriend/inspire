@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/features/login/domain/services/login_service.dart';
 import 'package:inspire/features/login/presentation/login_state.dart';
 
@@ -15,12 +16,18 @@ class LoginController extends StateNotifier<LoginState> {
   Future<void> login(String nim, String password) async {
     state = const LoginState.loading();
     try {
-      await ref.read(loginServiceProvider).login(
+      await ref.watch(hiveServiceProvider).ensureInitialized();
+      await ref.watch(loginServiceProvider).login(
             nim: nim,
             password: password,
           );
       state = const LoginState.success();
-    } catch (e) {
+    } catch (e, st) {
+      // Log detail ke debug console untuk membantu melacak error asli
+      // (pengguna melaporkan hanya pesan snackbar yang muncul).
+      // Ini tidak mengubah alur, hanya menambah visibilitas.
+      // ignore: avoid_print
+      print('Login error: ${e.runtimeType} -> $e\n$st');
       state = LoginState.error(e.toString().replaceAll('Exception: ', ''));
     }
   }

@@ -39,6 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final viewInsets = MediaQuery.of(context).viewInsets.bottom;
     final loginState = ref.watch(loginControllerProvider);
 
     ref.listen<LoginState>(loginControllerProvider, (previous, next) {
@@ -65,6 +66,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return ScaffoldWidget(
+      resizeToAvoidBottomInset: true,
       disablePadding: true,
       disableSingleChildScrollView: true,
       backgroundColor: BaseColor.primaryInspire,
@@ -85,7 +87,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 48.0),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  top: 48.0,
+                  bottom: viewInsets + 24,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(

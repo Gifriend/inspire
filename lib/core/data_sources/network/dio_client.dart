@@ -37,23 +37,21 @@ class DioClient {
     if (withAuth) {
       _dio.interceptors.add(
         QueuedInterceptorsWrapper(
-          onRequest:
-              (
-                RequestOptions options,
-                RequestInterceptorHandler handler,
-              ) async {
-                final auth = hiveService.getAuth();
-                if (auth != null) {
-                  options.headers['Authorization'] =
-                      'Bearer ${auth.accessToken}';
-                }
+          onRequest: (
+            RequestOptions options,
+            RequestInterceptorHandler handler,
+          ) async {
+            final auth = await hiveService.getAuth();
+            if (auth != null) {
+              options.headers['Authorization'] = 'Bearer ${auth.accessToken}';
+            }
 
-                if (options.data != null &&
-                    (options.data is Map || options.data is List)) {
-                  options.data = json.encode(options.data);
-                }
-                handler.next(options);
-              },
+            if (options.data != null &&
+                (options.data is Map || options.data is List)) {
+              options.data = json.encode(options.data);
+            }
+            handler.next(options);
+          },
         ),
       );
     }
@@ -210,7 +208,7 @@ class DioClient {
 final dioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
     dio: Dio(),
-    hiveService: ref.read(hiveServiceProvider),
+    hiveService: ref.watch(hiveServiceProvider),
     baseUrl: Endpoint.baseUrl,
     defaultConnectTimeout: const Duration(minutes: 3),
     defaultReceiveTimeout: const Duration(minutes: 3),

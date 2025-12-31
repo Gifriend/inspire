@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:inspire/core/routing/routing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inspire/features/presentation.dart';
+import 'package:inspire/features/login/domain/services/login_service.dart';
 
 import '../../../core/data_sources/data_sources.dart';
 
@@ -22,20 +23,49 @@ class SplashController extends _$SplashController {
       // Short delay for splash effect
       await Future.delayed(const Duration(seconds: 2));
 
-      final hiveService = ref.read(hiveServiceProvider);
-      final auth = hiveService.getAuth();
+      final hiveService = ref.watch(hiveServiceProvider);
+      await hiveService.ensureInitialized();
+      final loginService = ref.watch(loginServiceProvider);
+      final auth = await hiveService.getAuth();
 
-      if (auth != null && auth.accessToken.isNotEmpty && auth.refreshToken.isNotEmpty) {
-        state = const SplashState.authenticated();
-        context.goNamed(AppRoute.home);
-      } else {
+      final hasAccessToken = auth?.accessToken.isNotEmpty ?? false;
+      final hasRefreshToken = auth?.refreshToken.isNotEmpty ?? false;
+
+      if (!hasAccessToken && !hasRefreshToken) {
         state = const SplashState.unauthenticated();
-        context.goNamed(AppRoute.login);
+        if (context.mounted) {
+          context.goNamed(AppRoute.login);
+        }
+        return;
+      }
+
+      if (hasRefreshToken) {
+        try {
+          await loginService.refreshToken();
+          state = const SplashState.authenticated();
+          if (context.mounted) {
+            context.goNamed(AppRoute.dashboard);
+          }
+          return;
+        } catch (e) {
+          state = SplashState.error(e.toString());
+          if (context.mounted) {
+            context.goNamed(AppRoute.login);
+          }
+          return;
+        }
+      }
+
+      state = const SplashState.authenticated();
+      if (context.mounted) {
+        context.goNamed(AppRoute.dashboard);
       }
     } catch (e) {
       state = SplashState.error(e.toString());
       // Fallback to login on error
-      context.goNamed(AppRoute.login);
+      if (context.mounted) {
+        context.goNamed(AppRoute.login);
+      }
     }
   }
 }

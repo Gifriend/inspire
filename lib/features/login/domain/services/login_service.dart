@@ -20,6 +20,7 @@ class LoginServiceImpl implements LoginService {
     required String password,
   }) async {
     try {
+      await _hiveService.ensureInitialized();
       final authData = await _loginRepository.login(
         nim: nim,
         password: password,
@@ -43,7 +44,8 @@ class LoginServiceImpl implements LoginService {
   @override
   Future<void> refreshToken() async {
     try {
-      final currentAuth = _hiveService.getAuth();
+      await _hiveService.ensureInitialized();
+      final currentAuth = await _hiveService.getAuth();
       if (currentAuth == null) {
         throw Exception('Tidak ada token yang tersimpan');
       }
@@ -61,7 +63,7 @@ class LoginServiceImpl implements LoginService {
 
 final loginServiceProvider = Provider<LoginService>((ref) {
   return LoginServiceImpl(
-    ref.read(loginRepositoryProvider),
-    ref.read(hiveServiceProvider),
+    ref.watch(loginRepositoryProvider),
+    ref.watch(hiveServiceProvider),
   );
 });
