@@ -6,3 +6,7 @@ export 'fakultas/fakultas_model.dart';
 export 'prodi/prodi_model.dart';
 export 'user/user_model.dart';
 export 'announcement/announcement_model.dart';
+export 'elearning/session_model.dart';
+export 'elearning/material_model.dart';
+export 'elearning/assignment_model.dart';
+export 'elearning/quiz_model.dart';

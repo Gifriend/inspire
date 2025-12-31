@@ -38,6 +38,11 @@ class AppRoute {
   //E-Learning
   static const String eLearning = 'elearning';
   static const String eLearningSearch = 'elearning-search';
+  static const String courseDetail = 'course-detail';
+  static const String materialDetail = 'material-detail';
+  static const String assignmentDetail = 'assignment-detail';
+  static const String quizDetail = 'quiz-detail';
+  static const String quizTaking = 'quiz-taking';
   
   //Announcement
   static const String announcementList = 'announcement-list';
@@ -77,6 +82,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/elearning',
         name: AppRoute.eLearning,
         builder: (context, state) => const ElearningScreen(),
+      ),
+      GoRoute(
+        path: '/course/:kelasId',
+        name: AppRoute.courseDetail,
+        builder: (context, state) {
+          final kelasId = state.pathParameters['kelasId'] ?? '0';
+          final courseName = state.uri.queryParameters['courseName'] ?? 'Course';
+          return CourseDetailScreen(kelasId: kelasId, courseName: courseName);
+        },
       ),
       GoRoute(
         path: '/announcement',

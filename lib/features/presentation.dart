@@ -11,6 +11,7 @@ export 'announcement/presentation/announcement_state.dart';
 export 'elearning/presentation/elearning_controller.dart';
 export 'elearning/presentation/elearning_screen.dart';
 export 'elearning/presentation/elearning_state.dart';
+export 'elearning/presentation/screens/course_detail_screen.dart';
 //home
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';

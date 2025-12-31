@@ -1,67 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
+import 'package:inspire/core/routing/routing.dart';
+import 'package:inspire/features/elearning/presentation/controllers/course_list_controller.dart';
+import 'package:inspire/features/elearning/presentation/states/course_list_state.dart';
 
 import '../../../core/constants/constants.dart';
 
-class ElearningScreen extends StatelessWidget {
+class ElearningScreen extends ConsumerStatefulWidget {
   const ElearningScreen({super.key});
 
   @override
+  ConsumerState<ElearningScreen> createState() => _ElearningScreenState();
+}
+
+class _ElearningScreenState extends ConsumerState<ElearningScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(courseListControllerProvider.notifier).loadCourses();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> elearningView = [
-      {
-        'id': '1',
-        'title': 'PRAKTIKUM ALGORITMA DAN PEMROGRAMAN 2022',
-        'description':
-            'INI ADALAH MATAKULIAH WAJIB YANG HARUS DIPELAJARI OLEH SETIAP MAHASISWA INFORMATIKA UNTUK DASAR PEMBELAJARAN',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '2',
-        'title': 'STRUKTUR DATA DAN ALGORITMA',
-        'description':
-            'MEMPELAJARI KONSEP DASAR STRUKTUR DATA DAN IMPLEMENTASINYA DALAM PEMROGRAMAN',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '3',
-        'title': 'DATABASE MANAGEMENT SYSTEM',
-        'description': 'MEMPELAJARI KONSEP DASAR DATABASE DAN QUERY MANAGEMENT',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '4',
-        'title': 'PEMROGRAMAN WEB',
-        'description': 'MEMPELAJARI PENGEMBANGAN APLIKASI WEB MODERN',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '5',
-        'title': 'MOBILE APPLICATION DEVELOPMENT',
-        'description':
-            'MEMPELAJARI PENGEMBANGAN APLIKASI MOBILE DENGAN FLUTTER',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '6',
-        'title': 'MACHINE LEARNING BASICS',
-        'description': 'PENGENALAN KONSEP DASAR MACHINE LEARNING DAN AI',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '7',
-        'title': 'CYBER SECURITY',
-        'description': 'MEMPELAJARI KONSEP KEAMANAN SIBER DAN PROTEKSI DATA',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-      {
-        'id': '8',
-        'title': 'SOFTWARE ENGINEERING',
-        'description': 'MEMPELAJARI METODOLOGI PENGEMBANGAN PERANGKAT LUNAK',
-        'image': 'assets/icons/app/inspire-logo-black.png',
-      },
-    ];
+    final courseListState = ref.watch(courseListControllerProvider);
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
@@ -80,36 +46,109 @@ class ElearningScreen extends StatelessWidget {
           Text('Daftar Course Anda', style: BaseTypography.titleLarge.toBold),
           Gap.h24,
           Expanded(
-            child: GridView.builder(
-              physics: const ClampingScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1,
-                childAspectRatio: 1.8,
-                crossAxisSpacing: BaseSize.w8,
-                mainAxisSpacing: BaseSize.h8,
+            child: courseListState.maybeWhen(
+              loading: () => Center(
+                child: CircularProgressIndicator(
+                  color: BaseColor.primaryInspire,
+                ),
               ),
-              itemCount: elearningView.length,
-              itemBuilder: (context, index) {
-                final elearning = elearningView[index];
-                return _buildElearningCard(context, elearning);
+              loaded: (courses) {
+                if (courses.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.school_outlined,
+                          size: 64,
+                          color: BaseColor.grey,
+                        ),
+                        Gap.h16,
+                        Text(
+                          'Belum ada course terdaftar',
+                          style: BaseTypography.bodyLarge.toGrey,
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return GridView.builder(
+                  physics: const ClampingScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 1.8,
+                    crossAxisSpacing: BaseSize.w8,
+                    mainAxisSpacing: BaseSize.h8,
+                  ),
+                  itemCount: courses.length,
+                  itemBuilder: (context, index) {
+                    final course = courses[index];
+                    return _buildElearningCard(context, course);
+                  },
+                );
               },
+              error: (message) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    Gap.h16,
+                    Text(
+                      'Gagal memuat course',
+                      style: BaseTypography.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    Gap.h8,
+                    Text(
+                      message,
+                      style: BaseTypography.bodySmall.toGrey,
+                      textAlign: TextAlign.center,
+                    ),
+                    Gap.h16,
+                    ElevatedButton(
+                      onPressed: () {
+                        ref
+                            .read(courseListControllerProvider.notifier)
+                            .loadCourses();
+                      },
+                      child: const Text('Coba Lagi'),
+                    ),
+                  ],
+                ),
+              ),
+              orElse: () => const SizedBox.shrink(),
             ),
           ),
         ],
       ),
     );
   }
-}
 
-Widget _buildElearningCard(
-  BuildContext context,
-  Map<String, dynamic> elearning,
-) {
-  return GestureDetector(
-    key: ValueKey(elearning['id']),
-    onTap: () {
-      print('Tapped course: ${elearning['title']}');
-    },
+  Widget _buildElearningCard(BuildContext context, dynamic course) {
+    final id = course.id;
+    final title = '${course.mataKuliah?.name ?? course.nama} - ${course.kode}';
+    final description =
+        course.mataKuliah?.deskripsi ?? 'Tidak ada deskripsi';
+    final dosenName = course.dosen?.name;
+
+    return GestureDetector(
+      key: ValueKey(id),
+      onTap: () {
+        context.pushNamed(
+          AppRoute.courseDetail,
+          pathParameters: {
+            'kelasId': id.toString(),
+          },
+          queryParameters: {
+            'courseName': title,
+          },
+        );
+      },
     child: Card(
       margin: EdgeInsets.zero,
       elevation: 2,
@@ -126,7 +165,7 @@ Widget _buildElearningCard(
               flex: 3,
               child: Container(
                 width: double.infinity,
-                child: _buildCourseImage(elearning['image']),
+                child: _buildCourseImage(),
               ),
             ),
 
@@ -139,7 +178,7 @@ Widget _buildElearningCard(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      elearning['title'] ?? 'Course Title',
+                      title,
                       style: BaseTypography.bodyMedium.toBold,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -147,7 +186,7 @@ Widget _buildElearningCard(
                     Gap.h4,
                     Expanded(
                       child: Text(
-                        elearning['description'] ?? 'Course description',
+                        description,
                         style: BaseTypography.bodySmall.copyWith(
                           color: BaseColor.grey.shade600,
                         ),
@@ -155,6 +194,29 @@ Widget _buildElearningCard(
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (dosenName != null) ...[
+                      Gap.h4,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            size: 14,
+                            color: BaseColor.grey,
+                          ),
+                          Gap.w4,
+                          Expanded(
+                            child: Text(
+                              dosenName,
+                              style: BaseTypography.bodySmall.copyWith(
+                                color: BaseColor.grey.shade600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -166,26 +228,7 @@ Widget _buildElearningCard(
   );
 }
 
-// Widget untuk menampilkan image dengan error handling
-Widget _buildCourseImage(String? imagePath) {
-  return Container(
-    width: double.infinity,
-    decoration: BoxDecoration(color: BaseColor.grey[100]),
-    child: imagePath != null
-        ? Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              // Fallback jika image tidak ditemukan
-              return _buildImagePlaceholder();
-            },
-          )
-        : _buildImagePlaceholder(),
-  );
-}
-
-// Placeholder jika image tidak ada atau error
-Widget _buildImagePlaceholder() {
+Widget _buildCourseImage() {
   return Container(
     width: double.infinity,
     color: BaseColor.grey[200],
@@ -202,29 +245,4 @@ Widget _buildImagePlaceholder() {
     ),
   );
 }
-
-// Alternative: Menggunakan generated assets (jika tersedia)
-Widget _buildCourseImageWithGenerated(String? imagePath) {
-  return Container(
-    width: double.infinity,
-    decoration: BoxDecoration(color: BaseColor.grey[100]),
-    child: imagePath != null
-        ?
-          // Jika menggunakan generated assets:
-          // Assets.icons.app.logoElearn.image(
-          //   fit: BoxFit.cover,
-          //   errorBuilder: (context, error, stackTrace) {
-          //     return _buildImagePlaceholder();
-          //   },
-          // )
-          // Atau menggunakan Image.asset biasa:
-          Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return _buildImagePlaceholder();
-            },
-          )
-        : _buildImagePlaceholder(),
-  );
 }
