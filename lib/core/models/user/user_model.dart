@@ -20,6 +20,7 @@ abstract class UserModel with _$UserModel {
     required String role,
     required String status,
     String? photo,
+    String? fcmToken,
     int? fakultasId,
     int? prodiId,
     DateTime? createdAt,

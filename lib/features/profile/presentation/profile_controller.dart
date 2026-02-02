@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/models/user/user_model.dart';
+import 'package:inspire/features/login/domain/services/login_service.dart';
 import 'package:inspire/features/profile/domain/services/profile_service.dart';
 import 'package:inspire/features/profile/presentation/profile_state.dart';
 
@@ -35,4 +36,13 @@ class ProfileController extends StateNotifier<ProfileState> {
   }
 
   UserModel? get cachedUser => _cachedUser;
+
+  Future<void> logout() async {
+    try {
+      await ref.read(loginServiceProvider).logout();
+      _cachedUser = null;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

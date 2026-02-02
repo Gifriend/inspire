@@ -7,8 +7,13 @@ import 'package:inspire/core/models/models.dart';
 import '../../../../core/data_sources/network/dio_client.dart';
 
 abstract class LoginRepository {
-  Future<AuthData> login({required String nim, required String password});
+  Future<AuthData> login({
+    required String identifier,
+    required String password,
+    String? fcmToken,
+  });
   Future<AuthData> refreshToken({required String refreshToken});
+  Future<void> logout();
 }
 
 class LoginRepositoryImpl implements LoginRepository {
@@ -18,11 +23,16 @@ class LoginRepositoryImpl implements LoginRepository {
 
   @override
   Future<AuthData> login({
-    required String nim,
+    required String identifier,
     required String password,
+    String? fcmToken,
   }) async {
     try {
-      final request = LoginRequest(nim: nim, password: password);
+      final request = LoginRequest(
+        identifier: identifier,
+        password: password,
+        fcmToken: fcmToken,
+      );
       final response = await _dioClient.post<Map<String, dynamic>>(
         Endpoint.login,
         data: request.toJson(),
@@ -38,7 +48,7 @@ class LoginRepositoryImpl implements LoginRepository {
       return AuthData.fromJson(response);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        throw Exception('NIM atau password salah');
+        throw Exception('identifier atau password salah');
       }
       throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
     } catch (e) {
@@ -66,6 +76,19 @@ class LoginRepositoryImpl implements LoginRepository {
       if (e.response?.statusCode == 401) {
         throw Exception('Refresh token tidak valid');
       }
+      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan: $e');
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await _dioClient.post<Map<String, dynamic>>(
+        Endpoint.logout,
+      );
+    } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
