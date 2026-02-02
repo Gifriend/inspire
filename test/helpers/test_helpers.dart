@@ -6,9 +6,12 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 // Generate mocks using: flutter pub run build_runner build --delete-conflicting-outputs
-@GenerateMocks([], customMocks: [
-  MockSpec<LoginRepository>(as: #MockLoginRepository),
-  MockSpec<LoginService>(as: #MockLoginService),
+@GenerateMocks([
+  LoginRepository,
+  LoginService,
+], customMocks: [
+  MockSpec<LoginRepository>(as: #MockLoginRepositoryImpl),
+  MockSpec<LoginService>(as: #MockLoginServiceImpl),
 ])
 void main() {}
 
@@ -23,9 +26,9 @@ final mockLoginServiceProvider = Provider<LoginService>((ref) {
 
 // Test data
 class TestData {
-  static const validIdentifier = '12345678';
+  static const validNim = '12345678';
   static const validPassword = 'password123';
-  static const invalidIdentifier = 'invalid';
+  static const invalidNim = 'invalid';
   static const invalidPassword = 'wrong';
   
   static const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test';
@@ -36,3 +39,7 @@ class TestData {
         refreshToken: refreshToken,
       );
 }
+
+// Simple mock implementations for quick testing
+class MockLoginRepository extends Mock implements LoginRepository {}
+class MockLoginService extends Mock implements LoginService {}

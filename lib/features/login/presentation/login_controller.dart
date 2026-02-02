@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/features/login/domain/services/login_service.dart';
 import 'package:inspire/features/login/presentation/login_state.dart';
-import 'package:inspire/core/providers/fcm_provider.dart';
 
 final loginControllerProvider =
     StateNotifierProvider.autoDispose<LoginController, LoginState>(
@@ -14,20 +13,13 @@ class LoginController extends StateNotifier<LoginState> {
 
   final Ref ref;
 
-  Future<void> login(String identifier, String password) async {
+  Future<void> login(String nim, String password) async {
     state = const LoginState.loading();
     try {
       await ref.watch(hiveServiceProvider).ensureInitialized();
-      
-      // Ambil FCM token - pastikan token diambil fresh dari Firebase
-      final fcmToken = await ref.read(refreshFcmTokenProvider.future);
-      
-      print('🔔 [LOGIN] FCM Token: ${fcmToken != null ? "Available (${fcmToken.substring(0, 20)}...)" : "NULL"}');
-      
       await ref.watch(loginServiceProvider).login(
-            identifier: identifier,
+            nim: nim,
             password: password,
-            fcmToken: fcmToken,
           );
       state = const LoginState.success();
     } catch (e, st) {

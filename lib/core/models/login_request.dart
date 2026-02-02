@@ -5,11 +5,8 @@ part 'login_request.g.dart';
 
 @freezed
 abstract class LoginRequest with _$LoginRequest {
-  const factory LoginRequest({
-    required String identifier,
-    required String password,
-    String? fcmToken,
-  }) = _LoginRequest;
+  const factory LoginRequest({required String nim, required String password}) =
+      _LoginRequest;
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>
       _$LoginRequestFromJson(json);

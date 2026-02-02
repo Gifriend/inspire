@@ -3,11 +3,7 @@ import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/features/login/data/repositories/login_repository.dart';
 
 abstract class LoginService {
-  Future<void> login({
-    required String identifier,
-    required String password,
-    String? fcmToken,
-  });
+  Future<void> login({required String nim, required String password});
   Future<void> logout();
   Future<void> refreshToken();
 }
@@ -20,16 +16,14 @@ class LoginServiceImpl implements LoginService {
 
   @override
   Future<void> login({
-    required String identifier,
+    required String nim,
     required String password,
-    String? fcmToken,
   }) async {
     try {
       await _hiveService.ensureInitialized();
       final authData = await _loginRepository.login(
-        identifier: identifier,
+        nim: nim,
         password: password,
-        fcmToken: fcmToken,
       );
 
       await _hiveService.saveAuth(authData);
@@ -41,13 +35,8 @@ class LoginServiceImpl implements LoginService {
   @override
   Future<void> logout() async {
     try {
-      // Call logout API to remove FCM token from backend
-      await _loginRepository.logout();
-      // Then delete local auth data
       await _hiveService.deleteAuth();
     } catch (e) {
-      // Even if API call fails, still delete local auth
-      await _hiveService.deleteAuth();
       rethrow;
     }
   }

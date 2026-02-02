@@ -12,7 +12,6 @@ class Endpoint {
   static String auth = _baseUrl(path: "/auth");
   static String signing = '$auth/signing';
   static String login = '$auth/login';
-  static String logout = '$auth/logout';
   static String profile = '$auth/profile';
   
   // Announcement endpoints
