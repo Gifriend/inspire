@@ -13,12 +13,12 @@ class LoginController extends StateNotifier<LoginState> {
 
   final Ref ref;
 
-  Future<void> login(String nim, String password) async {
+  Future<void> login(String identifier, String password) async {
     state = const LoginState.loading();
     try {
       await ref.watch(hiveServiceProvider).ensureInitialized();
       await ref.watch(loginServiceProvider).login(
-            nim: nim,
+            identifier: identifier,
             password: password,
           );
       state = const LoginState.success();

@@ -14,7 +14,7 @@ class FakeLoginService implements LoginService {
   String? errorMessage;
   
   @override
-  Future<void> login({required String nim, required String password}) async {
+  Future<void> login({required String identifier, required String password, String? fcmToken}) async {
     await Future.delayed(const Duration(milliseconds: 100));
     if (!shouldSucceed) {
       throw Exception(errorMessage ?? 'Login failed');

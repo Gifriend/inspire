@@ -9,7 +9,7 @@ part 'session_model.g.dart';
 @freezed
 abstract class SessionModel with _$SessionModel {
   const factory SessionModel({
-    required int id,
+    required String id,
     required String title,
     String? description,
     required int weekNumber,

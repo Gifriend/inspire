@@ -6,14 +6,14 @@ part 'assignment_model.g.dart';
 @freezed
 abstract class AssignmentModel with _$AssignmentModel {
   const factory AssignmentModel({
-    required int id,
+    required String id,
     required String title,
     String? description,
+    String? fileUrl,
     required DateTime deadline,
     @Default(false) bool allowLate,
-    required int sessionId,
+    required String sessionId,
     required DateTime createdAt,
-    required DateTime updatedAt,
     SubmissionModel? submission, // Current user's submission if any
   }) = _AssignmentModel;
 
@@ -24,9 +24,9 @@ abstract class AssignmentModel with _$AssignmentModel {
 @freezed
 abstract class SubmissionModel with _$SubmissionModel {
   const factory SubmissionModel({
-    required int id,
+    required String id,
     required int studentId,
-    required int assignmentId,
+    required String assignmentId,
     String? fileUrl,
     String? textContent,
     double? grade,

@@ -7,7 +7,7 @@ import 'package:inspire/core/models/models.dart';
 import '../../../../core/data_sources/network/dio_client.dart';
 
 abstract class LoginRepository {
-  Future<AuthData> login({required String nim, required String password});
+  Future<AuthData> login({required String identifier, required String password, String? fcmToken});
   Future<AuthData> refreshToken({required String refreshToken});
 }
 
@@ -18,11 +18,12 @@ class LoginRepositoryImpl implements LoginRepository {
 
   @override
   Future<AuthData> login({
-    required String nim,
+    required String identifier,
     required String password,
+    String? fcmToken,
   }) async {
     try {
-      final request = LoginRequest(nim: nim, password: password);
+      final request = LoginRequest(identifier: identifier, password: password, fcmToken: fcmToken);
       final response = await _dioClient.post<Map<String, dynamic>>(
         Endpoint.login,
         data: request.toJson(),
@@ -38,7 +39,7 @@ class LoginRepositoryImpl implements LoginRepository {
       return AuthData.fromJson(response);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        throw Exception('NIM atau password salah');
+        throw Exception('Identifier atau password salah');
       }
       throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
     } catch (e) {

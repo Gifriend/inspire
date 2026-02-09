@@ -10,6 +10,7 @@ export 'bottom_navbar/bottom_navbar_item.dart';
 
 // Loading Wrapper
 export 'loading/loading_wrapper.dart';
+export 'loading/skeleton_loading.dart';
 
 // App Bar
 export 'appbar/appbar_widget.dart';

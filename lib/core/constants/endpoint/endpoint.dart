@@ -14,6 +14,13 @@ class Endpoint {
   static String login = '$auth/login';
   static String profile = '$auth/profile';
   
+  // Academic endpoints
+  static String academic = _baseUrl(path: "/academic");
+  static String transcript = '$academic/transkrip';
+  static String transcriptDownload = '$academic/transkrip/download';
+  static String khs(String semester) => '$academic/khs?semester=$semester';
+  static String khsDownload(String semester) => '$academic/khs/download?semester=$semester';
+  
   // Announcement endpoints
   static String announcement = _baseUrl(path: "/pengumuman");
   static String announcementMahasiswa = '$announcement/mahasiswa';
@@ -34,6 +41,7 @@ class Endpoint {
   static String krsBase = _baseUrl(path: "/krs");
   static String krs(String semester) => '$krsBase/$semester';
   static String krsAddClass = '$krsBase/add-class';
+  static String krsRemoveClass = '$krsBase/remove-class';
   static String krsSubmit = '$krsBase/submit';
   static String krsApprove(int krsId) => '$krsBase/approve/$krsId';
   static String krsReject(int krsId) => '$krsBase/reject/$krsId';

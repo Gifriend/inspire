@@ -15,14 +15,13 @@ enum MaterialType {
 @freezed
 abstract class MaterialModel with _$MaterialModel {
   const factory MaterialModel({
-    required int id,
+    required String id,
     required String title,
     required MaterialType type,
     String? content,
     String? fileUrl,
-    required int sessionId,
+    required String sessionId,
     required DateTime createdAt,
-    required DateTime updatedAt,
   }) = _MaterialModel;
 
   factory MaterialModel.fromJson(Map<String, dynamic> json) =>

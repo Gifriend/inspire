@@ -6,6 +6,7 @@ import 'package:inspire/features/presentation.dart';
 
 import '../../features/krs/presentation/screens/add_class_screen.dart';
 import '../../features/krs/presentation/screens/krs_screen.dart';
+import '../../features/transcript/presentation/transcript_screen.dart';
 import 'routing.dart';
 
 class AppRoute {
@@ -53,6 +54,9 @@ class AppRoute {
   //KRS
   static const String krs = 'krs';
   static const String krsAddClass = 'krs-add-class';
+  
+  //Transcript
+  static const String transcript = 'transcript';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -99,6 +103,38 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/material/:materialId',
+        name: AppRoute.materialDetail,
+        builder: (context, state) {
+          final material = state.extra;
+          return MaterialDetailScreen(material: material as dynamic);
+        },
+      ),
+      GoRoute(
+        path: '/assignment/:assignmentId',
+        name: AppRoute.assignmentDetail,
+        builder: (context, state) {
+          final assignmentId = state.pathParameters['assignmentId'] ?? '0';
+          return AssignmentDetailScreen(assignmentId: assignmentId);
+        },
+      ),
+      GoRoute(
+        path: '/quiz/:quizId',
+        name: AppRoute.quizDetail,
+        builder: (context, state) {
+          final quizId = state.pathParameters['quizId'] ?? '0';
+          return QuizDetailScreen(quizId: quizId);
+        },
+      ),
+      GoRoute(
+        path: '/quiz/:quizId/take',
+        name: AppRoute.quizTaking,
+        builder: (context, state) {
+          final quiz = state.extra;
+          return QuizTakingScreen(quiz: quiz as dynamic);
+        },
+      ),
+      GoRoute(
         path: '/announcement',
         name: AppRoute.announcementList,
         builder: (context, state) => const AnnouncementListScreen(),
@@ -126,6 +162,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final semester = state.pathParameters['semester'] ?? '1';
           return AddClassScreen(semester: semester);
         },
+      ),
+      GoRoute(
+        path: '/transcript',
+        name: AppRoute.transcript,
+        builder: (context, state) => const TranscriptScreen(),
       ),
       // GoRoute(
       //   path: '/login',

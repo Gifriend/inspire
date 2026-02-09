@@ -203,6 +203,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ],
             ),
           ),
+          Gap.h24,
         ],
       ),
         orElse: () => const Center(

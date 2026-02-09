@@ -77,9 +77,9 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
                   physics: const ClampingScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 1,
-                    childAspectRatio: 1.8,
+                    childAspectRatio: 1.25,
                     crossAxisSpacing: BaseSize.w8,
-                    mainAxisSpacing: BaseSize.h8,
+                    mainAxisSpacing: BaseSize.h12,
                   ),
                   itemCount: courses.length,
                   itemBuilder: (context, index) {
@@ -131,9 +131,9 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
 
   Widget _buildElearningCard(BuildContext context, dynamic course) {
     final id = course.id;
-    final title = '${course.mataKuliah?.name ?? course.nama} - ${course.kode}';
-    final description =
-        course.mataKuliah?.deskripsi ?? 'Tidak ada deskripsi';
+    final courseName = course.mataKuliah?.name ?? course.nama;
+    final courseCode = course.kode;
+    final description = course.mataKuliah?.deskripsi ?? 'Tidak ada deskripsi';
     final dosenName = course.dosen?.name;
 
     return GestureDetector(
@@ -145,83 +145,98 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
             'kelasId': id.toString(),
           },
           queryParameters: {
-            'courseName': title,
+            'courseName': '$courseName - $courseCode',
           },
         );
       },
-    child: Card(
-      margin: EdgeInsets.zero,
-      elevation: 2,
-      color: BaseColor.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Container(
-                width: double.infinity,
-                child: _buildCourseImage(),
+    child: SizedBox(
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 2,
+        color: BaseColor.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  width: double.infinity,
+                  child: _buildCourseImage(),
+                ),
               ),
-            ),
-
-            // Course Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.all(BaseSize.w12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: BaseTypography.bodyMedium.toBold,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Gap.h4,
-                    Expanded(
-                      child: Text(
-                        description,
+      
+              // Course Info
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: EdgeInsets.all(BaseSize.w12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Course Name - max 2 lines
+                      Text(
+                        courseName,
+                        style: BaseTypography.bodyMedium.toBold,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Gap.h4,
+                      // Course Code - 1 line
+                      Text(
+                        courseCode,
                         style: BaseTypography.bodySmall.copyWith(
-                          color: BaseColor.grey.shade600,
+                          color: BaseColor.primaryInspire,
+                          fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    if (dosenName != null) ...[
                       Gap.h4,
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.person,
-                            size: 14,
-                            color: BaseColor.grey,
+                      // Description - max 1 lines
+                      Expanded(
+                        child: Text(
+                          description,
+                          style: BaseTypography.bodySmall.copyWith(
+                            color: BaseColor.grey.shade600,
                           ),
-                          Gap.w4,
-                          Expanded(
-                            child: Text(
-                              dosenName,
-                              style: BaseTypography.bodySmall.copyWith(
-                                color: BaseColor.grey.shade600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      if (dosenName != null) ...[
+                        Gap.h4,
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 14,
+                              color: BaseColor.grey,
+                            ),
+                            Gap.w4,
+                            Expanded(
+                              child: Text(
+                                dosenName,
+                                style: BaseTypography.bodySmall.copyWith(
+                                  color: BaseColor.grey.shade600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),

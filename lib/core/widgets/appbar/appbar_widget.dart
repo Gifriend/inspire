@@ -17,6 +17,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     this.trailIcon,
     this.trailIconColor,
     this.onPressedTrailIcon,
+    this.backgorundColor
   });
 
   final String title;
@@ -30,6 +31,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final SvgGenImage? trailIcon;
   final Color? trailIconColor;
   final VoidCallback? onPressedTrailIcon;
+  final Color? backgorundColor;
 
   @override
   Size get preferredSize => Size.fromHeight(height ?? BaseSize.h56);
@@ -70,6 +72,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       automaticallyImplyLeading: false,
       centerTitle: false,
+      backgroundColor: backgorundColor ?? BaseColor.primaryInspire,
       bottom: PreferredSize(
         preferredSize: preferredSize,
         child: Column(
@@ -87,21 +90,25 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           onPressedIcon: onPressedLeadIcon ?? () {},
                         )
                       : const SizedBox(),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Title
-                      Text(
-                        title,
-                        style: BaseTypography.headlineLarge,
-                      ),
-
-                      if (subtitle != null)
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Title
                         Text(
-                          subtitle!,
-                          style: BaseTypography.titleMedium,
-                        ),
-                    ],
+                          title,
+                          style: BaseTypography.headlineSmall.toWhite,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          
+                        ), 
+                        if (subtitle != null)
+                          Text(
+                            subtitle!,
+                            style: BaseTypography.titleMedium,
+                          ),
+                      ],
+                    ),
                   ),
                   trailIcon != null
                       ? buildIcon(

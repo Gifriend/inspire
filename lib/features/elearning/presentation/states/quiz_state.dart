@@ -8,7 +8,7 @@ class QuizState with _$QuizState {
   const factory QuizState.initial() = _Initial;
   const factory QuizState.loading() = _Loading;
   const factory QuizState.loaded(QuizModel quiz) = _Loaded;
-  const factory QuizState.taking(QuizModel quiz, Map<int, String> answers) = _Taking;
+  const factory QuizState.taking(QuizModel quiz, Map<String, String> answers) = _Taking;
   const factory QuizState.submitting() = _Submitting;
   const factory QuizState.submitted(QuizAttemptModel attempt) = _Submitted;
   const factory QuizState.error(String message) = _Error;

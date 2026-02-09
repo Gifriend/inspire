@@ -4,12 +4,12 @@ part 'quiz_model.freezed.dart';
 part 'quiz_model.g.dart';
 
 enum QuizGradingMethod {
-  @JsonValue('HIGHEST')
-  HIGHEST,
-  @JsonValue('AVERAGE')
-  AVERAGE,
-  @JsonValue('LATEST')
-  LATEST,
+  @JsonValue('HIGHEST_GRADE')
+  HIGHEST_GRADE,
+  @JsonValue('AVERAGE_GRADE')
+  AVERAGE_GRADE,
+  @JsonValue('LATEST_GRADE')
+  LATEST_GRADE,
 }
 
 enum QuestionType {
@@ -24,15 +24,15 @@ enum QuestionType {
 @freezed
 abstract class QuizModel with _$QuizModel {
   const factory QuizModel({
-    required int id,
+    required String id,
     required String title,
+    String? description,
     required int duration, // in minutes
     required DateTime startTime,
     required DateTime endTime,
     required QuizGradingMethod gradingMethod,
-    required int sessionId,
+    required String sessionId,
     required DateTime createdAt,
-    required DateTime updatedAt,
     @Default([]) List<QuizQuestionModel> questions,
     @Default([]) List<QuizAttemptModel> attempts,
   }) = _QuizModel;
@@ -44,13 +44,13 @@ abstract class QuizModel with _$QuizModel {
 @freezed
 abstract class QuizQuestionModel with _$QuizQuestionModel {
   const factory QuizQuestionModel({
-    required int id,
+    required String id,
     required String text,
     required QuestionType type,
-    @Default([]) List<String> options, // For multiple choice
-    required String correctAnswer,
-    required double points,
-    required int quizId,
+    @Default([]) List<String> options, 
+    String? correctAnswer,
+    required num points,
+    String? quizId,
   }) = _QuizQuestionModel;
 
   factory QuizQuestionModel.fromJson(Map<String, dynamic> json) =>
@@ -60,10 +60,10 @@ abstract class QuizQuestionModel with _$QuizQuestionModel {
 @freezed
 abstract class QuizAttemptModel with _$QuizAttemptModel {
   const factory QuizAttemptModel({
-    required int id,
+    required String id,
     required int studentId,
-    required int quizId,
-    required double score,
+    required String quizId,
+    required num score,
     required DateTime startedAt,
     DateTime? finishedAt,
   }) = _QuizAttemptModel;
@@ -75,7 +75,7 @@ abstract class QuizAttemptModel with _$QuizAttemptModel {
 @freezed
 abstract class QuizAnswerModel with _$QuizAnswerModel {
   const factory QuizAnswerModel({
-    required int questionId,
+    required String questionId,
     required String answer,
   }) = _QuizAnswerModel;
 

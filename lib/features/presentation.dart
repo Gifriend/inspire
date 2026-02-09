@@ -12,6 +12,10 @@ export 'elearning/presentation/elearning_controller.dart';
 export 'elearning/presentation/elearning_screen.dart';
 export 'elearning/presentation/elearning_state.dart';
 export 'elearning/presentation/screens/course_detail_screen.dart';
+export 'elearning/presentation/screens/assignment_detail_screen.dart';
+export 'elearning/presentation/screens/material_detail_screen.dart';
+export 'elearning/presentation/screens/quiz_detail_screen.dart';
+export 'elearning/presentation/screens/quiz_taking_screen.dart';
 //home
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';
@@ -35,3 +39,7 @@ export 'profile/presentation/profile_state.dart';
 export 'splash/presentation/splash_controller.dart';
 export 'splash/presentation/splash_screen.dart';
 export 'splash/presentation/splash_state.dart';
+//transcript
+export 'transcript/presentation/transcript_controller.dart';
+export 'transcript/presentation/transcript_screen.dart';
+export 'transcript/presentation/transcript_state.dart';

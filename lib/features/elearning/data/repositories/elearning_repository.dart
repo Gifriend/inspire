@@ -3,6 +3,8 @@ import 'package:inspire/core/models/elearning/session_model.dart';
 import 'package:inspire/core/models/elearning/assignment_model.dart';
 import 'package:inspire/core/models/elearning/quiz_model.dart';
 import 'package:inspire/core/models/elearning/course_list_model.dart';
+import 'package:inspire/core/models/elearning/material_model.dart';
+import 'package:inspire/core/models/elearning/course_detail_model.dart';
 import '../../../../core/data_sources/network/dio_client.dart';
 
 class ElearningRepository {
@@ -66,7 +68,7 @@ class ElearningRepository {
 
   // Submit quiz
   Future<QuizAttemptModel> submitQuiz({
-    required int quizId,
+    required String quizId,
     required List<QuizAnswerModel> answers,
   }) async {
     try {
@@ -79,6 +81,58 @@ class ElearningRepository {
       );
 
       return QuizAttemptModel.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get assignment detail with submission status
+  Future<AssignmentModel> getAssignmentDetail(String id) async {
+    try {
+      final data = await _dioClient.get(
+        Endpoint.assignmentDetail(id),
+      );
+
+      return AssignmentModel.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get quiz detail with questions & attempts
+  Future<QuizModel> getQuizDetail(String id) async {
+    try {
+      final data = await _dioClient.get(
+        Endpoint.quizDetail(id),
+      );
+
+      return QuizModel.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get material detail
+  Future<MaterialModel> getMaterialDetail(String id) async {
+    try {
+      final data = await _dioClient.get(
+        Endpoint.materialDetail(id),
+      );
+
+      return MaterialModel.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get course detail with complete information
+  Future<CourseDetailModel> getCourseDetail(int kelasId) async {
+    try {
+      final data = await _dioClient.get(
+        Endpoint.courseDetail(kelasId),
+      );
+
+      return CourseDetailModel.fromJson(data);
     } catch (e) {
       rethrow;
     }

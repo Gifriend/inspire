@@ -3,15 +3,11 @@ import 'package:inspire/core/data_sources/local/model/auth_data.dart';
 import 'package:inspire/features/login/data/repositories/login_repository.dart';
 import 'package:inspire/features/login/domain/services/login_service.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
 // Generate mocks using: flutter pub run build_runner build --delete-conflicting-outputs
-@GenerateMocks([
-  LoginRepository,
-  LoginService,
-], customMocks: [
-  MockSpec<LoginRepository>(as: #MockLoginRepositoryImpl),
-  MockSpec<LoginService>(as: #MockLoginServiceImpl),
+@GenerateMocks([], customMocks: [
+  MockSpec<LoginRepository>(as: #MockLoginRepository),
+  MockSpec<LoginService>(as: #MockLoginService),
 ])
 void main() {}
 
@@ -39,7 +35,3 @@ class TestData {
         refreshToken: refreshToken,
       );
 }
-
-// Simple mock implementations for quick testing
-class MockLoginRepository extends Mock implements LoginRepository {}
-class MockLoginService extends Mock implements LoginService {}

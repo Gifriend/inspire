@@ -3,6 +3,8 @@ import 'package:inspire/core/models/elearning/session_model.dart';
 import 'package:inspire/core/models/elearning/assignment_model.dart';
 import 'package:inspire/core/models/elearning/quiz_model.dart';
 import 'package:inspire/core/models/elearning/course_list_model.dart';
+import 'package:inspire/core/models/elearning/material_model.dart';
+import 'package:inspire/core/models/elearning/course_detail_model.dart';
 import 'package:inspire/features/elearning/data/repositories/elearning_repository.dart';
 
 import '../../../../core/data_sources/network/dio_client.dart';
@@ -51,7 +53,7 @@ class ElearningService {
   }
 
   Future<QuizAttemptModel> submitQuiz({
-    required int quizId,
+    required String quizId,
     required List<QuizAnswerModel> answers,
   }) async {
     try {
@@ -59,6 +61,38 @@ class ElearningService {
         quizId: quizId,
         answers: answers,
       );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AssignmentModel> getAssignmentDetail(String id) async {
+    try {
+      return await _repository.getAssignmentDetail(id);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<QuizModel> getQuizDetail(String id) async {
+    try {
+      return await _repository.getQuizDetail(id);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<MaterialModel> getMaterialDetail(String id) async {
+    try {
+      return await _repository.getMaterialDetail(id);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CourseDetailModel> getCourseDetail(int kelasId) async {
+    try {
+      return await _repository.getCourseDetail(kelasId);
     } catch (e) {
       rethrow;
     }

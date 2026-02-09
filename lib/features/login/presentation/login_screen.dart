@@ -109,8 +109,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Gap.h32,
                       InputWidget.text(
                         controller: _nimController,
-                        label: 'NIM',
-                        hint: 'Masukkan NIM',
+                        label: 'NIM / NIP',
+                        hint: 'Masukkan NIM atau NIP',
                         leadIcon: Assets.icons.fill.user,
                         borderColor: BaseColor.black,
                       ),

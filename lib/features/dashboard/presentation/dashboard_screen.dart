@@ -9,6 +9,7 @@ import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
+import 'package:inspire/features/login/domain/services/login_service.dart';
 import 'package:jiffy/jiffy.dart';
 
 import '../../../core/models/models.dart';
@@ -313,7 +314,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         _buildMenuItem(
                           icon: Assets.images.transkrip,
                           label: 'Transkrip',
-                          onTap: () {},
+                          onTap: () {
+                            context.pushNamed(AppRoute.transcript);
+                          },
                         ),
                         _buildMenuItem(
                           icon: Icons.book,
@@ -328,9 +331,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           },
                         ),
                         _buildMenuItem(
-                          icon: Icons.other_houses_outlined,
-                          label: 'Lainnya',
-                          onTap: () {},
+                          icon: Icons.logout,
+                          label: 'Logout',
+                          onTap: () => _handleLogout(context),
                         ),
                       ],
                     ),
@@ -504,6 +507,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return icon.image(width: 24.0, height: 24.0, color: Colors.grey[700]);
     } else {
       return const SizedBox.shrink();
+    }
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Logout',
+              style: TextStyle(color: BaseColor.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        await ref.read(loginServiceProvider).logout();
+        if (context.mounted) {
+          context.go('/login');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal logout: $e')),
+          );
+        }
+      }
     }
   }
 }

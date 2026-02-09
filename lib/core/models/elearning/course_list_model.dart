@@ -9,10 +9,10 @@ abstract class CourseListModel with _$CourseListModel {
     required int id,
     required String kode,
     required String nama,
-    required int tahunAjaran,
-    required String semester,
+    int? kapasitas,
     String? ruangan,
     String? jadwal,
+    required String semester,
     required int mataKuliahId,
     int? dosenId,
     required DateTime createdAt,
@@ -47,6 +47,7 @@ abstract class DosenInfoModel with _$DosenInfoModel {
     required int id,
     required String name,
     required String nip,
+    String? email,
     String? photo,
   }) = _DosenInfoModel;
 

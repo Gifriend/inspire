@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/endpoint/endpoint.dart';
 import 'package:inspire/core/models/krs/krs_model.dart';
 
@@ -57,14 +58,14 @@ class KrsRepository {
     }
   }
 
-  // Remove class from KRS (if backend supports it)
+  // Remove class from KRS
   Future<KrsModel> removeClass({
     required int kelasId,
     required String semester,
   }) async {
     try {
       final data = await _dioClient.post(
-        '${Endpoint.krsAddClass}/remove', // Adjust endpoint if different
+        Endpoint.krsRemoveClass,
         data: {
           'kelasId': kelasId,
           'semester': semester,
@@ -103,3 +104,7 @@ class KrsRepository {
     }
   }
 }
+
+final krsRepositoryProvider = Provider<KrsRepository>((ref) {
+  return KrsRepository(ref.watch(dioClientProvider));
+});

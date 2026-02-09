@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/models/krs/krs_model.dart';
 import 'package:inspire/features/krs/data/repositories/krs_repository.dart';
 
@@ -69,3 +70,7 @@ class KrsService {
     }
   }
 }
+
+final krsServiceProvider = Provider<KrsService>((ref) {
+  return KrsService(ref.watch(krsRepositoryProvider));
+});

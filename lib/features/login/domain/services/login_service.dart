@@ -3,7 +3,7 @@ import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/features/login/data/repositories/login_repository.dart';
 
 abstract class LoginService {
-  Future<void> login({required String nim, required String password});
+  Future<void> login({required String identifier, required String password, String? fcmToken});
   Future<void> logout();
   Future<void> refreshToken();
 }
@@ -16,14 +16,16 @@ class LoginServiceImpl implements LoginService {
 
   @override
   Future<void> login({
-    required String nim,
+    required String identifier,
     required String password,
+    String? fcmToken,
   }) async {
     try {
       await _hiveService.ensureInitialized();
       final authData = await _loginRepository.login(
-        nim: nim,
+        identifier: identifier,
         password: password,
+        fcmToken: fcmToken,
       );
 
       await _hiveService.saveAuth(authData);
