@@ -62,7 +62,7 @@ class KrsService {
   }) async {
     try {
       return await _repository.getAvailableClasses(
-        semester: semester,
+        academicYear: semester,
         prodiId: prodiId,
       );
     } catch (e) {

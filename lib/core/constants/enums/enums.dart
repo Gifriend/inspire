@@ -7,6 +7,17 @@ enum Gender {
   female,
 }
 
+enum StatusKRS {
+  @JsonValue('DRAFT')
+  draft,
+  @JsonValue('DIAJUKAN')
+  diajukan,
+  @JsonValue('DISETUJUI')
+  disetujui,
+  @JsonValue('DITOLAK')
+  ditolak,
+}
+
 enum MaritalStatus {
   @JsonValue("SINGLE")
   single,

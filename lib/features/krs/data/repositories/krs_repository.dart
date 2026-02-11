@@ -80,16 +80,16 @@ class KrsRepository {
 
   // Get available classes for selection
   Future<List<KelasPerkuliahanModel>> getAvailableClasses({
-    required String semester,
+    required String academicYear,
     int? prodiId,
   }) async {
     try {
       final data = await _dioClient.get(
-        Endpoint.availableClasses,
-        queryParameters: {
-          'semester': semester,
-          if (prodiId != null) 'prodiId': prodiId,
-        },
+        Endpoint.krsLoadAvailableCourses(academicYear),
+        // queryParameters: {
+        //   'semester': semester,
+        //   if (prodiId != null) 'prodiId': prodiId,
+        // },
       );
 
       if (data is List) {

@@ -129,7 +129,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
               'Daftar Mata Kuliah',
               style: BaseTypography.titleMedium.toBold,
             ),
-            if (krs.status == StatusKRS.DRAFT)
+            if (krs.status == StatusKRS.draft)
               TextButton.icon(
                 onPressed: () {
                   context.pushNamed(
@@ -154,7 +154,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                   },
                 ),
         ),
-        if (krs.status == StatusKRS.DRAFT && krs.kelasPerkuliahan.isNotEmpty)
+        if (krs.status == StatusKRS.draft && krs.kelasPerkuliahan.isNotEmpty)
           _buildSubmitButton(krs),
       ],
     );
@@ -217,19 +217,19 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
     String text;
 
     switch (status) {
-      case StatusKRS.DRAFT:
+      case StatusKRS.draft:
         color = Colors.grey;
         text = 'Draft';
         break;
-      case StatusKRS.DIAJUKAN:
+      case StatusKRS.diajukan:
         color = Colors.orange;
         text = 'Diajukan';
         break;
-      case StatusKRS.DISETUJUI:
+      case StatusKRS.disetujui:
         color = Colors.green;
         text = 'Disetujui';
         break;
-      case StatusKRS.DITOLAK:
+      case StatusKRS.ditolak:
         color = Colors.red;
         text = 'Ditolak';
         break;
@@ -279,7 +279,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                     ],
                   ),
                 ),
-                if (status == StatusKRS.DRAFT)
+                if (status == StatusKRS.draft)
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () => _showDeleteConfirmation(kelas),

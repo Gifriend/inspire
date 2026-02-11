@@ -1,25 +1,18 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../constants/constants.dart';
+
 part 'krs_model.freezed.dart';
 part 'krs_model.g.dart';
 
-enum StatusKRS {
-  @JsonValue('DRAFT')
-  DRAFT,
-  @JsonValue('DIAJUKAN')
-  DIAJUKAN,
-  @JsonValue('DISETUJUI')
-  DISETUJUI,
-  @JsonValue('DITOLAK')
-  DITOLAK,
-}
+
 
 @freezed
 abstract class KrsModel with _$KrsModel {
   const factory KrsModel({
     required int id,
     required int mahasiswaId,
-    required String semester,
+    required String academicYear,
     required StatusKRS status,
     required int totalSKS,
     DateTime? tanggalPengajuan,
@@ -40,8 +33,7 @@ abstract class KelasPerkuliahanModel with _$KelasPerkuliahanModel {
     required int id,
     required String kode,
     required String nama,
-    required int tahunAjaran,
-    required String semester,
+    required String academicYear,
     String? ruangan,
     String? jadwal,
     required int mataKuliahId,

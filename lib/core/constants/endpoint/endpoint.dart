@@ -46,6 +46,7 @@ class Endpoint {
   static String krsApprove(int krsId) => '$krsBase/approve/$krsId';
   static String krsReject(int krsId) => '$krsBase/reject/$krsId';
   static String krsCancel(int krsId) => '$krsBase/cancel/$krsId';
+  static String krsLoadAvailableCourses(String academicYear) => '$krsBase/available-courses?academicYear=$academicYear';
   
   // Class selection endpoint (you may need to add this to backend)
   static String availableClasses = _baseUrl(path: "/kelas-perkuliahan/available");

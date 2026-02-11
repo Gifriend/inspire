@@ -38,25 +38,25 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
+      appBar: AppBarWidget(title: 'Pilih Mata Kuliah',),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Gap.h16,
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-              ),
-              Expanded(
-                child: ScreenTitleWidget.titleOnly(
-                  title: 'Pilih Mata Kuliah',
-                ),
-              ),
-            ],
-          ),
-          Gap.h20,
-          _buildSearchBar(),
+          // Row(
+          //   children: [
+          //     IconButton(
+          //       icon: const Icon(Icons.arrow_back),
+          //       onPressed: () => Navigator.pop(context),
+          //     ),
+          //     Expanded(
+          //       child: ScreenTitleWidget.titleOnly(
+          //         title: 'Pilih Mata Kuliah',
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // Gap.h20,
+          // _buildSearchBar(),
           Gap.h20,
           krsState.maybeWhen(
             loaded: (krs) => _buildSelectedInfo(krs),
@@ -106,24 +106,24 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Cari mata kuliah...',
-        prefixIcon: const Icon(Icons.search),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-        ),
-        filled: true,
-        fillColor: BaseColor.grey.shade100,
-      ),
-      onChanged: (value) {
-        setState(() {
-          _searchQuery = value.toLowerCase();
-        });
-      },
-    );
-  }
+  // Widget _buildSearchBar() {
+  //   return TextField(
+  //     decoration: InputDecoration(
+  //       hintText: 'Cari mata kuliah...',
+  //       prefixIcon: const Icon(Icons.search),
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+  //       ),
+  //       filled: true,
+  //       fillColor: BaseColor.grey.shade100,
+  //     ),
+  //     onChanged: (value) {
+  //       setState(() {
+  //         _searchQuery = value.toLowerCase();
+  //       });
+  //     },
+  //   );
+  // }
 
   Widget _buildSelectedInfo(KrsModel krs) {
     return Container(
