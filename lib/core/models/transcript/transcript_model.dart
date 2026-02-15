@@ -40,7 +40,7 @@ abstract class TranskripItemModel with _$TranskripItemModel {
     required int sks,
     required String nilaiHuruf,
     required double indeksNilai,
-    required String semester,
+    required String academicYear, // UPDATED: Sesuai dengan backend
   }) = _TranskripItemModel;
 
   factory TranskripItemModel.fromJson(Map<String, dynamic> json) =>

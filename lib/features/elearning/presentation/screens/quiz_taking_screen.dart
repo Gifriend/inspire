@@ -126,8 +126,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
     // Build the payload to match SubmitQuizDto
     final payload = {
       'quizId':
-          widget.quiz.id ??
-          '', // Convert quiz.id to number (adjust if not a string)
+          widget.quiz.id, // Convert quiz.id to number (adjust if not a string)
       'answers': answers,
     };
 

@@ -1,16 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../../constants/constants.dart';
+export '../../constants/enums/enums.dart' show MaterialType;
 
 part 'material_model.freezed.dart';
 part 'material_model.g.dart';
-
-enum MaterialType {
-  @JsonValue('TEXT')
-  TEXT,
-  @JsonValue('FILE')
-  FILE,
-  @JsonValue('HYBRID')
-  HYBRID,
-}
 
 @freezed
 abstract class MaterialModel with _$MaterialModel {

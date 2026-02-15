@@ -18,6 +18,7 @@ class Endpoint {
   static String academic = _baseUrl(path: "/academic");
   static String transcript = '$academic/transkrip';
   static String transcriptDownload = '$academic/transkrip/download';
+  static String khsSemesters = '$academic/khs/semesters';
   static String khs(String semester) => '$academic/khs?semester=$semester';
   static String khsDownload(String semester) => '$academic/khs/download?semester=$semester';
   

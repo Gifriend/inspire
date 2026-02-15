@@ -18,6 +18,15 @@ enum StatusKRS {
   ditolak,
 }
 
+enum MaterialType {
+  @JsonValue('TEXT')
+  text,
+  @JsonValue('FILE')
+  file,
+  @JsonValue('HYBRID')
+  hybrid,
+}
+
 enum MaritalStatus {
   @JsonValue("SINGLE")
   single,

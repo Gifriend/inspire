@@ -144,7 +144,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                         style: BaseTypography.bodySmall.toGrey,
                       ),
                       trailing: Text(
-                        '${attempt.score.toStringAsFixed(1)}',
+                        '${attempt.score.toStringAsFixed}',
                         style: BaseTypography.titleMedium.toBold,
                       ),
                     ),

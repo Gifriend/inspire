@@ -102,6 +102,4 @@ abstract class SubmitKrsDto with _$SubmitKrsDto {
 
   factory SubmitKrsDto.fromJson(Map<String, dynamic> json) =>
       _$SubmitKrsDtoFromJson(json);
-
-  Map<String, dynamic> toJson();
 }

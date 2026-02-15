@@ -21,54 +21,46 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> with AutomaticKeepAliveClientMixin {
   final PageController _pageController = PageController(viewportFraction: 0.75);
   Timer? _autoScrollTimer;
   int _currentPage = 0;
   bool _userInteracting = false;
 
-  final List<Map<String, dynamic>> pengumumanVew = [
-    {
-      'id': '1',
-      'title': 'Pengumuman',
-      'category': 'Harapan lomba Genera-z berbakti',
-      'image': Assets.images.pengumuman2.path,
-      'description':
-          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
-    },
-    {
-      'id': '2',
-      'title': 'Pengumuman',
-      'category': 'Harapan lomba Genera-z berbakti',
-      'image': Assets.images.pengumuman2.path,
-      'description':
-          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
-    },
-    {
-      'id': '3',
-      'title': 'Pengumuman',
-      'category': 'Harapan lomba Genera-z berbakti',
-      'image': Assets.images.pengumuman2.path,
-      'description':
-          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
-    },
-    {
-      'id': '4',
-      'title': 'Pengumuman',
-      'category': 'Harapan lomba Genera-z berbakti',
-      'image': Assets.images.pengumuman2.path,
-      'description':
-          'Tim UNSRAT berhasil mendapatkan harapan dalam lomba Genera-z berbakti dari bakti bca dan narasi',
-    },
-  ];
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
     startAutoScroll();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(profileControllerProvider.notifier).loadProfile();
-      ref.read(announcementControllerProvider.notifier).loadAnnouncements();
+      // 3. Cek state manual menggunakan 'maybeWhen'
+      final currentProfileState = ref.read(profileControllerProvider);
+      
+      // Logika: Hanya load jika state SEKARANG bukan loaded dan bukan loading
+      final bool shouldLoadProfile = currentProfileState.maybeWhen(
+        loaded: (_) => false, // Sudah ada data, jangan load
+        loading: () => false, // Sedang loading, jangan load
+        orElse: () => true,   // Initial atau Error, silakan load
+      );
+
+      if (shouldLoadProfile) {
+        ref.read(profileControllerProvider.notifier).loadProfile();
+      }
+      
+      // Lakukan hal yang sama untuk announcement
+      final currentAnnouncementState = ref.read(announcementControllerProvider);
+      final bool shouldLoadAnnouncement = currentAnnouncementState.maybeWhen(
+        loaded: (_) => false,
+        loading: () => false,
+        orElse: () => true,
+      );
+
+      if (shouldLoadAnnouncement) {
+        ref.read(announcementControllerProvider.notifier).loadAnnouncements();
+      }
     });
   }
 
@@ -83,7 +75,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void startAutoScroll() {
     _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (!_userInteracting && _pageController.hasClients && mounted) {
-        _currentPage = (_currentPage + 1) % pengumumanVew.length;
         _pageController.animateToPage(
           _currentPage,
           duration: const Duration(milliseconds: 500),
@@ -112,6 +103,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final profileState = ref.watch(profileControllerProvider);
     
     return ScaffoldWidget(
@@ -281,7 +273,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         _buildMenuItem(
                           icon: Assets.icons.fill.calendar,
-                          label: 'kalender',
+                          label: 'Kalender',
                           onTap: () {
                             // context.pushNamed(AppRoute.ebookMenu);
                           },
@@ -291,10 +283,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           label: 'KRS',
                           onTap: () {
                             // Navigate to KRS with current semester
-                            // Format: GANJIL-2024 or GENAP-2024
                             final now = DateTime.now();
                             final year = now.year;
-                            // Determine semester based on month (Aug-Dec = Ganjil, Jan-Jul = Genap)
                             final semesterType = now.month >= 8 ? 'GANJIL' : 'GENAP';
                             final semester = '$semesterType-$year';
                             
@@ -309,13 +299,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           label: 'Pengumuman',
                           onTap: () {
                             context.pushNamed(AppRoute.announcementList);
-                          },
-                        ),
-                        _buildMenuItem(
-                          icon: Assets.images.transkrip,
-                          label: 'Transkrip',
-                          onTap: () {
-                            context.pushNamed(AppRoute.transcript);
                           },
                         ),
                         _buildMenuItem(

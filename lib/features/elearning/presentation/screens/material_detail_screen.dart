@@ -24,7 +24,7 @@ class MaterialDetailScreen extends StatelessWidget {
             labelStyle: TextStyle(color: BaseColor.primaryInspire),
           ),
           Gap.h24,
-          if (material.type == elearning.MaterialType.TEXT || material.type == elearning.MaterialType.HYBRID)
+          if (material.type == elearning.MaterialType.text || material.type == elearning.MaterialType.hybrid)
             Text(
               material.content ?? '',
               style: BaseTypography.bodyMedium,

@@ -18,7 +18,7 @@ class AddClassScreen extends ConsumerStatefulWidget {
 }
 
 class _AddClassScreenState extends ConsumerState<AddClassScreen> {
-  String _searchQuery = '';
+  final String _searchQuery = '';
 
   @override
   void initState() {

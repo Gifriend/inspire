@@ -35,6 +35,8 @@ export 'presensi/presentation/presensi_state.dart';
 export 'profile/presentation/profile_controller.dart';
 export 'profile/presentation/profile_screen.dart';
 export 'profile/presentation/profile_state.dart';
+//other menu
+export 'other_menu/presentation/other_menu_screen.dart';
 //splash
 export 'splash/presentation/splash_controller.dart';
 export 'splash/presentation/splash_screen.dart';
@@ -43,3 +45,8 @@ export 'splash/presentation/splash_state.dart';
 export 'transcript/presentation/transcript_controller.dart';
 export 'transcript/presentation/transcript_screen.dart';
 export 'transcript/presentation/transcript_state.dart';
+//khs
+export 'khs/presentation/controllers/khs_controller.dart';
+export 'khs/presentation/screens/khs_detail_screen.dart';
+export 'khs/presentation/screens/khs_semester_list_screen.dart';
+export 'khs/presentation/states/khs_state.dart';

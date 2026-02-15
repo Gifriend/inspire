@@ -175,25 +175,25 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
               ),
               Gap.h16,
               
-              // Group by semester
+              // Group by academic year
               ...() {
-                // Group transkrip by semester
-                final Map<String, List<dynamic>> semesterGroups = {};
+                // Group transkrip by academic year
+                final Map<String, List<dynamic>> academicYearGroups = {};
                 for (var item in transcript.transkrip) {
-                  if (!semesterGroups.containsKey(item.semester)) {
-                    semesterGroups[item.semester] = [];
+                  if (!academicYearGroups.containsKey(item.academicYear)) {
+                    academicYearGroups[item.academicYear] = [];
                   }
-                  semesterGroups[item.semester]!.add(item);
+                  academicYearGroups[item.academicYear]!.add(item);
                 }
                 
-                return semesterGroups.entries.map((entry) {
-                  final semester = entry.key;
+                return academicYearGroups.entries.map((entry) {
+                  final academicYear = entry.key;
                   final items = entry.value;
                   
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Semester Header
+                      // Academic Year Header
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(BaseSize.w12),
@@ -202,7 +202,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                           borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                         ),
                         child: Text(
-                          semester,
+                          academicYear,
                           style: BaseTypography.titleMedium.toBold,
                         ),
                       ),

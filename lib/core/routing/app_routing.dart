@@ -3,10 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/features/presentation.dart';
-
 import '../../features/krs/presentation/screens/add_class_screen.dart';
 import '../../features/krs/presentation/screens/krs_screen.dart';
-import '../../features/transcript/presentation/transcript_screen.dart';
 import 'routing.dart';
 
 class AppRoute {
@@ -54,6 +52,10 @@ class AppRoute {
   //KRS
   static const String krs = 'krs';
   static const String krsAddClass = 'krs-add-class';
+  
+  //KHS
+  static const String khs = 'khs';
+  static const String khsDetail = 'khs-detail';
   
   //Transcript
   static const String transcript = 'transcript';
@@ -161,6 +163,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final semester = state.pathParameters['semester'] ?? '1';
           return AddClassScreen(semester: semester);
+        },
+      ),
+      GoRoute(
+        path: '/khs',
+        name: AppRoute.khs,
+        builder: (context, state) => const KhsSemesterListScreen(),
+      ),
+      GoRoute(
+        path: '/khs/:semester',
+        name: AppRoute.khsDetail,
+        builder: (context, state) {
+          final semester = state.pathParameters['semester'] ?? '';
+          return KhsDetailScreen(semester: semester);
         },
       ),
       GoRoute(

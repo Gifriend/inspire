@@ -164,7 +164,7 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
             children: [
               Expanded(
                 flex: 3,
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: _buildCourseImage(),
                 ),

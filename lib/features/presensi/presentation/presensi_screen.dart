@@ -10,10 +10,11 @@ class PresensiScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
+      appBar: AppBarWidget(title: "Presensi"),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ScreenTitleWidget.titleOnly(title: "Presensi"),
+          // const ScreenTitleWidget.titleOnly(title: "Presensi"),
           Gap.h12,
           PresensiOperationsListWidget(
             children: [

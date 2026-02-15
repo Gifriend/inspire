@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/presentation.dart';
-
 import '../../../core/constants/constants.dart';
 import '../../../core/widgets/widgets.dart';
 
@@ -56,11 +55,12 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   DashboardScreen(),
                   PresensiScreen(),
+                  OtherMenuScreen(),
                   ProfileScreen(),
                 ],
               ),
             ),
-            if (state.selectedBottomNavIndex != 2)
+            if (state.selectedBottomNavIndex != 4)
               Positioned(
                 bottom: 0,
                 left: 0,

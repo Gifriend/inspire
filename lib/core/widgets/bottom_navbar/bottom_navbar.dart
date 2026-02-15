@@ -53,12 +53,12 @@ class BottomNavBar extends ConsumerWidget {
                     _buildNavItem(
                       icon: Assets.icons.fill.other,
                       label: 'Lainnya',
-                      index: 3,
+                      index: 2,
                     ),
                     _buildNavItem(
                       icon: Assets.icons.fill.user,
                       label: 'Akun',
-                      index: 4,
+                      index: 3,
                     ),
                   ],
                 ),

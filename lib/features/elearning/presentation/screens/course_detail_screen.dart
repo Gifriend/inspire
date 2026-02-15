@@ -54,7 +54,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
       appBar: AppBarWidget(title: widget.courseName),
       child: courseState.when(
         initial: () => const SizedBox.shrink(),
-        // 1. Implementasi Skeleton Loading
+        // Implementasi Skeleton Loading
         loading: () => const _CourseDetailSkeleton(),
         error: (message) => Center(
           child: Column(
@@ -99,9 +99,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 2. Refactoring Widget: Session Card (Agar build utama tidak menumpuk)
-// -----------------------------------------------------------------------------
+
 class _SessionCard extends StatelessWidget {
   final SessionModel session;
 
@@ -167,9 +165,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 3. Sub-Widgets Item (Material, Assignment, Quiz)
-// -----------------------------------------------------------------------------
 
 class _MaterialItem extends StatelessWidget {
   final elearning.MaterialModel material;
@@ -187,7 +182,7 @@ class _MaterialItem extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            material.type == elearning.MaterialType.FILE ? Icons.insert_drive_file : Icons.text_fields,
+            material.type == elearning.MaterialType.file ? Icons.insert_drive_file : Icons.text_fields,
             color: Colors.blue,
             size: 20,
           ),
@@ -348,9 +343,7 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 4. Skeleton Loading Widget
-// -----------------------------------------------------------------------------
+
 class _CourseDetailSkeleton extends StatelessWidget {
   const _CourseDetailSkeleton();
 
@@ -358,9 +351,9 @@ class _CourseDetailSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       padding: EdgeInsets.all(BaseSize.w16),
-      itemCount: 4, // Tampilkan 4 dummy items
-      separatorBuilder: (_, __) => Gap.h16,
-      itemBuilder: (_, __) => Card(
+      itemCount: 4,
+      separatorBuilder: (_, _) => Gap.h16,
+      itemBuilder: (_, _) => Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BaseSize.radiusMd)),
         child: Padding(

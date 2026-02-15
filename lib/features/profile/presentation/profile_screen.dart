@@ -14,7 +14,11 @@ class ProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKeepAliveClientMixin{
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
@@ -25,10 +29,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
+    super.build(context);
+
     final profileState = ref.watch(profileControllerProvider);
     // final size = MediaQuery.of(context).size;
 
     return ScaffoldWidget(
+      appBar: AppBarWidget(title: 'Profil',),
       loading: profileState.maybeWhen(
         loading: () => true,
         orElse: () => false,
