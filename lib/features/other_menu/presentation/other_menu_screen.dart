@@ -74,33 +74,33 @@ class OtherMenuScreen extends ConsumerWidget {
             // TODO: Implement jadwal navigation
           },
         );
-      case 3:
-        return _buildMenuCard(
-          icon: Icons.money,
-          title: 'Keuangan',
-          subtitle: 'Info pembayaran dan tagihan',
-          onTap: () {
-            // TODO: Implement keuangan navigation
-          },
-        );
-      case 4:
-        return _buildMenuCard(
-          icon: Icons.library_books,
-          title: 'Perpustakaan',
-          subtitle: 'Akses koleksi perpustakaan',
-          onTap: () {
-            // TODO: Implement perpustakaan navigation
-          },
-        );
-      case 5:
-        return _buildMenuCard(
-          icon: Icons.help_outline,
-          title: 'Bantuan & Dukungan',
-          subtitle: 'Hubungi tim support',
-          onTap: () {
-            // TODO: Implement bantuan navigation
-          },
-        );
+      // case 3:
+      //   return _buildMenuCard(
+      //     icon: Icons.money,
+      //     title: 'Keuangan',
+      //     subtitle: 'Info pembayaran dan tagihan',
+      //     onTap: () {
+      //       // TODO: Implement keuangan navigation
+      //     },
+      //   );
+      // case 4:
+      //   return _buildMenuCard(
+      //     icon: Icons.library_books,
+      //     title: 'Perpustakaan',
+      //     subtitle: 'Akses koleksi perpustakaan',
+      //     onTap: () {
+      //       // TODO: Implement perpustakaan navigation
+      //     },
+      //   );
+      // case 5:
+      //   return _buildMenuCard(
+      //     icon: Icons.help_outline,
+      //     title: 'Bantuan & Dukungan',
+      //     subtitle: 'Hubungi tim support',
+      //     onTap: () {
+      //       // TODO: Implement bantuan navigation
+      //     },
+      //   );
       default:
         return const SizedBox.shrink();
     }

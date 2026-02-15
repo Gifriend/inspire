@@ -314,7 +314,7 @@ class _BaseItemContainer extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(BaseSize.w12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
             border: borderColor != null ? Border.all(color: borderColor!, width: 1) : null,
           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
@@ -9,10 +11,7 @@ import 'package:jiffy/jiffy.dart';
 class AnnouncementDetailScreen extends ConsumerStatefulWidget {
   final String id;
 
-  const AnnouncementDetailScreen({
-    super.key,
-    required this.id,
-  });
+  const AnnouncementDetailScreen({super.key, required this.id});
 
   @override
   ConsumerState<AnnouncementDetailScreen> createState() =>
@@ -40,33 +39,28 @@ class _AnnouncementDetailScreenState
 
     if (announcementId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Detail Pengumuman'),
-          backgroundColor: BaseColor.primaryInspire,
-          foregroundColor: BaseColor.white,
+        appBar: AppBarWidget(
+          leadIcon: Assets.icons.fill.arrowBack,
+          leadIconColor: BaseColor.white,
+          onPressedLeadIcon: () => context.pop(),
+          title: 'Detail Pengumuman',
         ),
-        body: const Center(
-          child: Text('Invalid announcement ID'),
-        ),
+        body: const Center(child: Text('Invalid announcement ID')),
       );
     }
 
-    final detailState =
-        ref.watch(announcementDetailControllerProvider(announcementId));
+    final detailState = ref.watch(
+      announcementDetailControllerProvider(announcementId),
+    );
 
     return ScaffoldWidget(
-      appBar: AppBar(
-        title: Text(
-          'Detail Pengumuman',
-          style: BaseTypography.titleLarge.toBold,
-        ),
-        backgroundColor: BaseColor.primaryInspire,
-        foregroundColor: BaseColor.white,
+      appBar: AppBarWidget(
+        title: 'Detail Pengumuman',
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
       ),
-      loading: detailState.maybeWhen(
-        loading: () => true,
-        orElse: () => false,
-      ),
+      loading: detailState.maybeWhen(loading: () => true, orElse: () => false),
       child: detailState.maybeWhen(
         loaded: (announcement) {
           return SingleChildScrollView(
@@ -83,7 +77,7 @@ class _AnnouncementDetailScreenState
                         vertical: BaseSize.h6,
                       ),
                       decoration: BoxDecoration(
-                        color: BaseColor.primaryInspire.withOpacity(0.1),
+                        color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                       ),
                       child: Text(
@@ -101,8 +95,10 @@ class _AnnouncementDetailScreenState
                           vertical: BaseSize.h6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                          color: Colors.orange.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusSm,
+                          ),
                         ),
                         child: Text(
                           'Global',
@@ -132,10 +128,7 @@ class _AnnouncementDetailScreenState
                         children: [
                           CircleAvatar(
                             backgroundColor: BaseColor.primaryInspire,
-                            child: Icon(
-                              Icons.person,
-                              color: BaseColor.white,
-                            ),
+                            child: Icon(Icons.person, color: BaseColor.white),
                           ),
                           Gap.w12,
                           Expanded(
@@ -163,11 +156,7 @@ class _AnnouncementDetailScreenState
                 // Created Date
                 Row(
                   children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: BaseColor.grey,
-                    ),
+                    Icon(Icons.access_time, size: 16, color: BaseColor.grey),
                     Gap.w4,
                     Text(
                       Jiffy.parse(announcement.createdAt.toString()).yMMMMd,
@@ -187,7 +176,7 @@ class _AnnouncementDetailScreenState
                   width: double.infinity,
                   padding: EdgeInsets.all(BaseSize.w16),
                   decoration: BoxDecoration(
-                    color: BaseColor.grey.withOpacity(0.1),
+                    color: BaseColor.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   ),
                   child: Text(
@@ -219,11 +208,14 @@ class _AnnouncementDetailScreenState
                                   vertical: BaseSize.h8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: BaseColor.grey.withOpacity(0.2),
-                                  borderRadius:
-                                      BorderRadius.circular(BaseSize.radiusSm),
+                                  color: BaseColor.grey.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(
+                                    BaseSize.radiusSm,
+                                  ),
                                   border: Border.all(
-                                    color: BaseColor.grey.withOpacity(0.3),
+                                    color: BaseColor.grey.withValues(
+                                      alpha: 0.3,
+                                    ),
                                   ),
                                 ),
                                 child: Column(
@@ -254,11 +246,7 @@ class _AnnouncementDetailScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
               Gap.h16,
               Text(
                 message,
@@ -269,8 +257,11 @@ class _AnnouncementDetailScreenState
               ElevatedButton(
                 onPressed: () {
                   ref
-                      .read(announcementDetailControllerProvider(announcementId)
-                          .notifier)
+                      .read(
+                        announcementDetailControllerProvider(
+                          announcementId,
+                        ).notifier,
+                      )
                       .loadAnnouncementDetail();
                 },
                 child: const Text('Coba Lagi'),

@@ -14,7 +14,6 @@ class PresensiScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // const ScreenTitleWidget.titleOnly(title: "Presensi"),
           Gap.h12,
           PresensiOperationsListWidget(
             children: [

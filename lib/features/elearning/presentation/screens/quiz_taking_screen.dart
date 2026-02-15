@@ -61,7 +61,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
 
     // Initialize essay controllers
     for (final q in widget.quiz.questions) {
-      if (q.type == QuestionType.ESSAY) {
+      if (q.type == QuestionType.essay) {
         _essayControllers[q.id] = TextEditingController();
       }
     }
@@ -365,7 +365,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                       Gap.h24,
 
                       // Answer Options
-                      if (question.type == QuestionType.MULTIPLE_CHOICE)
+                      if (question.type == QuestionType.multipleChoice)
                         ...question.options.asMap().entries.map((entry) {
                           final index = entry.key;
                           final option = entry.value;
@@ -397,7 +397,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                                   BaseSize.radiusMd,
                                 ),
                                 color: isSelected
-                                    ? BaseColor.primaryInspire.withOpacity(0.05)
+                                    ? BaseColor.primaryInspire.withValues(alpha: 0.05)
                                     : null,
                               ),
                               child: Row(
@@ -435,7 +435,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                             ),
                           );
                         })
-                      else if (question.type == QuestionType.TRUE_FALSE)
+                      else if (question.type == QuestionType.trueFalse)
                         Column(
                           children: [
                             _TrueFalseOption(
@@ -475,7 +475,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                             ),
                           ],
                         )
-                      else if (question.type == QuestionType.ESSAY)
+                      else if (question.type == QuestionType.essay)
                         TextField(
                           controller: _essayControllers[question.id],
                           maxLines: 6,
@@ -506,7 +506,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, -5),
                     ),
@@ -587,7 +587,7 @@ class _TrueFalseOption extends StatelessWidget {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          color: isSelected ? BaseColor.primaryInspire.withOpacity(0.05) : null,
+          color: isSelected ? BaseColor.primaryInspire.withValues(alpha: 0.05) : null,
         ),
         child: Row(
           children: [

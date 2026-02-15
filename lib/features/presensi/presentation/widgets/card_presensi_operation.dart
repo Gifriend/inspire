@@ -24,8 +24,16 @@ class CardPresensiOperation extends StatelessWidget {
           horizontal: BaseSize.w12,
         ),
         decoration: BoxDecoration(
-          color: BaseColor.primaryInspire,
+          color: BaseColor.white,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          border: Border.all(color: BaseColor.grey.withValues(alpha: 0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: BaseColor.grey,
+              blurRadius: 5,
+              offset: Offset(0, 5),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -33,10 +41,7 @@ class CardPresensiOperation extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    title,
-                    style: BaseTypography.titleMedium.bold.toCardBackground1,
-                  ),
+                  Text(title, style: BaseTypography.titleMedium.bold.toBlack),
                 ],
               ),
             ),
@@ -44,10 +49,7 @@ class CardPresensiOperation extends StatelessWidget {
             SizedBox(
               width: BaseSize.w24,
               child: Center(
-                child: Text(
-                  "+",
-                  style: BaseTypography.headlineSmall.toCardBackground1,
-                ),
+                child: Text("+", style: BaseTypography.headlineSmall.toBlack),
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/utils/utils.dart';
@@ -32,13 +33,11 @@ class _AnnouncementListScreenState
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
-      appBar: AppBar(
-        title: Text(
-          'Pengumuman',
-          style: BaseTypography.titleLarge.toBold,
-        ),
-        backgroundColor: BaseColor.primaryInspire,
-        foregroundColor: BaseColor.white,
+      appBar: AppBarWidget(
+        title: 'Pengumuman',
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
       ),
       loading: announcementState.maybeWhen(
         loading: () => true,
@@ -98,14 +97,18 @@ class _AnnouncementListScreenState
                                 vertical: BaseSize.h4,
                               ),
                               decoration: BoxDecoration(
-                                color: BaseColor.primaryInspire.withOpacity(0.1),
-                                borderRadius:
-                                    BorderRadius.circular(BaseSize.radiusSm),
+                                color: BaseColor.primaryInspire.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  BaseSize.radiusSm,
+                                ),
                               ),
                               child: Text(
                                 announcement.kategori,
-                                style: BaseTypography.bodySmall
-                                    .copyWith(color: BaseColor.primaryInspire),
+                                style: BaseTypography.bodySmall.copyWith(
+                                  color: BaseColor.primaryInspire,
+                                ),
                               ),
                             ),
                             Gap.w8,
@@ -116,14 +119,16 @@ class _AnnouncementListScreenState
                                   vertical: BaseSize.h4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.1),
-                                  borderRadius:
-                                      BorderRadius.circular(BaseSize.radiusSm),
+                                  color: Colors.orange.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(
+                                    BaseSize.radiusSm,
+                                  ),
                                 ),
                                 child: Text(
                                   'Global',
-                                  style: BaseTypography.bodySmall
-                                      .copyWith(color: Colors.orange),
+                                  style: BaseTypography.bodySmall.copyWith(
+                                    color: Colors.orange,
+                                  ),
                                 ),
                               ),
                           ],
@@ -152,8 +157,9 @@ class _AnnouncementListScreenState
                                 style: BaseTypography.bodySmall.toGrey,
                               ),
                             Text(
-                              Jiffy.parse(announcement.createdAt.toString())
-                                  .fromNow(),
+                              Jiffy.parse(
+                                announcement.createdAt.toString(),
+                              ).fromNow(),
                               style: BaseTypography.bodySmall.toGrey,
                             ),
                           ],
@@ -176,9 +182,12 @@ class _AnnouncementListScreenState
                                           vertical: BaseSize.h4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: BaseColor.grey.withOpacity(0.2),
+                                          color: BaseColor.grey.withValues(
+                                            alpha: 0.2,
+                                          ),
                                           borderRadius: BorderRadius.circular(
-                                              BaseSize.radiusSm),
+                                            BaseSize.radiusSm,
+                                          ),
                                         ),
                                         child: Text(
                                           '${kelas.kode} - ${kelas.nama}',
@@ -202,11 +211,7 @@ class _AnnouncementListScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
               Gap.h16,
               Text(
                 message,

@@ -67,7 +67,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                   borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.grey.withOpacity(0.3),
+                      color: BaseColor.grey.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -109,7 +109,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                   borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.grey.withOpacity(0.3),
+                      color: BaseColor.grey.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -198,7 +198,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                         width: double.infinity,
                         padding: EdgeInsets.all(BaseSize.w12),
                         decoration: BoxDecoration(
-                          color: BaseColor.primaryInspire.withOpacity(0.1),
+                          color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                         ),
                         child: Text(
@@ -216,7 +216,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                           decoration: BoxDecoration(
                             color: BaseColor.white,
                             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                            border: Border.all(color: BaseColor.grey.withOpacity(0.3)),
+                            border: Border.all(color: BaseColor.grey.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
@@ -459,7 +459,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                 Container(
                   padding: EdgeInsets.all(BaseSize.w8),
                   decoration: BoxDecoration(
-                    color: BaseColor.grey.withOpacity(0.1),
+                    color: BaseColor.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                   ),
                   child: Text(
@@ -544,7 +544,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: BaseColor.grey.withOpacity(0.5),
+                    color: BaseColor.grey.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -582,7 +582,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                     ],
                   ),
                 ),
-                Divider(color: BaseColor.grey.withOpacity(0.3)),
+                Divider(color: BaseColor.grey.withValues(alpha: 0.3)),
                 // HTML Content - Rendered or Raw
                 Expanded(
                   child: SingleChildScrollView(

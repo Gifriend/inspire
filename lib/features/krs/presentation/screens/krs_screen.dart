@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/routing/app_routing.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
@@ -34,11 +35,17 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
+      appBar: AppBarWidget(
+        title: 'Kartu Rencana Studi',
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Gap.h16,
-          ScreenTitleWidget.titleOnly(title: 'Kartu Rencana Studi'),
+          // Gap.h16,
+          // ScreenTitleWidget.titleOnly(title: 'Kartu Rencana Studi'),
           Gap.h12,
           _buildSemesterInfo(),
           Gap.h20,
@@ -55,16 +62,9 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
+                    Icon(Icons.error_outline, size: 64, color: Colors.red),
                     Gap.h16,
-                    Text(
-                      'Gagal memuat KRS',
-                      style: BaseTypography.bodyLarge,
-                    ),
+                    Text('Gagal memuat KRS', style: BaseTypography.bodyLarge),
                     Gap.h8,
                     Text(
                       message,
@@ -75,7 +75,9 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                     ElevatedButton(
                       onPressed: () {
                         ref
-                            .read(krsControllerProvider(widget.semester).notifier)
+                            .read(
+                              krsControllerProvider(widget.semester).notifier,
+                            )
                             .loadKrs();
                       },
                       child: const Text('Coba Lagi'),
@@ -94,16 +96,12 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
     return Container(
       padding: EdgeInsets.all(BaseSize.w16),
       decoration: BoxDecoration(
-        color: BaseColor.primaryInspire.withOpacity(0.1),
+        color: BaseColor.primaryInspire.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.calendar_today,
-            color: BaseColor.primaryInspire,
-            size: 20,
-          ),
+          Icon(Icons.calendar_today, color: BaseColor.primaryInspire, size: 20),
           Gap.w12,
           Text(
             'Semester: ${widget.semester}',
@@ -202,10 +200,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
               ),
             ),
             Gap.h4,
-            Text(
-              krs.catatanDosen!,
-              style: BaseTypography.bodySmall.toGrey,
-            ),
+            Text(krs.catatanDosen!, style: BaseTypography.bodySmall.toGrey),
           ],
         ],
       ),
@@ -241,7 +236,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
         vertical: BaseSize.h4,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
         border: Border.all(color: color),
       ),
@@ -292,10 +287,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                 children: [
                   Icon(Icons.person, size: 16, color: BaseColor.grey),
                   Gap.w4,
-                  Text(
-                    kelas.dosen!.name,
-                    style: BaseTypography.bodySmall,
-                  ),
+                  Text(kelas.dosen!.name, style: BaseTypography.bodySmall),
                 ],
               ),
             ],
@@ -305,10 +297,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                 children: [
                   Icon(Icons.schedule, size: 16, color: BaseColor.grey),
                   Gap.w4,
-                  Text(
-                    kelas.jadwal!,
-                    style: BaseTypography.bodySmall,
-                  ),
+                  Text(kelas.jadwal!, style: BaseTypography.bodySmall),
                 ],
               ),
             ],
@@ -318,10 +307,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
                 children: [
                   Icon(Icons.room, size: 16, color: BaseColor.grey),
                   Gap.w4,
-                  Text(
-                    kelas.ruangan!,
-                    style: BaseTypography.bodySmall,
-                  ),
+                  Text(kelas.ruangan!, style: BaseTypography.bodySmall),
                 ],
               ),
             ],
@@ -336,11 +322,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.school_outlined,
-            size: 64,
-            color: BaseColor.grey,
-          ),
+          Icon(Icons.school_outlined, size: 64, color: BaseColor.grey),
           Gap.h16,
           Text(
             'Belum ada mata kuliah dipilih',

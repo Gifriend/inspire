@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/elearning/domain/services/elearning_service.dart';
 import 'package:inspire/features/elearning/presentation/states/course_list_state.dart';
@@ -21,7 +22,7 @@ class CourseListController extends StateNotifier<CourseListState> {
       state = const CourseListState.loading();
       final courses = await _service.getStudentCourses();
       state = CourseListState.loaded(courses);
-      print(courses);
+      debugPrint('$courses');
     } catch (e) {
       state = CourseListState.error(e.toString());
     }

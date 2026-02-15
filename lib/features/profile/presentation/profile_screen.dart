@@ -49,7 +49,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
             width: double.infinity,
             padding: EdgeInsets.all(BaseSize.h12),
             decoration: BoxDecoration(
-              color: BaseColor.primaryInspire,
+              color: BaseColor.white,
               borderRadius: BorderRadius.circular(BaseSize.radiusMd),
               boxShadow: [
                 BoxShadow(
@@ -74,7 +74,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
                     ],
                   ),
                   child: Image.asset(
-                    Assets.icons.app.user.path,
+                    user.photo ?? Assets.icons.app.user.path,
                     height: BaseSize.h72,
                     width: BaseSize.w64,
                   ),
@@ -86,14 +86,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
                     children: [
                       Text(
                         user.name,
-                        style: BaseTypography.titleMedium.toBold.toWhite,
+                        style: BaseTypography.titleMedium.toBold,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Gap.h6,
                       Text(
                         user.nim,
-                        style: BaseTypography.titleMedium.toWhite,
+                        style: BaseTypography.titleMedium,
                         maxLines: 1,
                       ),
                     ],
@@ -124,14 +124,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
                   Column(
                     children: [
                       Text('IPK', style: BaseTypography.titleSmall.toBold),
-                      Text('4.00', style: BaseTypography.headlineSmall),
+                      Text(user.ipk?.toStringAsFixed(2) ?? "0.00", style: BaseTypography.headlineSmall),
                     ],
                   ),
                   Gap.w28,
                   Column(
                     children: [
                       Text('SMESTER', style: BaseTypography.titleSmall.toBold),
-                      Text('7', style: BaseTypography.headlineSmall),
+                      Text(user.semesterTerakhir ?? "0", style: BaseTypography.headlineSmall),
                     ],
                   ),
                   Gap.w28,
@@ -141,7 +141,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
                         'SKS LULUS',
                         style: BaseTypography.titleSmall.toBold,
                       ),
-                      Text('138', style: BaseTypography.headlineSmall),
+                      Text(user.totalSksLulus?.toString() ?? "0", style: BaseTypography.headlineSmall),
                     ],
                   ),
                 ],
@@ -183,25 +183,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
-                      'Teknik',
+                      user.fakultas?.name ?? "",
                       style: BaseTypography.titleLarge,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Teknik Informatika',
+                      user.prodi?.name ?? "",
                       style: BaseTypography.titleLarge,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Strata 1',
+                      user.prodi?.jenjang ?? "",
                       style: BaseTypography.titleLarge,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Aktif',
+                      user.status,
                       style: BaseTypography.titleLarge,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

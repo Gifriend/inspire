@@ -54,7 +54,7 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
     return Container(
       padding: EdgeInsets.all(BaseSize.w16),
       decoration: BoxDecoration(
-        color: BaseColor.primaryInspire.withOpacity(0.1),
+        color: BaseColor.primaryInspire.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
@@ -123,7 +123,7 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -134,7 +134,7 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
             Container(
               padding: EdgeInsets.all(BaseSize.w12),
               decoration: BoxDecoration(
-                color: BaseColor.primaryInspire.withOpacity(0.1),
+                color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(BaseSize.radiusSm),
               ),
               child: Icon(

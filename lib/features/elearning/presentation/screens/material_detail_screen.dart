@@ -20,7 +20,7 @@ class MaterialDetailScreen extends StatelessWidget {
           Gap.h8,
           Chip(
             label: Text(material.type.name),
-            backgroundColor: BaseColor.primaryInspire.withOpacity(0.1),
+            backgroundColor: BaseColor.primaryInspire.withValues(alpha: 0.1),
             labelStyle: TextStyle(color: BaseColor.primaryInspire),
           ),
           Gap.h24,

@@ -6489,6 +6489,10 @@ class $AssetsIconsFillGen {
   SvgGenImage get appleLogo =>
       const SvgGenImage('assets/icons/fill/apple_logo.svg');
 
+  /// File path: assets/icons/fill/arrow_back.svg
+  SvgGenImage get arrowBack =>
+      const SvgGenImage('assets/icons/fill/arrow_back.svg');
+
   /// File path: assets/icons/fill/box.svg
   SvgGenImage get box => const SvgGenImage('assets/icons/fill/box.svg');
 
@@ -6721,6 +6725,7 @@ class $AssetsIconsFillGen {
   List<dynamic> get values => [
     account,
     appleLogo,
+    arrowBack,
     box,
     calendar,
     calendarDays,

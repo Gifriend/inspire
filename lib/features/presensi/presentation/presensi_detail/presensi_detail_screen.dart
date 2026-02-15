@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
@@ -85,17 +86,11 @@ class PresensiDetailScreen extends ConsumerWidget {
       disablePadding: true,
       disableSingleChildScrollView: true,
       backgroundColor: BaseColor.cardBackground1,
-      appBar: AppBar(
-        leading: IconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(Icons.arrow_back_ios_new, color: BaseColor.white),
-          onPressed: context.pop,
-        ),
-        title: Text(
-          _getTitle(),
-          style: BaseTypography.headlineSmall.toBold.toWhite,
-        ),
-        backgroundColor: BaseColor.primaryInspire,
+      appBar: AppBarWidget(
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
+        title: _getTitle(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +137,7 @@ class PresensiDetailScreen extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: state.loading == true
-                            ? BaseColor.primaryInspire.withOpacity(0.6)
+                            ? BaseColor.primaryInspire.withValues(alpha: 0.6)
                             : BaseColor.primaryInspire,
                         borderRadius: BorderRadius.circular(BaseSize.radiusLg),
                       ),

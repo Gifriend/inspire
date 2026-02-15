@@ -129,7 +129,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
     return Container(
       padding: EdgeInsets.all(BaseSize.w16),
       decoration: BoxDecoration(
-        color: BaseColor.primaryInspire.withOpacity(0.1),
+        color: BaseColor.primaryInspire.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(

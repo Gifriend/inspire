@@ -183,7 +183,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                     width: double.infinity,
                     padding: EdgeInsets.all(BaseSize.w16),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                     ),
                     child: Row(
@@ -204,7 +204,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                     width: double.infinity,
                     padding: EdgeInsets.all(BaseSize.w16),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                     ),
                     child: Row(
@@ -262,7 +262,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: BaseSize.w12, vertical: BaseSize.h4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
       ),
       child: Text(

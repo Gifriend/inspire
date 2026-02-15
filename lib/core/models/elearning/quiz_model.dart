@@ -5,20 +5,20 @@ part 'quiz_model.g.dart';
 
 enum QuizGradingMethod {
   @JsonValue('HIGHEST_GRADE')
-  HIGHEST_GRADE,
+  highestGrade,
   @JsonValue('AVERAGE_GRADE')
-  AVERAGE_GRADE,
+  averageGrade,
   @JsonValue('LATEST_GRADE')
-  LATEST_GRADE,
+  latestGrade,
 }
 
 enum QuestionType {
   @JsonValue('MULTIPLE_CHOICE')
-  MULTIPLE_CHOICE,
+  multipleChoice,
   @JsonValue('TRUE_FALSE')
-  TRUE_FALSE,
+  trueFalse,
   @JsonValue('ESSAY')
-  ESSAY,
+  essay,
 }
 
 @freezed
@@ -27,7 +27,7 @@ abstract class QuizModel with _$QuizModel {
     required String id,
     required String title,
     String? description,
-    required int duration, // in minutes
+    required int duration, 
     required DateTime startTime,
     required DateTime endTime,
     required QuizGradingMethod gradingMethod,

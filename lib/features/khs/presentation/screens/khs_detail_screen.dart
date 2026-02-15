@@ -4,7 +4,6 @@ import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:inspire/features/khs/presentation/controllers/khs_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:inspire/features/presentation.dart';
 
@@ -61,7 +60,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
     return Container(
       padding: EdgeInsets.all(BaseSize.w16),
       decoration: BoxDecoration(
-        color: BaseColor.primaryInspire.withOpacity(0.1),
+        color: BaseColor.primaryInspire.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
       ),
       child: Row(
@@ -153,7 +152,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
         gradient: LinearGradient(
           colors: [
             BaseColor.primaryInspire,
-            BaseColor.primaryInspire.withOpacity(0.8),
+            BaseColor.primaryInspire.withValues(alpha: 0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -161,7 +160,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         boxShadow: [
           BoxShadow(
-            color: BaseColor.primaryInspire.withOpacity(0.3),
+            color: BaseColor.primaryInspire.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -284,7 +283,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: BaseColor.primaryInspire.withOpacity(0.1),
+                  color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                 ),
                 child: Center(
@@ -323,9 +322,9 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
                   vertical: BaseSize.h4,
                 ),
                 decoration: BoxDecoration(
-                  color: gradeColor.withOpacity(0.1),
+                  color: gradeColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                  border: Border.all(color: gradeColor.withOpacity(0.3)),
+                  border: Border.all(color: gradeColor.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   nilai.nilaiHuruf,

@@ -89,8 +89,6 @@ abstract class AddClassDto with _$AddClassDto {
 
   factory AddClassDto.fromJson(Map<String, dynamic> json) =>
       _$AddClassDtoFromJson(json);
-
-  Map<String, dynamic> toJson();
 }
 
 // DTO for submitting KRS

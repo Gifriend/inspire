@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/elearning/domain/services/elearning_service.dart';
 import 'package:inspire/features/elearning/presentation/states/course_state.dart';
@@ -24,7 +25,7 @@ class CourseController extends StateNotifier<CourseState> {
       state = const CourseState.loading();
       final sessions = await _service.getCourseContent(kelasId);
       state = CourseState.loaded(sessions);
-      print(sessions);
+      debugPrint('$sessions');
     } catch (e) {
       state = CourseState.error(e.toString());
     }

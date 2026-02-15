@@ -17,7 +17,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     this.trailIcon,
     this.trailIconColor,
     this.onPressedTrailIcon,
-    this.backgorundColor
+    this.backgorundColor,
   });
 
   final String title;
@@ -44,23 +44,19 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       required SvgGenImage icon,
       required Color iconColor,
       required VoidCallback? onPressedIcon,
-    }) =>
-        IconButton(
-          padding: EdgeInsets.zero,
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          constraints: BoxConstraints(
-            minHeight: _iconSize,
-            minWidth: _iconSize,
-          ),
-          icon: icon.svg(
-            width: _iconSize,
-            height: _iconSize,
-            colorFilter: iconColor.filterSrcIn,
-          ),
-          iconSize: _iconSize.r,
-          splashRadius: _iconSize.r,
-          onPressed: onPressedIcon,
-        );
+    }) => IconButton(
+      padding: EdgeInsets.zero,
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      constraints: BoxConstraints(minHeight: _iconSize, minWidth: _iconSize),
+      icon: icon.svg(
+        width: _iconSize,
+        height: _iconSize,
+        colorFilter: iconColor.filterSrcIn,
+      ),
+      iconSize: _iconSize.r,
+      splashRadius: _iconSize.r,
+      onPressed: onPressedIcon,
+    );
 
     return AppBar(
       systemOverlayStyle: const SystemUiOverlayStyle(
@@ -89,7 +85,16 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           iconColor: leadIconColor ?? Colors.black,
                           onPressedIcon: onPressedLeadIcon ?? () {},
                         )
-                      : const SizedBox(),
+                      : (trailIcon != null
+                            ? Opacity(
+                                opacity: 0.0,
+                                child: buildIcon(
+                                  icon: trailIcon!,
+                                  iconColor: Colors.transparent,
+                                  onPressedIcon: null,
+                                ),
+                              )
+                            : const SizedBox()),
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -100,13 +105,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           style: BaseTypography.headlineSmall.toWhite,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          
-                        ), 
+                        ),
                         if (subtitle != null)
-                          Text(
-                            subtitle!,
-                            style: BaseTypography.titleMedium,
-                          ),
+                          Text(subtitle!, style: BaseTypography.titleMedium),
                       ],
                     ),
                   ),
@@ -116,7 +117,16 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                           iconColor: trailIconColor ?? Colors.black,
                           onPressedIcon: onPressedTrailIcon ?? () {},
                         )
-                      : const SizedBox(),
+                      : (leadIcon != null
+                            ? Opacity(
+                                opacity: 0.0,
+                                child: buildIcon(
+                                  icon: leadIcon!,
+                                  iconColor: Colors.transparent,
+                                  onPressedIcon: null,
+                                ),
+                              )
+                            : const SizedBox()),
                 ],
               ),
             ),

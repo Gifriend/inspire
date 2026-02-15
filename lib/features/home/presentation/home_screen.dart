@@ -15,11 +15,11 @@ class HomeScreen extends ConsumerWidget {
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       disablePadding: true,
-      child: WillPopScope(
-        onWillPop: () async {
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, _) {
           if (state.selectedBottomNavIndex != 0) {
             controller.navigateTo(0);
-            return Future.value(false);
           } else {
             DateTime now = DateTime.now();
 
@@ -34,11 +34,12 @@ class HomeScreen extends ConsumerWidget {
                     'Tekan sekali lagi untuk keluar',
                     style: BaseTypography.titleMedium,
                   ),
+                  duration: const Duration(seconds: 2),
                 ),
               );
-              return Future.value(false);
+            } else {
+              Navigator.of(context).pop();
             }
-            return Future.value(true);
           }
         },
         child: Stack(
@@ -65,11 +66,23 @@ class HomeScreen extends ConsumerWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: BottomNavBar(
-                  currentIndex: state.selectedBottomNavIndex,
-                  onPressedItem: (index) {
-                    controller.navigateTo(index);
-                  },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, -5),
+                      ),
+                    ],
+                  ),
+                  child: BottomNavBar(
+                    currentIndex: state.selectedBottomNavIndex,
+                    onPressedItem: (index) {
+                      controller.navigateTo(index);
+                    },
+                  ),
                 ),
               ),
           ],

@@ -21,7 +21,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> with AutomaticKeepAliveClientMixin {
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with AutomaticKeepAliveClientMixin {
   final PageController _pageController = PageController(viewportFraction: 0.75);
   Timer? _autoScrollTimer;
   int _currentPage = 0;
@@ -36,21 +37,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
     startAutoScroll();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 3. Cek state manual menggunakan 'maybeWhen'
       final currentProfileState = ref.read(profileControllerProvider);
-      
-      // Logika: Hanya load jika state SEKARANG bukan loaded dan bukan loading
+
+      // Just load if current state is not loaded and not loading
       final bool shouldLoadProfile = currentProfileState.maybeWhen(
-        loaded: (_) => false, // Sudah ada data, jangan load
-        loading: () => false, // Sedang loading, jangan load
-        orElse: () => true,   // Initial atau Error, silakan load
+        loaded: (_) => false,
+        loading: () => false,
+        orElse: () => true, // Initial or Error
       );
 
       if (shouldLoadProfile) {
         ref.read(profileControllerProvider.notifier).loadProfile();
       }
-      
-      // Lakukan hal yang sama untuk announcement
+
       final currentAnnouncementState = ref.read(announcementControllerProvider);
       final bool shouldLoadAnnouncement = currentAnnouncementState.maybeWhen(
         loaded: (_) => false,
@@ -105,25 +104,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
   Widget build(BuildContext context) {
     super.build(context);
     final profileState = ref.watch(profileControllerProvider);
-    
+
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       disablePadding: true,
-      child: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height / 2.75,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: BaseColor.primaryInspire,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(BaseSize.radiusXl),
-                bottomRight: Radius.circular(BaseSize.radiusXl),
+      child: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height / 2.75,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: BaseColor.primaryInspire,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(BaseSize.radiusXl),
+                  bottomRight: Radius.circular(BaseSize.radiusXl),
+                ),
               ),
             ),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
+            SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -144,11 +143,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                             profileState.maybeWhen(
                               loaded: (user) => Text(
                                 user.name,
-                                style: BaseTypography.titleMedium.toBold.toWhite,
+                                style:
+                                    BaseTypography.titleMedium.toBold.toWhite,
                               ),
                               orElse: () => Text(
                                 'Loading...',
-                                style: BaseTypography.titleMedium.toBold.toWhite,
+                                style:
+                                    BaseTypography.titleMedium.toBold.toWhite,
                               ),
                             ),
                           ],
@@ -181,14 +182,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                             right: 15,
                             child: Row(
                               children: [
-                                Text(
-                                  'IPK: 4.00',
-                                  style: BaseTypography.bodySmall,
-                                ),
-                                Gap.w12,
-                                Text(
-                                  'SKS lulus: 120',
-                                  style: BaseTypography.bodySmall,
+                                profileState.maybeWhen(
+                                  loaded: (user) => Row(
+                                    children: [
+                                      Text(
+                                        'IPK: ${user.ipk?.toStringAsFixed(2) ?? "0.00"}',
+                                        style: BaseTypography.bodySmall,
+                                      ),
+                                      Gap.w12,
+                                      Text(
+                                        'SKS lulus: ${user.totalSksLulus ?? 0}',
+                                        style: BaseTypography.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                  orElse: () =>
+                                      const SizedBox.shrink(), // Munculkan kosong atau loading jika belum siap
                                 ),
                               ],
                             ),
@@ -197,10 +206,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                             children: [
                               Container(
                                 padding: EdgeInsets.only(left: BaseSize.w20),
-                                child: Image.asset(
-                                  Assets.icons.app.user.path,
-                                  height: BaseSize.h72,
-                                  width: BaseSize.w64,
+                                child: profileState.maybeWhen(
+                                  loaded: (user) => Image.asset(
+                                    user.photo ?? Assets.icons.app.user.path,
+                                    height: BaseSize.h72,
+                                    width: BaseSize.w64,
+                                  ),
+                                  orElse: () => Image.asset(
+                                    Assets.icons.app.user.path,
+                                    height: BaseSize.h72,
+                                    width: BaseSize.w64,
+                                  ),
                                 ),
                               ),
                               Gap.w12,
@@ -285,9 +301,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                             // Navigate to KRS with current semester
                             final now = DateTime.now();
                             final year = now.year;
-                            final semesterType = now.month >= 8 ? 'GANJIL' : 'GENAP';
+                            final semesterType = now.month >= 8
+                                ? 'GANJIL'
+                                : 'GENAP';
                             final semester = '$semesterType-$year';
-                            
+
                             context.pushNamed(
                               AppRoute.krs,
                               pathParameters: {'semester': semester},
@@ -348,8 +366,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                   Gap.h20,
                   Consumer(
                     builder: (context, ref, child) {
-                      final announcementState = ref.watch(announcementControllerProvider);
-                      
+                      final announcementState = ref.watch(
+                        announcementControllerProvider,
+                      );
+
                       return announcementState.maybeWhen(
                         loaded: (announcements) {
                           if (announcements.isEmpty) {
@@ -357,7 +377,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                               height: 280.0,
                               margin: EdgeInsets.symmetric(horizontal: 20),
                               decoration: BoxDecoration(
-                                color: BaseColor.grey.withOpacity(0.1),
+                                color: BaseColor.grey.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
@@ -368,10 +388,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                               ),
                             );
                           }
-                          
+
                           // Only show first 5 announcements
-                          final displayAnnouncements = announcements.take(5).toList();
-                          
+                          final displayAnnouncements = announcements
+                              .take(5)
+                              .toList();
+
                           return SizedBox(
                             height: 280.0,
                             child: PageView.builder(
@@ -387,7 +409,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                               },
                               itemCount: displayAnnouncements.length,
                               itemBuilder: (context, index) {
-                                final announcement = displayAnnouncements[index];
+                                final announcement =
+                                    displayAnnouncements[index];
                                 return _buildPengumumanBookCard(
                                   context,
                                   announcement,
@@ -409,7 +432,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                           height: 280.0,
                           margin: EdgeInsets.symmetric(horizontal: 20),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
+                            color: Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
@@ -427,8 +450,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -506,10 +529,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              'Logout',
-              style: TextStyle(color: BaseColor.red),
-            ),
+            child: Text('Logout', style: TextStyle(color: BaseColor.red)),
           ),
         ],
       ),
@@ -523,9 +543,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with Automati
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal logout: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Gagal logout: $e')));
         }
       }
     }
@@ -551,7 +571,7 @@ Widget _buildPengumumanBookCard(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -575,7 +595,7 @@ Widget _buildPengumumanBookCard(
                         end: Alignment.bottomRight,
                         colors: [
                           BaseColor.primaryInspire,
-                          BaseColor.primaryInspire.withOpacity(0.7),
+                          BaseColor.primaryInspire.withValues(alpha: 0.7),
                         ],
                       ),
                     ),
@@ -583,7 +603,7 @@ Widget _buildPengumumanBookCard(
                       child: Icon(
                         Icons.announcement,
                         size: 64,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                       ),
                     ),
                   ),
@@ -594,7 +614,7 @@ Widget _buildPengumumanBookCard(
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: BaseColor.black.withOpacity(0.7),
+                        color: BaseColor.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                       ),
                       child: Text(
@@ -613,10 +633,15 @@ Widget _buildPengumumanBookCard(
                       top: 8,
                       right: 8,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                          color: Colors.orange.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusSm,
+                          ),
                         ),
                         child: Text(
                           'Global',
@@ -635,11 +660,13 @@ Widget _buildPengumumanBookCard(
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                       ),
                       child: Text(
-                        Jiffy.parse(announcement.createdAt.toString()).fromNow(),
+                        Jiffy.parse(
+                          announcement.createdAt.toString(),
+                        ).fromNow(),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w500,

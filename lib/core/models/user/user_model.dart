@@ -26,6 +26,9 @@ abstract class UserModel with _$UserModel {
     DateTime? updatedAt,
     FakultasModel? fakultas,
     ProdiModel? prodi,
+    double? ipk,
+    int? totalSksLulus,
+    String? semesterTerakhir, 
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
