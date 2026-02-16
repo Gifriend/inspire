@@ -248,7 +248,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                   Gap.h6,
                                   profileState.maybeWhen(
                                     loaded: (user) => Text(
-                                      user.nim,
+                                      user.nim ?? '-',
                                       style: BaseTypography.bodyMedium,
                                     ),
                                     orElse: () => Text(

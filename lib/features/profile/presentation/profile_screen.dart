@@ -92,7 +92,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with AutomaticKee
                       ),
                       Gap.h6,
                       Text(
-                        user.nim,
+                        user.nim ?? '-',
                         style: BaseTypography.titleMedium,
                         maxLines: 1,
                       ),

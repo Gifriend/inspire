@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../models.dart';
+
 part 'course_list_model.freezed.dart';
 part 'course_list_model.g.dart';
 
@@ -12,7 +14,7 @@ abstract class CourseListModel with _$CourseListModel {
     int? kapasitas,
     String? ruangan,
     String? jadwal,
-    required String semester,
+    String? academicYear,
     required int mataKuliahId,
     int? dosenId,
     required DateTime createdAt,
@@ -35,22 +37,9 @@ abstract class MataKuliahInfoModel with _$MataKuliahInfoModel {
     required int semester,
     required String jenisMK,
     String? deskripsi,
+    String? silabus,
   }) = _MataKuliahInfoModel;
 
   factory MataKuliahInfoModel.fromJson(Map<String, dynamic> json) =>
       _$MataKuliahInfoModelFromJson(json);
-}
-
-@freezed
-abstract class DosenInfoModel with _$DosenInfoModel {
-  const factory DosenInfoModel({
-    required int id,
-    required String name,
-    required String nip,
-    String? email,
-    String? photo,
-  }) = _DosenInfoModel;
-
-  factory DosenInfoModel.fromJson(Map<String, dynamic> json) =>
-      _$DosenInfoModelFromJson(json);
 }

@@ -1,17 +1,109 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/presentation.dart';
 import '../../../core/constants/constants.dart';
 import '../../../core/widgets/widgets.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load profile saat HomeScreen pertama kali dibuat
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentProfileState = ref.read(profileControllerProvider);
+      
+      // Load profile jika belum loaded
+      final bool shouldLoadProfile = currentProfileState.maybeWhen(
+        loaded: (_) => false,
+        orElse: () => true,
+      );
+
+      if (shouldLoadProfile) {
+        ref.read(profileControllerProvider.notifier).loadProfile();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(homeControllerProvider.notifier);
     final state = ref.watch(homeControllerProvider);
+    final profileState = ref.watch(profileControllerProvider);
 
+    // PENTING: Tunggu profile selesai dimuat sebelum render dashboard
+    return profileState.when(
+      initial: () => _buildLoadingScreen(),
+      loading: () => _buildLoadingScreen(),
+      error: (message) => _buildErrorScreen(message),
+      loaded: (user) {
+        // Determine user role setelah profile berhasil dimuat
+        final bool isLecturer = user.role == 'DOSEN' || user.role == 'KOORPRODI';
+        
+        if (kDebugMode) {
+          print('🔍 HomeScreen - User: ${user.name}, Role: ${user.role}, isLecturer: $isLecturer');
+        }
+
+        return _buildMainContent(
+          context: context,
+          controller: controller,
+          state: state,
+          isLecturer: isLecturer,
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingScreen() {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Memuat profil...'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen(String message) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('Error: $message'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(profileControllerProvider.notifier).loadProfile();
+              },
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainContent({
+    required BuildContext context,
+    required dynamic controller,
+    required dynamic state,
+    required bool isLecturer,
+  }) {
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
       disablePadding: true,
@@ -54,10 +146,14 @@ class HomeScreen extends ConsumerWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 controller: controller.pageController,
                 children: [
-                  DashboardScreen(),
-                  PresensiScreen(),
-                  OtherMenuScreen(),
-                  ProfileScreen(),
+                  // Tab pertama: Tampilkan LecturerDashboard untuk dosen, Dashboard biasa untuk mahasiswa
+                  isLecturer ? const LecturerDashboardScreen() : const DashboardScreen(),
+                  // Tab kedua: Presensi (disesuaikan untuk dosen atau mahasiswa)
+                  isLecturer ? const PresensiLecturerScreen() : const PresensiScreen(),
+                  // Tab ketiga: Menu Lainnya
+                  const OtherMenuScreen(),
+                  // Tab keempat: Profile
+                  const ProfileScreen(),
                 ],
               ),
             ),

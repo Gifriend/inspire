@@ -14,7 +14,7 @@ class ScaffoldWidget extends StatelessWidget {
     this.disableSingleChildScrollView = false,
     this.disablePadding = false,
     this.persistBottomWidget,
-    this.loading = false,
+    this.loading = false, Widget? floatingActionButton,
   });
 
   final Widget child;

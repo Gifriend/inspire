@@ -4,7 +4,7 @@ import 'package:inspire/features/profile/domain/services/profile_service.dart';
 import 'package:inspire/features/profile/presentation/profile_state.dart';
 
 final profileControllerProvider =
-    StateNotifierProvider.autoDispose<ProfileController, ProfileState>(
+    StateNotifierProvider<ProfileController, ProfileState>(
   (ref) => ProfileController(ref),
 );
 

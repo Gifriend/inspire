@@ -67,6 +67,7 @@ abstract class MataKuliahDetailModel with _$MataKuliahDetailModel {
     required int semester,
     required String jenisMK,
     String? deskripsi,
+    String? silabus,
   }) = _MataKuliahDetailModel;
 
   factory MataKuliahDetailModel.fromJson(Map<String, dynamic> json) =>

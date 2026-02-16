@@ -7,6 +7,7 @@ import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/login/presentation/login_controller.dart';
 import 'package:inspire/features/login/presentation/login_state.dart';
+import 'package:inspire/features/profile/presentation/profile_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -44,13 +45,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     ref.listen<LoginState>(loginControllerProvider, (previous, next) {
       next.maybeWhen(
-        success: () {
+        success: () async {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Login berhasil'),
               backgroundColor: Colors.green,
             ),
           );
+          
+          // Load user profile
+          final profileNotifier = ref.read(profileControllerProvider.notifier);
+          await profileNotifier.loadProfile();
+          
+          // Debug: Check loaded user
+          final user = profileNotifier.cachedUser;
+          if (user != null) {
+            debugPrint('🔑 Login - User loaded: ${user.name}, Role: ${user.role}');
+          }
+          
+          if (!context.mounted) return;
+          
+          // Redirect semua user ke home (baik mahasiswa maupun dosen)
+          // HomeScreen akan menampilkan konten sesuai role
           context.goNamed(AppRoute.home);
         },
         error: (message) {

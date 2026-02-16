@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/models/elearning/session_model.dart';
 import 'package:inspire/features/presentation.dart';
 import '../../features/krs/presentation/screens/add_class_screen.dart';
 import '../../features/krs/presentation/screens/krs_screen.dart';
@@ -59,6 +60,16 @@ class AppRoute {
   
   //Transcript
   static const String transcript = 'transcript';
+  
+  //Lecturer Dashboard
+  static const String lecturerDashboard = 'lecturer-dashboard';
+  static const String krsLecturer = 'krs-lecturer';
+  static const String presensiLecturer = 'presensi-lecturer';
+  static const String eLearningLecturer = 'elearning-lecturer';
+  static const String lecturerCourseDetail = 'lecturer-course-detail';
+  static const String announcementLecturer = 'announcement-lecturer';
+  static const String gradingLecturer = 'grading-lecturer';
+  static const String myClassesLecturer = 'my-classes-lecturer';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -182,6 +193,63 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/transcript',
         name: AppRoute.transcript,
         builder: (context, state) => const TranscriptScreen(),
+      ),
+      GoRoute(
+        path: '/lecturer-dashboard',
+        name: AppRoute.lecturerDashboard,
+        builder: (context, state) => const LecturerDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/krs-lecturer',
+        name: AppRoute.krsLecturer,
+        builder: (context, state) => const KrsLecturerScreen(),
+      ),
+      GoRoute(
+        path: '/presensi-lecturer',
+        name: AppRoute.presensiLecturer,
+        builder: (context, state) => const PresensiLecturerScreen(),
+      ),
+      GoRoute(
+        path: '/elearning-lecturer',
+        name: AppRoute.eLearningLecturer,
+        builder: (context, state) => const ElearningLecturerScreen(),
+      ),
+      // GoRoute(
+      //   path: '/lecturer-course-detail/:kelasId/:courseName',
+      //   name: 'lecturerCourseDetail',
+      //   builder: (context, state) {
+      //     final kelasId = state.pathParameters['kelasId']!;
+      //     final courseName = state.pathParameters['courseName']!;
+      //     return LecturerCourseDetailScreen(
+      //       kelasId: kelasId,
+      //       courseName: courseName,
+      //     );
+      //   },
+      // ),
+      GoRoute(
+        path: '/create-quiz',
+        name: 'createQuiz',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final sessions = extra['sessions'] as List<SessionModel>;
+          final kelasId = extra['kelasId'] as int;
+          return CreateQuizScreen(sessions: sessions, kelasId: kelasId);
+        },
+      ),
+      GoRoute(
+        path: '/announcement-lecturer',
+        name: AppRoute.announcementLecturer,
+        builder: (context, state) => const AnnouncementLecturerScreen(),
+      ),
+      GoRoute(
+        path: '/grading-lecturer',
+        name: AppRoute.gradingLecturer,
+        builder: (context, state) => const GradingLecturerScreen(),
+      ),
+      GoRoute(
+        path: '/my-classes-lecturer',
+        name: AppRoute.myClassesLecturer,
+        builder: (context, state) => const MyClassesLecturerScreen(),
       ),
       // GoRoute(
       //   path: '/login',
