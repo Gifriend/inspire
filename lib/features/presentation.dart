@@ -11,6 +11,10 @@ export 'announcement/presentation/announcement_state.dart';
 export 'announcement_lecturer/presentation/announcement_lecturer_controller.dart';
 export 'announcement_lecturer/presentation/announcement_lecturer_screen.dart';
 export 'announcement_lecturer/presentation/announcement_lecturer_state.dart';
+//announcement koorprodi
+export 'announcement_koorprodi/presentation/announcement_koorprodi_controller.dart';
+export 'announcement_koorprodi/presentation/announcement_koorprodi_screen.dart';
+export 'announcement_koorprodi/presentation/announcement_koorprodi_state.dart';
 //E-Learning
 export 'elearning/presentation/elearning_controller.dart';
 export 'elearning/presentation/elearning_screen.dart';

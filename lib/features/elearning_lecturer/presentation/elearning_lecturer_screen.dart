@@ -16,17 +16,24 @@ class ElearningLecturerScreen extends ConsumerStatefulWidget {
 }
 
 class _ElearningLecturerScreenState
-    extends ConsumerState<ElearningLecturerScreen> {
+    extends ConsumerState<ElearningLecturerScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(elearningLecturerControllerProvider.notifier).loadLecturerCourses();
+      ref
+          .read(elearningLecturerControllerProvider.notifier)
+          .loadLecturerCourses();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final state = ref.watch(elearningLecturerControllerProvider);
     final profileState = ref.watch(profileControllerProvider);
 
@@ -35,7 +42,8 @@ class _ElearningLecturerScreenState
         leadIcon: Assets.icons.fill.arrowBack,
         leadIconColor: BaseColor.white,
         onPressedLeadIcon: () => context.pop(),
-        title: 'E-Learning Dosen'),
+        title: 'E-Learning Dosen',
+      ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -112,7 +120,9 @@ class _ElearningLecturerScreenState
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                ref.read(elearningLecturerControllerProvider.notifier).loadLecturerCourses();
+                ref
+                    .read(elearningLecturerControllerProvider.notifier)
+                    .loadLecturerCourses();
               },
               child: const Text('Coba Lagi'),
             ),
@@ -214,7 +224,10 @@ class _CourseCard extends StatelessWidget {
                   children: [
                     // Course code
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
@@ -250,7 +263,10 @@ class _CourseCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '${course.kapasitas ?? 0} mhs',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -263,7 +279,10 @@ class _CourseCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               course.ruangan!,
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -279,4 +298,3 @@ class _CourseCard extends StatelessWidget {
     );
   }
 }
-

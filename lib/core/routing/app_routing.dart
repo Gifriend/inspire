@@ -66,6 +66,7 @@ class AppRoute {
   static const String eLearningLecturer = 'elearning-lecturer';
   static const String lecturerCourseDetail = 'lecturer-course-detail';
   static const String announcementLecturer = 'announcement-lecturer';
+  static const String announcementKoorprodi = 'announcement-koorprodi';
   static const String gradingLecturer = 'grading-lecturer';
   static const String myClassesLecturer = 'my-classes-lecturer';
 }
@@ -238,6 +239,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/announcement-lecturer',
         name: AppRoute.announcementLecturer,
         builder: (context, state) => const AnnouncementLecturerScreen(),
+      ),
+      GoRoute(
+        path: '/announcement-koorprodi',
+        name: AppRoute.announcementKoorprodi,
+        builder: (context, state) => const AnnouncementKoorprodiScreen(),
       ),
       GoRoute(
         path: '/grading-lecturer',

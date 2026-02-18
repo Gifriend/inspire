@@ -14,7 +14,8 @@ class ScaffoldWidget extends StatelessWidget {
     this.disableSingleChildScrollView = false,
     this.disablePadding = false,
     this.persistBottomWidget,
-    this.loading = false, Widget? floatingActionButton,
+    this.loading = false,
+    this.floatingActionButton,
   });
 
   final Widget child;
@@ -26,6 +27,7 @@ class ScaffoldWidget extends StatelessWidget {
   final bool disablePadding;
   final bool loading;
   final Widget? persistBottomWidget;
+  final Widget? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +68,7 @@ class ScaffoldWidget extends StatelessWidget {
         ),
         backgroundColor: backgroundColor ?? BaseColor.white,
         bottomNavigationBar: bottomNavigationBar,
+        floatingActionButton: floatingActionButton,
       ),
     );
   }
