@@ -1,19 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/elearning_lecturer/data/services/elearning_lecturer_service.dart';
 import 'elearning_lecturer_state.dart';
+import 'package:flutter/foundation.dart';
 
 final elearningLecturerControllerProvider =
     StateNotifierProvider<ElearningLecturerController, ElearningLecturerState>(
-  (ref) => ElearningLecturerController(
-    ref.watch(elearningLecturerServiceProvider),
-  ),
-);
+      (ref) => ElearningLecturerController(
+        ref.watch(elearningLecturerServiceProvider),
+      ),
+    );
 
-class ElearningLecturerController extends StateNotifier<ElearningLecturerState> {
+class ElearningLecturerController
+    extends StateNotifier<ElearningLecturerState> {
   final ElearningLecturerService _service;
 
   ElearningLecturerController(this._service)
-      : super(const ElearningLecturerInitial());
+    : super(const ElearningLecturerInitial());
 
   Future<void> loadLecturerCourses() async {
     state = const ElearningLecturerLoading();
@@ -21,7 +23,9 @@ class ElearningLecturerController extends StateNotifier<ElearningLecturerState> 
       final courses = await _service.getLecturerCourses();
       state = CourseListLoaded(courses);
     } catch (e) {
-      state = ElearningLecturerError(e.toString().replaceAll('Exception: ', ''));
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -29,10 +33,31 @@ class ElearningLecturerController extends StateNotifier<ElearningLecturerState> 
     state = const ElearningLecturerLoading();
     try {
       final courseDetail = await _service.getCourseDetail(kelasId);
-      final sessions = await _service.getCourseContent(kelasId);
+
+      // Primary: Use sessions from courseDetail response
+      var sessions = courseDetail.sessions;
+      debugPrint('[DEBUG] courseDetail.sessions count: ${sessions.length}');
+
+      // Fallback: If courseDetail.sessions is empty, try to fetch from dedicated endpoint
+      if (sessions.isEmpty) {
+        try {
+          sessions = await _service.getCourseContent(kelasId);
+          debugPrint(
+            '[DEBUG] Fallback to getCourseContent: ${sessions.length} sessions',
+          );
+        } catch (e) {
+          debugPrint('[DEBUG] getCourseContent also failed: $e');
+          // Continue with empty sessions
+        }
+      }
+
+      debugPrint('[DEBUG] Final sessions count: ${sessions.length}');
       state = CourseDetailLoaded(courseDetail, sessions);
     } catch (e) {
-      state = ElearningLecturerError(e.toString().replaceAll('Exception: ', ''));
+      debugPrint('[DEBUG] loadCourseDetail error: $e');
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -42,7 +67,10 @@ class ElearningLecturerController extends StateNotifier<ElearningLecturerState> 
       final students = await _service.getCourseStudents(kelasId);
       state = StudentsLoaded(students);
     } catch (e) {
-      state = ElearningLecturerError(e.toString().replaceAll('Exception: ', ''));
+      debugPrint('[DEBUG] loadCourseStudents error: $e');
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -52,7 +80,9 @@ class ElearningLecturerController extends StateNotifier<ElearningLecturerState> 
       final leaderboard = await _service.getCourseLeaderboard(kelasId);
       state = LeaderboardLoaded(leaderboard);
     } catch (e) {
-      state = ElearningLecturerError(e.toString().replaceAll('Exception: ', ''));
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -104,6 +134,8 @@ class ElearningLecturerController extends StateNotifier<ElearningLecturerState> 
     required DateTime startTime,
     required DateTime endTime,
     required String gradingMethod,
+    bool hideGrades = false,
+    bool hideUntilDeadline = false,
     required String sessionId,
     required List<Map<String, dynamic>> questions,
   }) async {
@@ -114,6 +146,8 @@ class ElearningLecturerController extends StateNotifier<ElearningLecturerState> 
         startTime: startTime,
         endTime: endTime,
         gradingMethod: gradingMethod,
+        hideGrades: hideGrades,
+        hideUntilDeadline: hideUntilDeadline,
         sessionId: sessionId,
         questions: questions,
       );

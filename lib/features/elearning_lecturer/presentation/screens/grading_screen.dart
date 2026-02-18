@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:inspire/features/elearning_lecturer/presentation/elearning_lecturer_controller.dart';
 
 import '../../../presentation.dart';
 
@@ -120,13 +119,13 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isGraded
-              ? Colors.green.withOpacity(0.3)
-              : Colors.orange.withOpacity(0.3),
+              ? Colors.green.withValues(alpha: 0.3)
+              : Colors.orange.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -156,7 +155,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      submission.student?.name ?? 'Mahasiswa ${index + 1}',
+                      'Mahasiswa #${submission.studentId}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -167,7 +166,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                       'Dikumpul: ${submission.submittedAt.toString().split('.')[0]}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: BaseColor.primaryText.withOpacity(0.6),
+                        color: BaseColor.primaryText.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -182,7 +181,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    submission.grade ?? '-',
+                    submission.grade.toString(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -202,14 +201,14 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: BaseColor.primaryText.withOpacity(0.7),
+              color: BaseColor.primaryText.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: BaseColor.primaryText.withOpacity(0.05),
+              color: BaseColor.primaryText.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Column(

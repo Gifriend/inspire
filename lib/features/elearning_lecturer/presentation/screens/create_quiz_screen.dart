@@ -106,6 +106,12 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
       );
       return;
     }
+    if (_endTime!.isBefore(_startTime!) || _endTime!.isAtSameMomentAs(_startTime!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Waktu selesai harus setelah waktu mulai')),
+      );
+      return;
+    }
     if (_questions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tambahkan minimal 1 soal')),
@@ -134,6 +140,8 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
             startTime: _startTime!,
             endTime: _endTime!,
             gradingMethod: _gradingMethod,
+        hideGrades: _hideGrades,
+        hideUntilDeadline: _hideUntilDeadline,
             sessionId: _selectedSessionId!,
             questions: questionsData,
           );

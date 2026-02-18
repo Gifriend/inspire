@@ -36,7 +36,7 @@ abstract class CourseDetailModel with _$CourseDetailModel {
       kapasitas: json['kapasitas'] as int?,
       ruangan: json['ruangan'] as String?,
       jadwal: json['jadwal'] as String?,
-      semester: json['semester'] as String,
+      semester: (json['semester'] ?? json['academicYear'] ?? '-') as String,
       mataKuliahId: json['mataKuliahId'] as int,
       dosenId: json['dosenId'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),

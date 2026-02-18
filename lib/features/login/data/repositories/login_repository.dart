@@ -4,8 +4,6 @@ import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/core/models/models.dart';
 
-import '../../../../core/data_sources/network/dio_client.dart';
-
 abstract class LoginRepository {
   Future<AuthData> login({required String identifier, required String password, String? fcmToken});
   Future<AuthData> refreshToken({required String refreshToken});

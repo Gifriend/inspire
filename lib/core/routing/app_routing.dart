@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/core/models/elearning/session_model.dart';
 import 'package:inspire/features/presentation.dart';
-import '../../features/krs/presentation/screens/add_class_screen.dart';
-import '../../features/krs/presentation/screens/krs_screen.dart';
 import 'routing.dart';
 
 class AppRoute {
@@ -244,12 +242,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/grading-lecturer',
         name: AppRoute.gradingLecturer,
-        builder: (context, state) => const GradingLecturerScreen(),
+        builder: (context, state) => const ElearningLecturerScreen(),
       ),
       GoRoute(
         path: '/my-classes-lecturer',
         name: AppRoute.myClassesLecturer,
-        builder: (context, state) => const MyClassesLecturerScreen(),
+        builder: (context, state) => const ElearningLecturerScreen(),
       ),
       // GoRoute(
       //   path: '/login',

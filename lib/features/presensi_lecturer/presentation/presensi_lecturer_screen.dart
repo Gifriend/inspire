@@ -24,7 +24,7 @@ class _PresensiLecturerScreenState extends ConsumerState<PresensiLecturerScreen>
             Icon(
               Icons.how_to_reg,
               size: 64,
-              color: BaseColor.primaryInspire.withOpacity(0.5),
+              color: BaseColor.primaryInspire.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -42,7 +42,7 @@ class _PresensiLecturerScreenState extends ConsumerState<PresensiLecturerScreen>
                 'Fitur presensi untuk dosen sedang dalam pengembangan.\nGunakan menu di Dashboard untuk mengakses fitur dosen lainnya.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: BaseColor.primaryText.withOpacity(0.7),
+                  color: BaseColor.primaryText.withValues(alpha: 0.7),
                 ),
               ),
             ),

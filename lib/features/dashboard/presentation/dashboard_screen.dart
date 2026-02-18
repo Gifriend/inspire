@@ -23,6 +23,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with AutomaticKeepAliveClientMixin {
+      
   final PageController _pageController = PageController(viewportFraction: 0.75);
   Timer? _autoScrollTimer;
   int _currentPage = 0;

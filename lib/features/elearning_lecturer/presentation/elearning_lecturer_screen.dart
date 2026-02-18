@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 
@@ -30,7 +31,11 @@ class _ElearningLecturerScreenState
     final profileState = ref.watch(profileControllerProvider);
 
     return ScaffoldWidget(
-      appBar: AppBarWidget(title: 'E-Learning Dosen'),
+      appBar: AppBarWidget(
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
+        title: 'E-Learning Dosen'),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -54,7 +59,7 @@ class _ElearningLecturerScreenState
                     'NIP: ${user.nip ?? "-"}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: BaseColor.primaryText.withOpacity(0.7),
+                      color: BaseColor.primaryText.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -166,12 +171,13 @@ class _CourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.pushNamed(
-          'lecturerCourseDetail',
-          pathParameters: {
-            'kelasId': course.id.toString(),
-            'courseName': course.mataKuliah?.name ?? course.nama,
-          },
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => CourseManagementScreen(
+              kelasId: course.id as int,
+              courseName: (course.mataKuliah?.name ?? course.nama) as String,
+            ),
+          ),
         );
       },
       child: Container(
@@ -180,7 +186,7 @@ class _CourseCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -210,7 +216,7 @@ class _CourseCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: BaseColor.primaryInspire.withOpacity(0.1),
+                        color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:inspire/features/elearning_lecturer/presentation/elearning_lecturer_controller.dart';
 
 import '../../../presentation.dart';
 
@@ -156,9 +155,9 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
   Widget _buildStatCard(String label, String value, Color color) {
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -177,7 +176,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),
@@ -203,12 +202,12 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: statusColor.withOpacity(0.3),
+          color: statusColor.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -223,7 +222,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
+                  color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -238,8 +237,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      attempt.studentName ??
-                          'Mahasiswa ${index + 1}',
+                      'Mahasiswa #${attempt.studentId}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -247,10 +245,10 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Waktu Selesai: ${attempt.finishedAt.toString().split('.')[0]}',
+                      'Waktu Selesai: ${attempt.finishedAt?.toString().split('.')[0] ?? '-'}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: BaseColor.primaryText.withOpacity(0.6),
+                        color: BaseColor.primaryText.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -262,11 +260,11 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
+                  color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${score}',
+                  score.toString(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

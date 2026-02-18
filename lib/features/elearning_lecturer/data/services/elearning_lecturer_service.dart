@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
-import 'package:inspire/core/models/elearning/elearning_lecturer_models.dart';
 import 'package:inspire/core/models/models.dart';
 
 abstract class ElearningLecturerService {
@@ -30,6 +30,8 @@ abstract class ElearningLecturerService {
     required DateTime startTime,
     required DateTime endTime,
     required String gradingMethod,
+    bool hideGrades = false,
+    bool hideUntilDeadline = false,
     required String sessionId,
     required List<Map<String, dynamic>> questions,
   });
@@ -130,19 +132,36 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
   @override
   Future<List<SessionModel>> getCourseContent(int kelasId) async {
     try {
-      final response = await _dioClient.get<List>(
+      final response = await _dioClient.get<dynamic>(
         '/elearning/course/$kelasId',
       );
 
       if (response == null) {
-        throw Exception('Failed to load course content');
+        debugPrint('[DEBUG] getCourseContent: response is null');
+        return [];
       }
 
-        final items = response;
-        return items
-          .map((item) => SessionModel.fromJson(item as Map<String, dynamic>))
-          .toList();
+      if (response is List) {
+        debugPrint('[DEBUG] getCourseContent: response is List with ${response.length} items');
+        return response
+            .map((item) => SessionModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+
+      if (response is Map<String, dynamic>) {
+        final sessions = response['sessions'];
+        if (sessions is List) {
+          debugPrint('[DEBUG] getCourseContent: response is Map with sessions List of ${sessions.length} items');
+          return sessions
+              .map((item) => SessionModel.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+      }
+
+      debugPrint('[DEBUG] getCourseContent: response is unknown format, returning empty');
+      return [];
     } catch (e) {
+      debugPrint('[DEBUG] getCourseContent error: $e');
       throw Exception('Error loading course content: $e');
     }
   }
@@ -212,6 +231,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
     required DateTime startTime,
     required DateTime endTime,
     required String gradingMethod,
+    bool hideGrades = false,
+    bool hideUntilDeadline = false,
     required String sessionId,
     required List<Map<String, dynamic>> questions,
   }) async {
@@ -224,6 +245,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
           'startTime': startTime.toIso8601String(),
           'endTime': endTime.toIso8601String(),
           'gradingMethod': gradingMethod,
+          'hideGrades': hideGrades,
+          'hideUntilDeadline': hideUntilDeadline,
           'sessionId': sessionId,
           'questions': questions,
         },

@@ -1,6 +1,5 @@
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 class MembershipApi implements MembershipApiContract {

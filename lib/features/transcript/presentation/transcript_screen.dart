@@ -267,7 +267,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                       Gap.h24,
                     ],
                   );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/features/profile/presentation/profile_controller.dart';
@@ -79,7 +80,7 @@ class LecturerDashboardController
       
       return [];
     } catch (e) {
-      print('Error loading classes: $e');
+      debugPrint('Error loading classes: $e');
       return [];
     }
   }
@@ -96,7 +97,7 @@ class LecturerDashboardController
       
       return 0;
     } catch (e) {
-      print('Error loading pending KRS: $e');
+      debugPrint('Error loading pending KRS: $e');
       return 0;
     }
   }
@@ -113,7 +114,7 @@ class LecturerDashboardController
       
       return 0;
     } catch (e) {
-      print('Error loading today presence: $e');
+      debugPrint('Error loading today presence: $e');
       return 0;
     }
   }

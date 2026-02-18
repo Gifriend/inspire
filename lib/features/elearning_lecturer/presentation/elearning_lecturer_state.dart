@@ -1,5 +1,3 @@
-import 'package:inspire/core/models/elearning/elearning_lecturer_models.dart';
-
 import '../../../core/models/models.dart';
 
 sealed class ElearningLecturerState {

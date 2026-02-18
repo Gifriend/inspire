@@ -24,8 +24,10 @@ export 'elearning/presentation/screens/quiz_taking_screen.dart';
 export 'elearning_lecturer/presentation/elearning_lecturer_controller.dart';
 export 'elearning_lecturer/presentation/elearning_lecturer_screen.dart';
 export 'elearning_lecturer/presentation/elearning_lecturer_state.dart';
-// export 'elearning_lecturer/presentation/screens/lecturer_course_detail_screen.dart';
+export 'elearning_lecturer/presentation/screens/course_management_screen.dart';
 export 'elearning_lecturer/presentation/screens/create_quiz_screen.dart';
+export 'elearning_lecturer/presentation/screens/quiz_attempts_screen.dart';
+export 'elearning_lecturer/presentation/screens/grading_screen.dart';
 //home
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';

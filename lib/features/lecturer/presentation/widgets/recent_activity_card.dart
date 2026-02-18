@@ -23,7 +23,7 @@ class RecentActivityCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.1),
+          color: Colors.grey.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -31,7 +31,7 @@ class RecentActivityCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -58,7 +58,7 @@ class RecentActivityCard extends StatelessWidget {
                   activity.description,
                   style: TextStyle(
                     fontSize: 12,
-                    color: BaseColor.primaryText.withOpacity(0.6),
+                    color: BaseColor.primaryText.withValues(alpha: 0.6),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -68,7 +68,7 @@ class RecentActivityCard extends StatelessWidget {
                   Jiffy.parse(activity.timestamp.toString()).fromNow(),
                   style: TextStyle(
                     fontSize: 11,
-                    color: BaseColor.primaryText.withOpacity(0.4),
+                    color: BaseColor.primaryText.withValues(alpha: 0.4),
                   ),
                 ),
               ],

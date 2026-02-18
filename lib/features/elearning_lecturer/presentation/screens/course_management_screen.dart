@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide MaterialType;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/models/models.dart' hide MaterialType;
 import 'package:inspire/core/widgets/widgets.dart';
+import 'package:inspire/features/presentation.dart';
+import 'package:go_router/go_router.dart';
 
 class CourseManagementScreen extends ConsumerStatefulWidget {
   final int kelasId;
@@ -18,20 +22,77 @@ class CourseManagementScreen extends ConsumerStatefulWidget {
       _CourseManagementScreenState();
 }
 
-class _CourseManagementScreenState
-    extends ConsumerState<CourseManagementScreen> {
+class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   int _selectedTabIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(elearningLecturerControllerProvider.notifier)
+          .loadCourseDetail(widget.kelasId);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
+    ref.listen<ElearningLecturerState>(elearningLecturerControllerProvider, (
+      previous,
+      next,
+    ) {
+      if (!mounted) {
+        return;
+      }
+
+      if (next is MaterialCreated) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Materi berhasil dibuat')));
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+
+      if (next is AssignmentCreated) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Tugas berhasil dibuat')));
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+
+      if (next is QuizCreated) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Kuis berhasil dibuat')));
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+    });
+
+    final state = ref.watch(elearningLecturerControllerProvider);
+
     return ScaffoldWidget(
-      appBar: AppBarWidget(title: widget.courseName),
+      appBar: AppBarWidget(
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
+        title: widget.courseName,
+      ),
+      disableSingleChildScrollView: true,
       child: Column(
         children: [
-          // Tab navigation
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -39,23 +100,19 @@ class _CourseManagementScreenState
                   _buildTab('Materi', 0),
                   _buildTab('Tugas', 1),
                   _buildTab('Kuis', 2),
-                  _buildTab('Submissions', 3),
                 ],
               ),
             ),
           ),
           const Divider(height: 1),
-          // Tab content
-          Expanded(
-            child: _buildTabContent(),
-          ),
+          Expanded(child: _buildContent(state)),
         ],
       ),
     );
   }
 
   Widget _buildTab(String label, int index) {
-    final isSelected = _selectedTabIndex == index;
+    final bool isSelected = _selectedTabIndex == index;
     return GestureDetector(
       onTap: () => setState(() => _selectedTabIndex = index),
       child: Container(
@@ -75,53 +132,100 @@ class _CourseManagementScreenState
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             color: isSelected
                 ? BaseColor.primaryInspire
-                : BaseColor.primaryText.withOpacity(0.6),
+                : BaseColor.primaryText.withValues(alpha: 0.6),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTabContent() {
+  Widget _buildContent(ElearningLecturerState state) {
+    if (state is ElearningLecturerLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state is ElearningLecturerError) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 54),
+              const SizedBox(height: 12),
+              Text(
+                state.message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () {
+                  ref
+                      .read(elearningLecturerControllerProvider.notifier)
+                      .loadCourseDetail(widget.kelasId);
+                },
+                child: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (state is! CourseDetailLoaded) {
+      return const SizedBox.shrink();
+    }
+
+    final sessions = state.sessions;
+
     switch (_selectedTabIndex) {
       case 0:
-        return _buildMaterialTab();
+        return _buildMaterialTab(sessions);
       case 1:
-        return _buildAssignmentTab();
+        return _buildAssignmentTab(sessions);
       case 2:
-        return _buildQuizTab();
-      case 3:
-        return _buildSubmissionsTab();
+        return _buildQuizTab(sessions);
       default:
-        return const SizedBox();
+        return const SizedBox.shrink();
     }
   }
 
-  Widget _buildMaterialTab() {
-    return SingleChildScrollView(
+  Widget _buildMaterialTab(List<SessionModel> sessions) {
+    final materialsBySession = <_SessionMaterial>[];
+    for (final session in sessions) {
+      for (final material in session.materials) {
+        materialsBySession.add(
+          _SessionMaterial(session: session, material: material),
+        );
+      }
+    }
+
+    return ListView(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ElevatedButton.icon(
-            onPressed: () => _showMaterialForm(),
-            icon: const Icon(Icons.add),
-            label: const Text('Tambah Materi'),
-          ),
-          const SizedBox(height: 20),
-          // List placeholder
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 3,
-            itemBuilder: (context, index) => _buildMaterialCard(index),
-          ),
-        ],
-      ),
+      children: [
+        ElevatedButton.icon(
+          onPressed: sessions.isEmpty
+              ? null
+              : () => _showMaterialForm(sessions),
+          icon: const Icon(Icons.add),
+          label: const Text('Tambah Materi'),
+        ),
+        const SizedBox(height: 16),
+        if (sessions.isEmpty)
+          _buildEmpty('Belum ada sesi pembelajaran di kelas ini')
+        else if (materialsBySession.isEmpty)
+          _buildEmpty('Belum ada materi pada semua sesi')
+        else
+          ...materialsBySession.map((item) => _buildMaterialCard(item)),
+      ],
     );
   }
 
-  Widget _buildMaterialCard(int index) {
+  Widget _buildMaterialCard(_SessionMaterial item) {
+    final MaterialModel material = item.material;
+    final SessionModel session = item.session;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -130,528 +234,707 @@ class _CourseManagementScreenState
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.description, color: BaseColor.primaryInspire, size: 32),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Materi ${index + 1}',
+          Row(
+            children: [
+              const Icon(Icons.description, color: Colors.blue, size: 30),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  material.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  material.type.name.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Minggu ${session.weekNumber}: ${session.title}',
+            style: TextStyle(
+              fontSize: 12,
+              color: BaseColor.primaryText.withValues(alpha: 0.6),
+            ),
+          ),
+          if ((material.content ?? '').isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              material.content!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: BaseColor.primaryText.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignmentTab(List<SessionModel> sessions) {
+    final assignmentsBySession = <_SessionAssignment>[];
+    for (final session in sessions) {
+      for (final assignment in session.assignments) {
+        assignmentsBySession.add(
+          _SessionAssignment(session: session, assignment: assignment),
+        );
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        ElevatedButton.icon(
+          onPressed: sessions.isEmpty
+              ? null
+              : () => _showAssignmentForm(sessions),
+          icon: const Icon(Icons.add),
+          label: const Text('Tambah Tugas'),
+        ),
+        const SizedBox(height: 16),
+        if (sessions.isEmpty)
+          _buildEmpty('Belum ada sesi pembelajaran di kelas ini')
+        else if (assignmentsBySession.isEmpty)
+          _buildEmpty('Belum ada tugas pada semua sesi')
+        else
+          ...assignmentsBySession.map((item) => _buildAssignmentCard(item)),
+      ],
+    );
+  }
+
+  Widget _buildAssignmentCard(_SessionAssignment item) {
+    final assignment = item.assignment;
+    final session = item.session;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.assignment, color: Colors.green, size: 30),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  assignment.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Minggu ${index + 1}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: BaseColor.primaryText.withOpacity(0.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(child: Text('Edit')),
-              const PopupMenuItem(child: Text('Hapus')),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssignmentTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ElevatedButton.icon(
-            onPressed: () => _showAssignmentForm(),
-            icon: const Icon(Icons.add),
-            label: const Text('Tambah Tugas'),
-          ),
-          const SizedBox(height: 20),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 2,
-            itemBuilder: (context, index) => _buildAssignmentCard(index),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssignmentCard(int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.assignment, color: Colors.green, size: 32),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tugas ${index + 1}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Deadline: ${DateTime.now().add(Duration(days: index + 3))}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: BaseColor.primaryText.withOpacity(0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuButton(
-                itemBuilder: (context) => [
-                  const PopupMenuItem(child: Text('Lihat Submissions')),
-                  const PopupMenuItem(child: Text('Edit')),
-                  const PopupMenuItem(child: Text('Hapus')),
-                ],
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Submission stats
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatBadge('5', 'Total'), 
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBadge('3', 'Dikumpul'),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBadge('2', 'Belum'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuizTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ElevatedButton.icon(
-            onPressed: () => _showQuizForm(),
-            icon: const Icon(Icons.add),
-            label: const Text('Tambah Kuis'),
-          ),
-          const SizedBox(height: 20),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 2,
-            itemBuilder: (context, index) => _buildQuizCard(index),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuizCard(int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.quiz, color: Colors.orange, size: 32),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Kuis ${index + 1}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '10 soal • 30 menit',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: BaseColor.primaryText.withOpacity(0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuButton(
-                itemBuilder: (context) => [
-                  const PopupMenuItem(child: Text('Lihat Hasil')),
-                  const PopupMenuItem(child: Text('Edit')),
-                  const PopupMenuItem(child: Text('Hapus')),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatBadge('5', 'Attempt'),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBadge('3', 'Lulus'),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatBadge('2', 'Tidak'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmissionsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          const SizedBox(height: 8),
           Text(
-            'Submissions Belum Dinilai',
+            'Minggu ${session.weekNumber}: ${session.title}',
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: BaseColor.primaryText,
+              fontSize: 12,
+              color: BaseColor.primaryText.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: 12),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 3,
-            itemBuilder: (context, index) => _buildSubmissionCard(index),
+          const SizedBox(height: 4),
+          Text(
+            'Deadline: ${_formatDateTime(assignment.deadline)}',
+            style: TextStyle(
+              fontSize: 12,
+              color: BaseColor.primaryText.withValues(alpha: 0.7),
+            ),
+          ),
+          if ((assignment.description ?? '').isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              assignment.description!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: BaseColor.primaryText.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => GradingScreen(
+                      assignmentId: assignment.id,
+                      assignmentTitle: assignment.title,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.grade),
+              label: const Text('Nilai Tugas'),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSubmissionCard(int index) {
+  Widget _buildQuizTab(List<SessionModel> sessions) {
+    final quizzesBySession = <_SessionQuiz>[];
+    for (final session in sessions) {
+      for (final quiz in session.quizzes) {
+        quizzesBySession.add(_SessionQuiz(session: session, quiz: quiz));
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        ElevatedButton.icon(
+          onPressed: sessions.isEmpty
+              ? null
+              : () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => CreateQuizScreen(
+                        sessions: sessions,
+                        kelasId: widget.kelasId,
+                      ),
+                    ),
+                  );
+                  if (!mounted) {
+                    return;
+                  }
+                  ref
+                      .read(elearningLecturerControllerProvider.notifier)
+                      .loadCourseDetail(widget.kelasId);
+                },
+          icon: const Icon(Icons.add),
+          label: const Text('Tambah Kuis'),
+        ),
+        const SizedBox(height: 16),
+        if (sessions.isEmpty)
+          _buildEmpty('Belum ada sesi pembelajaran di kelas ini')
+        else if (quizzesBySession.isEmpty)
+          _buildEmpty('Belum ada kuis pada semua sesi')
+        else
+          ...quizzesBySession.map((item) => _buildQuizCard(item)),
+      ],
+    );
+  }
+
+  Widget _buildQuizCard(_SessionQuiz item) {
+    final quiz = item.quiz;
+    final session = item.session;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.yellow.withOpacity(0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.yellow.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.pending, color: Colors.orange, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mahasiswa ${index + 1}',
+          Row(
+            children: [
+              const Icon(Icons.quiz, color: Colors.orange, size: 30),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  quiz.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Tugas 1 • Dikumpul',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: BaseColor.primaryText.withOpacity(0.6),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${quiz.duration} menit',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Minggu ${session.weekNumber}: ${session.title}',
+            style: TextStyle(
+              fontSize: 12,
+              color: BaseColor.primaryText.withValues(alpha: 0.6),
             ),
           ),
-          ElevatedButton(
-            onPressed: () => _showGradingForm(),
-            child: const Text('Nilai'),
+          const SizedBox(height: 4),
+          Text(
+            '${quiz.questions.length} soal • ${_formatDateTime(quiz.startTime)} - ${_formatDateTime(quiz.endTime)}',
+            style: TextStyle(
+              fontSize: 12,
+              color: BaseColor.primaryText.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => QuizAttemptsScreen(
+                      quizId: quiz.id,
+                      quizTitle: quiz.title,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.bar_chart),
+              label: const Text('Lihat Nilai Quiz'),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatBadge(String value, String label) {
+  Widget _buildEmpty(String message) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: BaseColor.primaryInspire.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: BaseColor.primaryInspire,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: BaseColor.primaryInspire.withOpacity(0.7),
-            ),
-          ),
-        ],
+      child: Center(
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: BaseColor.primaryText.withValues(alpha: 0.6)),
+        ),
       ),
     );
   }
 
-  void _showMaterialForm() {
-    showDialog(
+  Future<void> _showMaterialForm(List<SessionModel> sessions) async {
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+    final fileUrlController = TextEditingController();
+
+    String selectedSessionId = sessions.first.id;
+    MaterialType selectedType = MaterialType.text;
+
+    await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tambah Materi'),
-        content: const SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Judul Materi',
-                  border: OutlineInputBorder(),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final bool showContent =
+                selectedType == MaterialType.text ||
+                selectedType == MaterialType.hybrid;
+            final bool showFile =
+                selectedType == MaterialType.file ||
+                selectedType == MaterialType.hybrid;
+
+            return AlertDialog(
+              title: const Text('Tambah Materi'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      value: selectedSessionId,
+                      decoration: const InputDecoration(
+                        labelText: 'Sesi',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: sessions
+                          .map(
+                            (session) => DropdownMenuItem(
+                              value: session.id,
+                              child: Text(
+                                'Minggu ${session.weekNumber}: ${session.title}',
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+                        setDialogState(() {
+                          selectedSessionId = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Judul Materi',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<MaterialType>(
+                      value: selectedType,
+                      decoration: const InputDecoration(
+                        labelText: 'Tipe Materi',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: MaterialType.text,
+                          child: Text('TEXT'),
+                        ),
+                        DropdownMenuItem(
+                          value: MaterialType.file,
+                          child: Text('FILE'),
+                        ),
+                        DropdownMenuItem(
+                          value: MaterialType.hybrid,
+                          child: Text('HYBRID'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+                        setDialogState(() {
+                          selectedType = value;
+                        });
+                      },
+                    ),
+                    if (showContent) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: contentController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: 'Konten Materi',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                    if (showFile) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: fileUrlController,
+                        decoration: const InputDecoration(
+                          labelText: 'File URL',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Tipe',
-                  border: OutlineInputBorder(),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
                 ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
+                ElevatedButton(
+                  onPressed: () {
+                    final title = titleController.text.trim();
+                    final content = contentController.text.trim();
+                    final fileUrl = fileUrlController.text.trim();
+
+                    if (title.isEmpty) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Judul materi wajib diisi'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if ((selectedType == MaterialType.text ||
+                            selectedType == MaterialType.hybrid) &&
+                        content.isEmpty) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Konten materi wajib diisi'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if ((selectedType == MaterialType.file ||
+                            selectedType == MaterialType.hybrid) &&
+                        fileUrl.isEmpty) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(content: Text('File URL wajib diisi')),
+                      );
+                      return;
+                    }
+
+                    ref
+                        .read(elearningLecturerControllerProvider.notifier)
+                        .createMaterial(
+                          title: title,
+                          type: selectedType.name.toUpperCase(),
+                          content: content.isEmpty ? null : content,
+                          fileUrl: fileUrl.isEmpty ? null : fileUrl,
+                          sessionId: selectedSessionId,
+                        );
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Simpan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
+
+    titleController.dispose();
+    contentController.dispose();
+    fileUrlController.dispose();
   }
 
-  void _showAssignmentForm() {
-    showDialog(
+  Future<void> _showAssignmentForm(List<SessionModel> sessions) async {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    String selectedSessionId = sessions.first.id;
+    DateTime? selectedDeadline;
+
+    await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tambah Tugas'),
-        content: const SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Judul Tugas',
-                  border: OutlineInputBorder(),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Tambah Tugas'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      value: selectedSessionId,
+                      decoration: const InputDecoration(
+                        labelText: 'Sesi',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: sessions
+                          .map(
+                            (session) => DropdownMenuItem(
+                              value: session.id,
+                              child: Text(
+                                'Minggu ${session.weekNumber}: ${session.title}',
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+                        setDialogState(() {
+                          selectedSessionId = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Judul Tugas',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: 'Deskripsi',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 365),
+                          ),
+                        );
+
+                        if (pickedDate == null || !mounted) {
+                          return;
+                        }
+
+                        final pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+
+                        if (pickedTime == null) {
+                          return;
+                        }
+
+                        setDialogState(() {
+                          selectedDeadline = DateTime(
+                            pickedDate.year,
+                            pickedDate.month,
+                            pickedDate.day,
+                            pickedTime.hour,
+                            pickedTime.minute,
+                          );
+                        });
+                      },
+                      icon: const Icon(Icons.schedule),
+                      label: Text(
+                        selectedDeadline == null
+                            ? 'Pilih Deadline'
+                            : _formatDateTime(selectedDeadline!),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Deskripsi',
-                  border: OutlineInputBorder(),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
                 ),
-                maxLines: 3,
-              ),
-              SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Deadline',
-                  border: OutlineInputBorder(),
+                ElevatedButton(
+                  onPressed: () {
+                    final title = titleController.text.trim();
+                    final description = descriptionController.text.trim();
+
+                    if (title.isEmpty) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Judul tugas wajib diisi'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (description.isEmpty) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Deskripsi tugas wajib diisi'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (selectedDeadline == null) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(content: Text('Deadline wajib dipilih')),
+                      );
+                      return;
+                    }
+
+                    ref
+                        .read(elearningLecturerControllerProvider.notifier)
+                        .createAssignment(
+                          title: title,
+                          description: description,
+                          deadline: selectedDeadline!,
+                          sessionId: selectedSessionId,
+                        );
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Buat'),
                 ),
-                readOnly: true,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Buat'),
-          ),
-        ],
-      ),
+              ],
+            );
+          },
+        );
+      },
     );
+
+    titleController.dispose();
+    descriptionController.dispose();
   }
 
-  void _showQuizForm() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tambah Kuis'),
-        content: const SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Judul Kuis',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Durasi (menit)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Pertanyaan',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Buat'),
-          ),
-        ],
-      ),
-    );
+  String _formatDateTime(DateTime value) {
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final year = value.year;
+    final hour = value.hour.toString().padLeft(2, '0');
+    final minute = value.minute.toString().padLeft(2, '0');
+    return '$day/$month/$year $hour:$minute';
   }
+}
 
-  void _showGradingForm() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Berikan Nilai'),
-        content: const SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Nilai (0-100)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Feedback',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Simpan Nilai'),
-          ),
-        ],
-      ),
-    );
-  }
+class _SessionMaterial {
+  final SessionModel session;
+  final MaterialModel material;
+
+  _SessionMaterial({required this.session, required this.material});
+}
+
+class _SessionAssignment {
+  final SessionModel session;
+  final AssignmentModel assignment;
+
+  _SessionAssignment({required this.session, required this.assignment});
+}
+
+class _SessionQuiz {
+  final SessionModel session;
+  final QuizModel quiz;
+
+  _SessionQuiz({required this.session, required this.quiz});
 }
