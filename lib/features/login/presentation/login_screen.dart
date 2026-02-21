@@ -55,7 +55,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           
           // Load user profile
           final profileNotifier = ref.read(profileControllerProvider.notifier);
-          await profileNotifier.loadProfile();
+          profileNotifier.clearCache();
+          await profileNotifier.loadProfile(forceRefresh: true);
           
           // Debug: Check loaded user
           final user = profileNotifier.cachedUser;

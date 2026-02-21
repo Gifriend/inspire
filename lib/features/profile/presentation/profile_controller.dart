@@ -14,8 +14,8 @@ class ProfileController extends StateNotifier<ProfileState> {
   final Ref ref;
   UserModel? _cachedUser;
 
-  Future<void> loadProfile() async {
-    if (_cachedUser != null) {
+  Future<void> loadProfile({bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedUser != null) {
       state = ProfileState.loaded(_cachedUser!);
       return;
     }
@@ -32,6 +32,7 @@ class ProfileController extends StateNotifier<ProfileState> {
 
   void clearCache() {
     _cachedUser = null;
+    state = const ProfileState.initial();
   }
 
   UserModel? get cachedUser => _cachedUser;

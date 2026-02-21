@@ -13,13 +13,20 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isLecturerRole(String role) {
+    final normalizedRole = role.trim().toUpperCase();
+    return normalizedRole == 'DOSEN' ||
+        normalizedRole == 'KOORPRODI' ||
+        normalizedRole == 'LECTURER';
+  }
+
   @override
   void initState() {
     super.initState();
     // Load profile saat HomeScreen pertama kali dibuat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentProfileState = ref.read(profileControllerProvider);
-      
+
       // Load profile jika belum loaded
       final bool shouldLoadProfile = currentProfileState.maybeWhen(
         loaded: (_) => false,
@@ -45,10 +52,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       error: (message) => _buildErrorScreen(message),
       loaded: (user) {
         // Determine user role setelah profile berhasil dimuat
-        final bool isLecturer = user.role == 'DOSEN' || user.role == 'KOORPRODI';
-        
+        final bool isLecturer = _isLecturerRole(user.role);
+
         if (kDebugMode) {
-          print('🔍 HomeScreen - User: ${user.name}, Role: ${user.role}, isLecturer: $isLecturer');
+          print(
+            '🔍 HomeScreen - User: ${user.name}, Role: ${user.role}, isLecturer: $isLecturer',
+          );
         }
 
         return _buildMainContent(
@@ -147,9 +156,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 controller: controller.pageController,
                 children: [
                   // Tab pertama: Tampilkan LecturerDashboard untuk dosen, Dashboard biasa untuk mahasiswa
-                  isLecturer ? const LecturerDashboardScreen() : const DashboardScreen(),
+                  isLecturer
+                      ? const LecturerDashboardScreen()
+                      : const DashboardScreen(),
                   // Tab kedua: Presensi (disesuaikan untuk dosen atau mahasiswa)
-                  isLecturer ? const PresensiLecturerScreen() : const PresensiScreen(),
+                  isLecturer
+                      ? const PresensiLecturerScreen()
+                      : const PresensiScreen(),
                   // Tab ketiga: Menu Lainnya
                   const OtherMenuScreen(),
                   // Tab keempat: Profile

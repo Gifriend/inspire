@@ -41,8 +41,7 @@ class ScaffoldWidget extends StatelessWidget {
       ),
     );
 
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         appBar: appBar,
         body: Padding(
@@ -69,7 +68,6 @@ class ScaffoldWidget extends StatelessWidget {
         backgroundColor: backgroundColor ?? BaseColor.white,
         bottomNavigationBar: bottomNavigationBar,
         floatingActionButton: floatingActionButton,
-      ),
-    );
+      );
   }
 }

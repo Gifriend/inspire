@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/utils/utils.dart';
@@ -22,7 +23,17 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(quizControllerProvider.notifier).loadQuizDetail(widget.quizId);
+      final currentState = ref.read(quizControllerProvider);
+
+      final shouldLoad = currentState.maybeWhen(
+        loaded: (quiz) =>
+            quiz.id != widget.quizId, 
+        orElse: () => true, 
+      );
+
+      if (shouldLoad) {
+        ref.read(quizControllerProvider.notifier).loadQuizDetail(widget.quizId);
+      }
     });
   }
 
@@ -31,7 +42,12 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
     final quizState = ref.watch(quizControllerProvider);
 
     return ScaffoldWidget(
-      appBar:  AppBarWidget(title: 'Detail Kuis',backgorundColor: BaseColor.primaryInspire, ),
+      appBar: AppBarWidget(
+        title: 'Detail Kuis',
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: quizState.when(
         initial: () => const SizedBox.shrink(),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -45,7 +61,9 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
               Gap.h16,
               ButtonWidget.primary(
                 text: 'Coba Lagi',
-                onTap: () => ref.read(quizControllerProvider.notifier).loadQuizDetail(widget.quizId),
+                onTap: () => ref
+                    .read(quizControllerProvider.notifier)
+                    .loadQuizDetail(widget.quizId),
               ),
             ],
           ),
@@ -53,7 +71,8 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
         loaded: (quiz) {
           final now = DateTime.now();
           final isBeforeStart = now.isBefore(quiz.startTime);
-          final isActive = now.isAfter(quiz.startTime) && now.isBefore(quiz.endTime);
+          final isActive =
+              now.isAfter(quiz.startTime) && now.isBefore(quiz.endTime);
           final isExpired = now.isAfter(quiz.endTime);
           final hasAttempt = quiz.attempts.isNotEmpty;
 
@@ -76,7 +95,8 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                 Gap.h16,
 
                 // Description
-                if (quiz.description != null && quiz.description!.isNotEmpty) ...[
+                if (quiz.description != null &&
+                    quiz.description!.isNotEmpty) ...[
                   Text('Deskripsi', style: BaseTypography.titleMedium.toBold),
                   Gap.h8,
                   Text(quiz.description!, style: BaseTypography.bodyMedium),
@@ -126,29 +146,38 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
 
                 // Attempts History
                 if (hasAttempt) ...[
-                  Text('Riwayat Percobaan', style: BaseTypography.titleMedium.toBold),
+                  Text(
+                    'Riwayat Percobaan',
+                    style: BaseTypography.titleMedium.toBold,
+                  ),
                   Gap.h12,
-                  ...quiz.attempts.map((attempt) => Card(
-                    margin: EdgeInsets.only(bottom: BaseSize.h8),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: _getScoreColor(attempt.score.toDouble()),
-                        child: Text(
-                          attempt.score.toStringAsFixed(0),
-                          style: BaseTypography.titleSmall.toBold.toWhite,
+                  ...quiz.attempts.map(
+                    (attempt) => Card(
+                      margin: EdgeInsets.only(bottom: BaseSize.h8),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: _getScoreColor(
+                            attempt.score.toDouble(),
+                          ),
+                          child: Text(
+                            attempt.score.toStringAsFixed(0),
+                            style: BaseTypography.titleSmall.toBold.toWhite,
+                          ),
+                        ),
+                        title: Text(
+                          'Percobaan ${quiz.attempts.indexOf(attempt) + 1}',
+                        ),
+                        subtitle: Text(
+                          'Selesai: ${Jiffy.parse(attempt.finishedAt?.toString() ?? attempt.startedAt.toString()).fromNow()}',
+                          style: BaseTypography.bodySmall.toGrey,
+                        ),
+                        trailing: Text(
+                          '$attempt.score.toStringAsFixed(0)',
+                          style: BaseTypography.titleMedium.toBold,
                         ),
                       ),
-                      title: Text('Percobaan ${quiz.attempts.indexOf(attempt) + 1}'),
-                      subtitle: Text(
-                        'Selesai: ${Jiffy.parse(attempt.finishedAt?.toString() ?? attempt.startedAt.toString()).fromNow()}',
-                        style: BaseTypography.bodySmall.toGrey,
-                      ),
-                      trailing: Text(
-                        '${attempt.score.toStringAsFixed}',
-                        style: BaseTypography.titleMedium.toBold,
-                      ),
                     ),
-                  )),
+                  ),
                   Gap.h24,
                 ],
 
@@ -168,7 +197,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                       },
                     ),
                   )
-                  else if (hasAttempt)
+                else if (hasAttempt)
                   SizedBox(
                     width: double.infinity,
                     child: Center(
@@ -224,9 +253,20 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
             ),
           );
         },
-        taking: (quiz, answers) => const SizedBox.shrink(),
+        taking: (quiz, answers) =>
+            const Center(child: CircularProgressIndicator()),
         submitting: () => const Center(child: CircularProgressIndicator()),
-        submitted: (attempt) => const SizedBox.shrink(),
+        submitted: (attempt) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              ref
+                  .read(quizControllerProvider.notifier)
+                  .loadQuizDetail(widget.quizId);
+            }
+          });
+
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
@@ -260,7 +300,10 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w12, vertical: BaseSize.h4),
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w12,
+        vertical: BaseSize.h4,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
@@ -290,9 +333,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: BaseColor.primaryInspire),
         Gap.w12,
-        Expanded(
-          child: Text(label, style: BaseTypography.bodyMedium.toGrey),
-        ),
+        Expanded(child: Text(label, style: BaseTypography.bodyMedium.toGrey)),
         Text(value, style: BaseTypography.bodyMedium.toBold),
       ],
     );

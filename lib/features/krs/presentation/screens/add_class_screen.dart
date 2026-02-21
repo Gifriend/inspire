@@ -5,7 +5,8 @@ import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/krs/presentation/controllers/krs_controller.dart';
 import 'package:inspire/core/models/krs/krs_model.dart';
 import 'package:inspire/features/krs/presentation/states/krs_state.dart';
-
+import 'package:inspire/core/assets/assets.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/constants.dart';
 
 class AddClassScreen extends ConsumerStatefulWidget {
@@ -17,28 +18,52 @@ class AddClassScreen extends ConsumerStatefulWidget {
   ConsumerState<AddClassScreen> createState() => _AddClassScreenState();
 }
 
-class _AddClassScreenState extends ConsumerState<AddClassScreen> {
+class _AddClassScreenState extends ConsumerState<AddClassScreen>{
   final String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(availableClassesControllerProvider(widget.semester).notifier)
-          .loadAvailableClasses();
+      final currentState = ref.read(
+        availableClassesControllerProvider(widget.semester),
+      );
+
+      currentState.maybeWhen(
+        initial: () {
+          ref
+              .read(
+                availableClassesControllerProvider(widget.semester).notifier,
+              )
+              .loadAvailableClasses();
+        },
+        error: (_) {
+          ref
+              .read(
+                availableClassesControllerProvider(widget.semester).notifier,
+              )
+              .loadAvailableClasses();
+        },
+        orElse: () {},
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final classesState =
-        ref.watch(availableClassesControllerProvider(widget.semester));
+    final classesState = ref.watch(
+      availableClassesControllerProvider(widget.semester),
+    );
     final krsState = ref.watch(krsControllerProvider(widget.semester));
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
-      appBar: AppBarWidget(title: 'Pilih Mata Kuliah',),
+      appBar: AppBarWidget(
+        title: 'Pilih Mata Kuliah',
+        leadIcon: Assets.icons.fill.arrowBack,
+        leadIconColor: BaseColor.white,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -89,9 +114,11 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                     ElevatedButton(
                       onPressed: () {
                         ref
-                            .read(availableClassesControllerProvider(
-                                    widget.semester)
-                                .notifier)
+                            .read(
+                              availableClassesControllerProvider(
+                                widget.semester,
+                              ).notifier,
+                            )
                             .loadAvailableClasses();
                       },
                       child: const Text('Coba Lagi'),
@@ -149,10 +176,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
               ),
             ],
           ),
-          Icon(
-            Icons.check_circle,
-            color: BaseColor.primaryInspire,
-          ),
+          Icon(Icons.check_circle, color: BaseColor.primaryInspire),
         ],
       ),
     );
@@ -234,9 +258,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
         vertical: BaseSize.h4,
       ),
       child: InkWell(
-        onTap: isSelected
-            ? null
-            : () => _showAddConfirmation(kelas),
+        onTap: isSelected ? null : () => _showAddConfirmation(kelas),
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         child: Padding(
           padding: EdgeInsets.all(BaseSize.w16),
@@ -262,10 +284,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                     ),
                   ),
                   if (isSelected)
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                    )
+                    Icon(Icons.check_circle, color: Colors.green)
                   else
                     Icon(
                       Icons.add_circle_outline,
@@ -279,10 +298,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                   children: [
                     Icon(Icons.person, size: 16, color: BaseColor.grey),
                     Gap.w4,
-                    Text(
-                      kelas.dosen!.name,
-                      style: BaseTypography.bodySmall,
-                    ),
+                    Text(kelas.dosen!.name, style: BaseTypography.bodySmall),
                   ],
                 ),
               ],
@@ -292,10 +308,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                   children: [
                     Icon(Icons.schedule, size: 16, color: BaseColor.grey),
                     Gap.w4,
-                    Text(
-                      kelas.jadwal!,
-                      style: BaseTypography.bodySmall,
-                    ),
+                    Text(kelas.jadwal!, style: BaseTypography.bodySmall),
                   ],
                 ),
               ],
@@ -305,10 +318,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                   children: [
                     Icon(Icons.room, size: 16, color: BaseColor.grey),
                     Gap.w4,
-                    Text(
-                      kelas.ruangan!,
-                      style: BaseTypography.bodySmall,
-                    ),
+                    Text(kelas.ruangan!, style: BaseTypography.bodySmall),
                   ],
                 ),
               ],
@@ -351,14 +361,14 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                   .read(krsControllerProvider(widget.semester).notifier)
                   .addClass(kelas.id)
                   .then((_) {
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Berhasil menambahkan mata kuliah'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              });
+                    // Show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Berhasil menambahkan mata kuliah'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  });
             },
             child: const Text('Tambah'),
           ),

@@ -164,6 +164,12 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
           orElse: () => false,
         );
 
+        if (!isError) {
+          await ref
+              .read(quizControllerProvider.notifier)
+              .loadQuizDetail(widget.quiz.id);
+        }
+
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

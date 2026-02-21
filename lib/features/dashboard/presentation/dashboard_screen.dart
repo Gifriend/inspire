@@ -539,6 +539,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (confirmed == true && context.mounted) {
       try {
         await ref.read(loginServiceProvider).logout();
+        ref.read(profileControllerProvider.notifier).clearCache();
         if (context.mounted) {
           context.go('/login');
         }
