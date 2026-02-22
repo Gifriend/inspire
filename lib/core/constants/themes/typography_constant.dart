@@ -56,4 +56,8 @@ class BaseTypography {
     fontSize: 6.sp,
     fontWeight: FontWeight.w400,
   );
+  static TextStyle labelMedium = TextStyle(
+    fontSize: 10.sp,
+    fontWeight: FontWeight.w400,
+  );
 }

@@ -288,7 +288,7 @@ class ButtonWidget extends StatelessWidget {
     } else if (buttonSize == ButtonSize.medium) {
       typography = BaseTypography.titleMedium.toBold;
     } else if (buttonSize == ButtonSize.small) {
-      typography = BaseTypography.labelSmall.toBold;
+      typography = BaseTypography.labelMedium.toBold;
     }
 
     if (!_isEnabled) {

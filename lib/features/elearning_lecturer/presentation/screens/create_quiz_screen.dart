@@ -106,7 +106,8 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
       );
       return;
     }
-    if (_endTime!.isBefore(_startTime!) || _endTime!.isAtSameMomentAs(_startTime!)) {
+    if (_endTime!.isBefore(_startTime!) ||
+        _endTime!.isAtSameMomentAs(_startTime!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Waktu selesai harus setelah waktu mulai')),
       );
@@ -119,7 +120,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
       return;
     }
 
-    // Validate all questions
     for (var i = 0; i < _questions.length; i++) {
       final question = _questions[i];
       if (!question.isValid()) {
@@ -130,8 +130,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
       }
     }
 
-    final questionsData =
-        _questions.map((q) => q.toJson()).toList();
+    final questionsData = _questions.map((q) => q.toJson()).toList();
 
     try {
       await ref.read(elearningLecturerControllerProvider.notifier).createQuiz(
@@ -140,8 +139,8 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
             startTime: _startTime!,
             endTime: _endTime!,
             gradingMethod: _gradingMethod,
-        hideGrades: _hideGrades,
-        hideUntilDeadline: _hideUntilDeadline,
+            hideGrades: _hideGrades,
+            hideUntilDeadline: _hideUntilDeadline,
             sessionId: _selectedSessionId!,
             questions: questionsData,
           );
@@ -164,25 +163,22 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
+      disableSingleChildScrollView: true,
       appBar: AppBarWidget(title: 'Buat Kuis'),
       child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            // Session Selection
-            DropdownButtonFormField<String>(
+            DropdownWidget<String>(
+              labelText: 'Pilih Sesi',
+              hintText: 'Pilih Sesi',
               value: _selectedSessionId,
-              decoration: const InputDecoration(
-                labelText: 'Pilih Sesi',
-                border: OutlineInputBorder(),
-              ),
-              items: widget.sessions.map((session) {
-                return DropdownMenuItem(
-                  value: session.id,
-                  child: Text('Minggu ${session.weekNumber}: ${session.title}'),
-                );
-              }).toList(),
+              items: widget.sessions.map((s) => s.id).toList(),
+              itemLabelBuilder: (id) {
+                final session = widget.sessions.firstWhere((s) => s.id == id);
+                return 'Minggu ${session.weekNumber}: ${session.title}';
+              },
               onChanged: (value) {
                 setState(() {
                   _selectedSessionId = value;
@@ -191,8 +187,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               validator: (value) => value == null ? 'Pilih sesi' : null,
             ),
             const SizedBox(height: 16),
-
-            // Title
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -203,8 +197,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                   value?.isEmpty ?? true ? 'Judul harus diisi' : null,
             ),
             const SizedBox(height: 16),
-
-            // Duration
             TextFormField(
               controller: _durationController,
               decoration: const InputDecoration(
@@ -220,8 +212,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               },
             ),
             const SizedBox(height: 16),
-
-            // Start Time
             InkWell(
               onTap: () => _pickDateTime(true),
               child: InputDecorator(
@@ -244,8 +234,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // End Time
             InkWell(
               onTap: () => _pickDateTime(false),
               child: InputDecorator(
@@ -268,28 +256,31 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Grading Method
-            DropdownButtonFormField<String>(
+            DropdownWidget<String>(
+              labelText: 'Metode Penilaian',
+              hintText: 'Pilih Metode Penilaian',
               value: _gradingMethod,
-              decoration: const InputDecoration(
-                labelText: 'Metode Penilaian',
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'LATEST', child: Text('Nilai Terakhir')),
-                DropdownMenuItem(value: 'HIGHEST', child: Text('Nilai Tertinggi')),
-                DropdownMenuItem(value: 'AVERAGE', child: Text('Rata-rata')),
-              ],
+              items: const ['LATEST', 'HIGHEST', 'AVERAGE'],
+              itemLabelBuilder: (method) {
+                switch (method) {
+                  case 'LATEST':
+                    return 'Nilai Terakhir';
+                  case 'HIGHEST':
+                    return 'Nilai Tertinggi';
+                  case 'AVERAGE':
+                    return 'Rata-rata';
+                  default:
+                    return method;
+                }
+              },
               onChanged: (value) {
+                if (value == null) return;
                 setState(() {
-                  _gradingMethod = value!;
+                  _gradingMethod = value;
                 });
               },
             ),
             const SizedBox(height: 16),
-
-            // Settings
             const Text(
               'Pengaturan',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -313,8 +304,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               },
             ),
             const SizedBox(height: 24),
-
-            // Questions Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -330,8 +319,6 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               ],
             ),
             const SizedBox(height: 12),
-
-            // Questions List
             if (_questions.isEmpty)
               Container(
                 padding: const EdgeInsets.all(32),
@@ -357,10 +344,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                   onDelete: () => _removeQuestion(index),
                 );
               }),
-
             const SizedBox(height: 32),
-
-            // Submit Button
             SizedBox(
               height: 50,
               child: ElevatedButton(
@@ -417,19 +401,18 @@ class QuestionData {
 
   bool isValid() {
     if (questionController.text.isEmpty) return false;
-    if (pointsController.text.isEmpty || int.tryParse(pointsController.text) == null) {
+    if (pointsController.text.isEmpty ||
+        int.tryParse(pointsController.text) == null) {
       return false;
     }
-    
+
     if (type == 'MULTIPLE_CHOICE' || type == 'TRUE_FALSE') {
-      // Check if all options are filled
       for (var controller in optionControllers) {
         if (controller.text.isEmpty) return false;
       }
-      // Check if correct answer is selected
       if (correctAnswer.isEmpty) return false;
     }
-    
+
     return true;
   }
 
@@ -475,7 +458,6 @@ class _QuestionCardState extends State<_QuestionCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -488,7 +470,6 @@ class _QuestionCardState extends State<_QuestionCard> {
                 ),
                 Row(
                   children: [
-                    // Points
                     SizedBox(
                       width: 80,
                       child: TextFormField(
@@ -511,26 +492,29 @@ class _QuestionCardState extends State<_QuestionCard> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Question Type
-            DropdownButtonFormField<String>(
+            DropdownWidget<String>(
+              labelText: 'Tipe Soal',
+              hintText: 'Pilih Tipe Soal',
               value: widget.question.type,
-              decoration: const InputDecoration(
-                labelText: 'Tipe Soal',
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(
-                    value: 'MULTIPLE_CHOICE', child: Text('Pilihan Ganda')),
-                DropdownMenuItem(value: 'TRUE_FALSE', child: Text('Benar/Salah')),
-                DropdownMenuItem(value: 'ESSAY', child: Text('Essay')),
-              ],
+              items: const ['MULTIPLE_CHOICE', 'TRUE_FALSE', 'ESSAY'],
+              itemLabelBuilder: (type) {
+                switch (type) {
+                  case 'MULTIPLE_CHOICE':
+                    return 'Pilihan Ganda';
+                  case 'TRUE_FALSE':
+                    return 'Benar/Salah';
+                  case 'ESSAY':
+                    return 'Essay';
+                  default:
+                    return type;
+                }
+              },
               onChanged: (value) {
+                if (value == null) return;
                 setState(() {
-                  widget.question.type = value!;
+                  widget.question.type = value;
                   widget.question.correctAnswer = '';
 
-                  // For TRUE_FALSE, set predefined options
                   if (value == 'TRUE_FALSE') {
                     widget.question.optionControllers.clear();
                     widget.question.optionControllers.add(
@@ -539,27 +523,23 @@ class _QuestionCardState extends State<_QuestionCard> {
                     widget.question.optionControllers.add(
                       TextEditingController(text: 'Salah'),
                     );
-                  }
-                  // For ESSAY, clear options
-                  else if (value == 'ESSAY') {
+                  } else if (value == 'ESSAY') {
                     for (var controller in widget.question.optionControllers) {
                       controller.dispose();
                     }
                     widget.question.optionControllers.clear();
-                  }
-                  // For MULTIPLE_CHOICE, ensure at least 2 options
-                  else if (value == 'MULTIPLE_CHOICE' &&
+                  } else if (value == 'MULTIPLE_CHOICE' &&
                       widget.question.optionControllers.length < 2) {
                     widget.question.optionControllers.clear();
-                    widget.question.optionControllers.add(TextEditingController());
-                    widget.question.optionControllers.add(TextEditingController());
+                    widget.question.optionControllers
+                        .add(TextEditingController());
+                    widget.question.optionControllers
+                        .add(TextEditingController());
                   }
                 });
               },
             ),
             const SizedBox(height: 16),
-
-            // Question Text
             TextFormField(
               controller: widget.question.questionController,
               decoration: const InputDecoration(
@@ -570,8 +550,6 @@ class _QuestionCardState extends State<_QuestionCard> {
               maxLines: 3,
             ),
             const SizedBox(height: 16),
-
-            // Options (for MULTIPLE_CHOICE and TRUE_FALSE)
             if (widget.question.type != 'ESSAY') ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -596,8 +574,7 @@ class _QuestionCardState extends State<_QuestionCard> {
               ...widget.question.optionControllers.asMap().entries.map((entry) {
                 final optionIndex = entry.key;
                 final controller = entry.value;
-                final optionLabel =
-                    String.fromCharCode(65 + optionIndex); // A, B, C, D...
+                final optionLabel = String.fromCharCode(65 + optionIndex);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -621,7 +598,6 @@ class _QuestionCardState extends State<_QuestionCard> {
                             isDense: true,
                           ),
                           onChanged: (value) {
-                            // Update correct answer if this option was previously selected
                             if (widget.question.correctAnswer ==
                                 controller.text) {
                               setState(() {
@@ -635,7 +611,8 @@ class _QuestionCardState extends State<_QuestionCard> {
                       if (widget.question.type == 'MULTIPLE_CHOICE' &&
                           widget.question.optionControllers.length > 2)
                         IconButton(
-                          icon: const Icon(Icons.remove_circle, color: Colors.red),
+                          icon: const Icon(Icons.remove_circle,
+                              color: Colors.red),
                           onPressed: () {
                             setState(() {
                               widget.question.removeOption(optionIndex);
@@ -658,8 +635,6 @@ class _QuestionCardState extends State<_QuestionCard> {
                   ),
                 ),
             ],
-
-            // Essay note
             if (widget.question.type == 'ESSAY')
               Container(
                 padding: const EdgeInsets.all(12),

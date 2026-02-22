@@ -9,6 +9,8 @@ import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/elearning_lecturer/data/services/elearning_lecturer_service.dart';
 import 'package:inspire/features/presentation.dart';
 
+// Pastikan Anda sudah meng-import file dropdown_widget.dart di atas jika berada di folder berbeda
+
 class AnnouncementLecturerScreen extends ConsumerStatefulWidget {
   const AnnouncementLecturerScreen({super.key});
 
@@ -154,7 +156,6 @@ class _AnnouncementLecturerScreenState
           );
         },
         created: (announcement) {
-          // Reload announcements after creation
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ref
                 .read(announcementLecturerControllerProvider.notifier)
@@ -174,7 +175,6 @@ class _AnnouncementLecturerScreenState
           return const SizedBox.shrink();
         },
         deleted: () {
-          // Reload announcements after deletion
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ref
                 .read(announcementLecturerControllerProvider.notifier)
@@ -222,33 +222,15 @@ class _AnnouncementLecturerScreenState
       );
     }
 
-    return DropdownButtonFormField<int?>(
+    return DropdownWidget<int?>(
+      hintText: 'Riwayat Pengumuman Kelas',
       value: _selectedFilterKelasId,
-      isExpanded: true,
-      decoration: const InputDecoration(
-        labelText: 'Riwayat Pengumuman Kelas',
-        border: OutlineInputBorder(),
-      ),
-      items: [
-        const DropdownMenuItem<int?>(
-          value: null,
-          child: Text(
-            'Semua Kelas Saya',
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-        ..._lecturerCourses.map(
-          (course) => DropdownMenuItem<int?>(
-            value: course.id,
-            child: Text(
-              '${course.kode} - ${course.nama}',
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
-        ),
-      ],
+      items: [null, ..._lecturerCourses.map((c) => c.id)],
+      itemLabelBuilder: (id) {
+        if (id == null) return 'Semua Kelas Saya';
+        final course = _lecturerCourses.firstWhere((c) => c.id == id);
+        return '${course.kode} - ${course.nama}';
+      },
       onChanged: (value) {
         setState(() {
           _selectedFilterKelasId = value;
@@ -340,17 +322,17 @@ class _AnnouncementLecturerScreenState
                   },
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 20, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Hapus'),
-                            ],
-                          ),
-                        ),
-                      ],
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, size: 20, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Hapus'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -399,27 +381,15 @@ class _AnnouncementLecturerScreenState
                       maxLines: 5,
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
+                    DropdownWidget<int?>(
+                      labelText: 'Riwayat Pengumuman Kelas',
+                      hintText: 'Pilih Kelas',
                       value: selectedKelasId,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Pilih Kelas',
-                        border: OutlineInputBorder(),
-                        helperText:
-                            'Pilih kelas perkuliahan untuk pengumuman ini',
-                      ),
-                      items: _lecturerCourses
-                          .map(
-                            (course) => DropdownMenuItem<int>(
-                              value: course.id,
-                              child: Text(
-                                '${course.kode} - ${course.nama}',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      items: _lecturerCourses.map((c) => c.id).toList(),
+                      itemLabelBuilder: (id) {
+                        final course = _lecturerCourses.firstWhere((c) => c.id == id);
+                        return '${course.kode} - ${course.nama}';
+                      },
                       onChanged: (value) {
                         setDialogState(() {
                           selectedKelasId = value;

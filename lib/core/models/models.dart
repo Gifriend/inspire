@@ -15,3 +15,4 @@ export 'transcript/transcript_model.dart';
 export 'user/user_model.dart';
 export 'elearning/course_list_model.dart';
 export 'elearning/course_detail_model.dart';
+export 'presensi/presensi_record.dart';

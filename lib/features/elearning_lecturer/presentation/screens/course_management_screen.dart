@@ -593,26 +593,17 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    DropdownButtonFormField<String>(
+                    DropdownWidget<String>(
+                      labelText: 'Sesi',
+                      hintText: 'Pilih Sesi',
                       value: selectedSessionId,
-                      decoration: const InputDecoration(
-                        labelText: 'Sesi',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: sessions
-                          .map(
-                            (session) => DropdownMenuItem(
-                              value: session.id,
-                              child: Text(
-                                'Minggu ${session.weekNumber}: ${session.title}',
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      items: sessions.map((s) => s.id).toList(),
+                      itemLabelBuilder: (id) {
+                        final session = sessions.firstWhere((s) => s.id == id);
+                        return 'Minggu ${session.weekNumber}: ${session.title}';
+                      },
                       onChanged: (value) {
-                        if (value == null) {
-                          return;
-                        }
+                        if (value == null) return;
                         setDialogState(() {
                           selectedSessionId = value;
                         });
@@ -627,30 +618,18 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<MaterialType>(
+                    DropdownWidget<MaterialType>(
+                      labelText: 'Tipe Materi',
+                      hintText: 'Pilih Tipe',
                       value: selectedType,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipe Materi',
-                        border: OutlineInputBorder(),
-                      ),
                       items: const [
-                        DropdownMenuItem(
-                          value: MaterialType.text,
-                          child: Text('TEXT'),
-                        ),
-                        DropdownMenuItem(
-                          value: MaterialType.file,
-                          child: Text('FILE'),
-                        ),
-                        DropdownMenuItem(
-                          value: MaterialType.hybrid,
-                          child: Text('HYBRID'),
-                        ),
+                        MaterialType.text,
+                        MaterialType.file,
+                        MaterialType.hybrid,
                       ],
+                      itemLabelBuilder: (type) => type.name.toUpperCase(),
                       onChanged: (value) {
-                        if (value == null) {
-                          return;
-                        }
+                        if (value == null) return;
                         setDialogState(() {
                           selectedType = value;
                         });
@@ -763,26 +742,17 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    DropdownButtonFormField<String>(
+                    DropdownWidget<String>(
+                      labelText: 'Sesi',
+                      hintText: 'Pilih Sesi',
                       value: selectedSessionId,
-                      decoration: const InputDecoration(
-                        labelText: 'Sesi',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: sessions
-                          .map(
-                            (session) => DropdownMenuItem(
-                              value: session.id,
-                              child: Text(
-                                'Minggu ${session.weekNumber}: ${session.title}',
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      items: sessions.map((s) => s.id).toList(),
+                      itemLabelBuilder: (id) {
+                        final session = sessions.firstWhere((s) => s.id == id);
+                        return 'Minggu ${session.weekNumber}: ${session.title}';
+                      },
                       onChanged: (value) {
-                        if (value == null) {
-                          return;
-                        }
+                        if (value == null) return;
                         setDialogState(() {
                           selectedSessionId = value;
                         });
