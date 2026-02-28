@@ -291,7 +291,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                           icon: Assets.icons.fill.calendar,
                           label: 'Kalender',
                           onTap: () {
-                            // context.pushNamed(AppRoute.ebookMenu);
+                            context.pushNamed(AppRoute.schedule);
                           },
                         ),
                         _buildMenuItem(
@@ -312,13 +312,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                             );
                           },
                         ),
-                        _buildMenuItem(
-                          icon: Assets.images.pengumuman,
-                          label: 'Pengumuman',
-                          onTap: () {
-                            context.pushNamed(AppRoute.announcementList);
-                          },
-                        ),
+                        // _buildMenuItem(
+                        //   icon: Assets.images.pengumuman,
+                        //   label: 'Pengumuman',
+                        //   onTap: () {
+                        //     context.pushNamed(AppRoute.announcementList);
+                        //   },
+                        // ),
                         _buildMenuItem(
                           icon: Icons.book,
                           label: 'E-Learning',
@@ -331,11 +331,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                             );
                           },
                         ),
-                        _buildMenuItem(
-                          icon: Icons.logout,
-                          label: 'Logout',
-                          onTap: () => _handleLogout(context),
-                        ),
+                        // _buildMenuItem(
+                        //   icon: Icons.logout,
+                        //   label: 'Logout',
+                        //   onTap: () => _handleLogout(context),
+                        // ),
                       ],
                     ),
                   ),
@@ -516,147 +516,78 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     }
   }
 
-  Future<void> _handleLogout(BuildContext context) async {
-    final confirmed = await showDialogCustomWidget<bool>(
-      context: context,
-      title: 'Konfirmasi Logout',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Apakah Anda yakin ingin keluar?'),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+  Widget _buildPengumumanBookCard(
+    BuildContext context,
+    AnnouncementModel announcement,
+  ) {
+    return GestureDetector(
+      key: ValueKey(announcement.id),
+      onTap: () {
+        context.pushNamed(
+          AppRoute.announcementDetail,
+          pathParameters: {'id': announcement.id.toString()},
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 8.0, bottom: 20.0, left: 8.0, right: 8.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text('Batal', style: BaseTypography.bodyMedium.toGrey),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: Text('Logout', style: BaseTypography.bodyMedium.toRed500),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && context.mounted) {
-      try {
-        await ref.read(loginServiceProvider).logout();
-        ref.read(profileControllerProvider.notifier).clearCache();
-        if (context.mounted) {
-          context.go('/login');
-        }
-      } catch (e) {
-        if (context.mounted) {
-          showErrorAlertDialogWidget(
-            context,
-            title: 'Logout gagal',
-            subtitle: '$e',
-          );
-        }
-      }
-    }
-  }
-}
-
-Widget _buildPengumumanBookCard(
-  BuildContext context,
-  AnnouncementModel announcement,
-) {
-  return GestureDetector(
-    key: ValueKey(announcement.id),
-    onTap: () {
-      context.pushNamed(
-        AppRoute.announcementDetail,
-        pathParameters: {'id': announcement.id.toString()},
-      );
-    },
-    child: Container(
-      margin: EdgeInsets.only(top: 8.0, bottom: 20.0, left: 8.0, right: 8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Pengumuman Header with gradient
-            Expanded(
-              flex: 3,
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          BaseColor.primaryInspire,
-                          BaseColor.primaryInspire.withValues(alpha: 0.7),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.announcement,
-                        size: 64,
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
-                    ),
-                  ),
-                  // Category Badge
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              // Pengumuman Header with gradient
+              Expanded(
+                flex: 3,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: double.infinity,
                       decoration: BoxDecoration(
-                        color: BaseColor.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            BaseColor.primaryInspire,
+                            BaseColor.primaryInspire.withValues(alpha: 0.7),
+                          ],
+                        ),
                       ),
-                      child: Text(
-                        announcement.kategori,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                      child: Center(
+                        child: Icon(
+                          Icons.announcement,
+                          size: 64,
+                          color: Colors.white.withValues(alpha: 0.3),
                         ),
                       ),
                     ),
-                  ),
-                  // Global Badge
-                  if (announcement.isGlobal)
+                    // Category Badge
                     Positioned(
                       top: 8,
-                      right: 8,
+                      left: 8,
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.9),
+                          color: BaseColor.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(
                             BaseSize.radiusSm,
                           ),
                         ),
                         child: Text(
-                          'Global',
+                          announcement.kategori,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -665,89 +596,124 @@ Widget _buildPengumumanBookCard(
                         ),
                       ),
                     ),
-                  // Date
-                  Positioned(
-                    bottom: 8,
-                    left: 8,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                    // Global Badge
+                    if (announcement.isGlobal)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.9),
+                            borderRadius: BorderRadius.circular(
+                              BaseSize.radiusSm,
+                            ),
+                          ),
+                          child: Text(
+                            'Global',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: Text(
-                        Jiffy.parse(
-                          announcement.createdAt.toString(),
-                        ).fromNow(),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
+                    // Date
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusSm,
+                          ),
+                        ),
+                        child: Text(
+                          Jiffy.parse(
+                            announcement.createdAt.toString(),
+                          ).fromNow(),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Pengumuman Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      announcement.judul,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Gap.h4,
-                    Expanded(
-                      child: Text(
-                        announcement.isi,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (announcement.dosen != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.person,
-                              size: 12,
-                              color: Colors.grey[600],
-                            ),
-                            Gap.w4,
-                            Expanded(
-                              child: Text(
-                                announcement.dosen!.name,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[600],
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              // Pengumuman Info
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        announcement.judul,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Gap.h4,
+                      Expanded(
+                        child: Text(
+                          announcement.isi,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (announcement.dosen != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: 12,
+                                color: Colors.grey[600],
+                              ),
+                              Gap.w4,
+                              Expanded(
+                                child: Text(
+                                  announcement.dosen!.name,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

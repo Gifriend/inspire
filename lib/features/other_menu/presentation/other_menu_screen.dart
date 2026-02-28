@@ -70,9 +70,7 @@ class OtherMenuScreen extends ConsumerWidget {
           icon: Icons.calendar_month,
           title: 'Jadwal Kuliah',
           subtitle: 'Lihat jadwal perkuliahan',
-          onTap: () {
-            // TODO: Implement jadwal navigation
-          },
+          onTap: () => context.pushNamed(AppRoute.schedule),
         );
       // case 3:
       //   return _buildMenuCard(

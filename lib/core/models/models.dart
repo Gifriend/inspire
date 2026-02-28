@@ -22,3 +22,5 @@ export 'elearning/course_list_model.dart';
 export 'elearning/course_detail_model.dart';
 export 'presensi/presensi_record.dart';
 export 'presensi/presensi_session_model.dart';
+export 'schedule/schedule_model.dart';
+export 'holiday/holiday_model.dart';

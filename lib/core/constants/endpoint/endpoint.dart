@@ -82,4 +82,10 @@ class Endpoint {
   static String availableClasses = _baseUrl(
     path: "/kelas-perkuliahan/available",
   );
+
+  // Schedule endpoints
+  static String schedule = _baseUrl(path: "/schedule");
+  static String scheduleMonthly = '$schedule/monthly';
+  static String scheduleToday = '$schedule/today';
+  static String scheduleIcal = '$schedule/ical';
 }

@@ -69,6 +69,9 @@ class AppRoute {
   static const String announcementKoorprodi = 'announcement-koorprodi';
   static const String gradingLecturer = 'grading-lecturer';
   static const String myClassesLecturer = 'my-classes-lecturer';
+
+  //Schedule
+  static const String schedule = 'schedule';
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -192,6 +195,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/transcript',
         name: AppRoute.transcript,
         builder: (context, state) => const TranscriptScreen(),
+      ),
+      GoRoute(
+        path: '/schedule',
+        name: AppRoute.schedule,
+        builder: (context, state) => const ScheduleScreen(),
       ),
       GoRoute(
         path: '/lecturer-dashboard',

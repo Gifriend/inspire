@@ -81,6 +81,11 @@ export 'krs/presentation/states/krs_state.dart';
 export 'krs_lecturer/presentation/krs_lecturer_controller.dart';
 export 'krs_lecturer/presentation/krs_lecturer_state.dart';
 export 'krs_lecturer/presentation/krs_lecturer_screen.dart';
+//schedule
+export 'schedule/presentation/schedule_controller.dart';
+export 'schedule/presentation/schedule_screen.dart';
+export 'schedule/presentation/schedule_state.dart';
+export 'schedule/data/repositories/holiday_repository.dart';
 //lecturer dashboard
 export 'lecturer/presentation/lecturer_dashboard_controller.dart';
 export 'lecturer/presentation/lecturer_dashboard_screen.dart';
