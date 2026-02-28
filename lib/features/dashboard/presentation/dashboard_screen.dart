@@ -577,7 +577,7 @@ Widget _buildPengumumanBookCard(
       );
     },
     child: Container(
-      margin: EdgeInsets.symmetric(horizontal: 8),
+      margin: EdgeInsets.only(top: 8.0, bottom: 20.0, left: 8.0, right: 8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inspire/core/utils/utils.dart';
 import '../../constants/constants.dart';
 
 class DropdownWidget<T> extends StatelessWidget {
@@ -44,6 +45,7 @@ class DropdownWidget<T> extends StatelessWidget {
         ),
         border: const OutlineInputBorder(),
         hintText: hintText,
+        labelStyle: BaseTypography.bodyLarge.toPrimaryInspire
       ),
       validator: validator,
       selectedItemBuilder: (BuildContext context) {

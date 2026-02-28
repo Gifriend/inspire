@@ -45,6 +45,27 @@ class Endpoint {
   static String quizDetail(String id) => '$elearning/quiz/$id';
   static String materialDetail(String id) => '$elearning/material/$id';
 
+  // E-learning — Lecturer endpoints
+  static String lecturerCourses = '$elearning/lecturer/courses';
+  static String assignmentSubmissions(String assignmentId) =>
+      '$elearning/assignment/$assignmentId/submissions';
+  static String submissionGrade(String submissionId) =>
+      '$elearning/submission/$submissionId/grade';
+  static String quizAttempts(String quizId) =>
+      '$elearning/quiz/$quizId/attempts';
+  static String submissionDetail(String submissionId) =>
+      '$elearning/submission/$submissionId';
+
+  // E-learning — Setup endpoints
+  static String elearningSetupBase = '$elearning/setup';
+  static String elearningSetupClass = '$elearningSetupBase/class';
+  static String elearningSetupMerge = '$elearningSetupBase/merge';
+  static String elearningSetupUnmerge(int kelasId) =>
+      '$elearningSetupBase/unmerge/$kelasId';
+  static String elearningSetupVisibility = '$elearningSetupBase/visibility';
+  static String elearningClassSetup(int kelasId) =>
+      '$elearningSetupBase/class/$kelasId';
+
   // KRS endpoints
   static String krsBase = _baseUrl(path: "/krs");
   static String krs(String semester) => '$krsBase/$semester';
