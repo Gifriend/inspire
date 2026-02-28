@@ -26,9 +26,9 @@ class TranscriptController extends StateNotifier<TranscriptState> {
     state = const TranscriptState.initial();
   }
 
-  Future<String> downloadHtml() async {
+  Future<List<int>> downloadPdf() async {
     try {
-      return await _service.downloadTranscriptHtml();
+      return await _service.downloadTranscriptPdf();
     } catch (e) {
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }

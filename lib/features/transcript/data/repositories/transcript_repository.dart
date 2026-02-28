@@ -5,8 +5,8 @@ import 'package:inspire/core/data_sources/network/dio_client.dart';
 import 'package:inspire/core/models/transcript/transcript_model.dart';
 
 abstract class TranscriptRepository {
-  Future<TranscriptSummaryModel> getTranscript();
-  Future<String> downloadTranscriptHtml();
+  Future<TranscriptModel> getTranscript();
+  Future<List<int>> downloadTranscriptPdf();
 }
 
 class TranscriptRepositoryImpl implements TranscriptRepository {
@@ -15,20 +15,18 @@ class TranscriptRepositoryImpl implements TranscriptRepository {
   TranscriptRepositoryImpl(this._dioClient);
 
   @override
-  Future<TranscriptSummaryModel> getTranscript() async {
+  Future<TranscriptModel> getTranscript() async {
     try {
       final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.transcript,
       );
-
       if (response == null) {
         throw DioException(
           requestOptions: RequestOptions(path: Endpoint.transcript),
           error: 'Response is null',
         );
       }
-
-      return TranscriptSummaryModel.fromJson(response);
+      return TranscriptModel.fromJson(response);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         throw Exception('Unauthorized');
@@ -40,24 +38,13 @@ class TranscriptRepositoryImpl implements TranscriptRepository {
   }
 
   @override
-  Future<String> downloadTranscriptHtml() async {
+  Future<List<int>> downloadTranscriptPdf() async {
     try {
-      final response = await _dioClient.get<String>(
-        '${Endpoint.transcript}/download',
-        options: Options(
-          responseType: ResponseType.plain,
-          headers: {'Accept': 'text/html'},
-        ),
+      final bytes = await _dioClient.get<List<int>>(
+        Endpoint.transcriptDownload,
+        options: Options(responseType: ResponseType.bytes),
       );
-
-      if (response == null) {
-        throw DioException(
-          requestOptions: RequestOptions(path: '${Endpoint.transcript}/download'),
-          error: 'Response is null',
-        );
-      }
-
-      return response;
+      return bytes ?? [];
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         throw Exception('Unauthorized');

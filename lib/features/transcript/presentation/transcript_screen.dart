@@ -1,11 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/models/transcript/transcript_model.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class TranscriptScreen extends ConsumerStatefulWidget {
@@ -16,12 +17,46 @@ class TranscriptScreen extends ConsumerStatefulWidget {
 }
 
 class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
+  bool _isDownloading = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(transcriptControllerProvider.notifier).loadTranscript();
     });
+  }
+
+  Future<void> _handleDownloadPdf() async {
+    setState(() => _isDownloading = true);
+    try {
+      final bytes =
+          await ref.read(transcriptControllerProvider.notifier).downloadPdf();
+      if (bytes.isEmpty) throw Exception('File PDF kosong');
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/Transkrip_Nilai.pdf');
+      await file.writeAsBytes(bytes);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('PDF disimpan: ${file.path}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengunduh PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDownloading = false);
+    }
   }
 
   @override
@@ -34,16 +69,24 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
         backgroundColor: BaseColor.primaryInspire,
         foregroundColor: BaseColor.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.visibility),
-            onPressed: () => _handleViewHtml(context),
-            tooltip: 'Lihat Detail',
-          ),
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () => _handleDownload(context),
-            tooltip: 'Download Transkrip',
-          ),
+          _isDownloading
+              ? Padding(
+                  padding: EdgeInsets.all(BaseSize.w12),
+                  child: const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.download),
+                  onPressed: transcriptState.maybeWhen(
+                    loaded: (_) => _handleDownloadPdf,
+                    orElse: () => null,
+                  ),
+                  tooltip: 'Unduh Transkrip PDF',
+                ),
         ],
       ),
       loading: transcriptState.maybeWhen(
@@ -53,597 +96,418 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
       child: transcriptState.when(
         initial: () => const Center(child: Text('Memuat...')),
         loading: () => const SizedBox.shrink(),
-        loaded: (transcript) => SingleChildScrollView(
-          padding: EdgeInsets.all(BaseSize.w16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        loaded: (transcript) => _buildContent(transcript),
+        error: (message) => _buildError(message),
+      ),
+    );
+  }
+
+  Widget _buildContent(TranscriptModel transcript) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(BaseSize.w16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildMahasiswaCard(transcript.mahasiswa),
+          Gap.h16,
+          _buildStatistikCard(transcript.statistik),
+          Gap.h24,
+
+          // Per-semester sections
+          Text(
+            'Daftar Nilai per Semester',
+            style: BaseTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Gap.h12,
+          ...transcript.bySemester
+              .map((sem) => _buildSemesterSection(sem))
+              .toList(),
+
+          Gap.h8,
+          // Grand summary rows
+          _buildGrandSummary(transcript.statistik),
+          Gap.h24,
+
+          // Download button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _isDownloading ? null : _handleDownloadPdf,
+              icon: _isDownloading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.print),
+              label: Text(_isDownloading ? 'Mengunduh...' : 'Cetak Transkrip (PDF)'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: BaseColor.primaryInspire,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                ),
+              ),
+            ),
+          ),
+          Gap.h24,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMahasiswaCard(TranskripMahasiswaModel m) {
+    final rows = <MapEntry<String, String>>[
+      MapEntry('Nama', m.nama),
+      if (m.tempatLahir != null)
+        MapEntry('Tempat / Tanggal Lahir', '${m.tempatLahir}, ${m.tanggalLahir ?? '-'}')
+      else if (m.tanggalLahir != null)
+        MapEntry('Tanggal Lahir', m.tanggalLahir!),
+      MapEntry('NIM', m.nim),
+      MapEntry('Program Studi / Jenjang', '${m.prodi} / ${m.jenjang}'),
+      MapEntry('Fakultas', m.fakultas),
+      MapEntry('Angkatan', m.angkatan),
+      MapEntry('Tanggal Cetak', m.tanggalCetak),
+    ];
+    return Container(
+      padding: EdgeInsets.all(BaseSize.w16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: rows.map((e) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: BaseSize.h6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 145,
+                  child: Text(e.key, style: BaseTypography.bodySmall.toGrey),
+                ),
+                Text(': ', style: BaseTypography.bodySmall.toGrey),
+                Expanded(
+                  child: Text(
+                    e.value,
+                    style: BaseTypography.bodySmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildStatistikCard(TranskripStatistikModel stat) {
+    return Container(
+      padding: EdgeInsets.all(BaseSize.w16),
+      decoration: BoxDecoration(
+        color: BaseColor.primaryInspire,
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        boxShadow: [
+          BoxShadow(
+            color: BaseColor.primaryInspire.withValues(alpha: 0.35),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text('Indeks Prestasi Kumulatif',
+              style: BaseTypography.titleMedium.toWhite),
+          Gap.h6,
+          Text(
+            stat.ipk,
+            style: BaseTypography.headlineLarge.toBold.toWhite,
+          ),
+          Gap.h4,
+          Text(stat.predikat, style: BaseTypography.bodyLarge.toWhite),
+          Gap.h16,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Mahasiswa Info Card
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(BaseSize.w16),
-                decoration: BoxDecoration(
-                  color: BaseColor.white,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                  boxShadow: [
-                    BoxShadow(
-                      color: BaseColor.grey.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      transcript.mahasiswa.nama,
-                      style: BaseTypography.titleLarge.toBold,
-                    ),
-                    Gap.h8,
-                    Text(
-                      'NIM: ${transcript.mahasiswa.nim}',
-                      style: BaseTypography.bodyMedium,
-                    ),
-                    Gap.h4,
-                    Text(
-                      transcript.mahasiswa.prodi,
-                      style: BaseTypography.bodyMedium,
-                    ),
-                    Gap.h4,
-                    Text(
-                      transcript.mahasiswa.fakultas,
-                      style: BaseTypography.bodySmall.toGrey,
-                    ),
-                  ],
-                ),
-              ),
-              Gap.h16,
-
-              // Summary Card
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(BaseSize.w16),
-                decoration: BoxDecoration(
-                  color: BaseColor.primaryInspire,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                  boxShadow: [
-                    BoxShadow(
-                      color: BaseColor.grey.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Indeks Prestasi Kumulatif',
-                      style: BaseTypography.titleMedium.toWhite,
-                    ),
-                    Gap.h8,
-                    Text(
-                      transcript.statistik.ipk,
-                      style: BaseTypography.headlineLarge.toBold.toWhite,
-                    ),
-                    Gap.h8,
-                    Text(
-                      transcript.statistik.predikat,
-                      style: BaseTypography.bodyLarge.toWhite,
-                    ),
-                    Gap.h16,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              'Total SKS',
-                              style: BaseTypography.bodyMedium.toWhite,
-                            ),
-                            Gap.h4,
-                            Text(
-                              '${transcript.statistik.totalSKS}',
-                              style:
-                                  BaseTypography.headlineSmall.toBold.toWhite,
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              'Mata Kuliah',
-                              style: BaseTypography.bodyMedium.toWhite,
-                            ),
-                            Gap.h4,
-                            Text(
-                              '${transcript.statistik.totalMataKuliah}',
-                              style:
-                                  BaseTypography.headlineSmall.toBold.toWhite,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Gap.h24,
-
-              // Daftar Mata Kuliah
-              Text(
-                'Daftar Mata Kuliah',
-                style: BaseTypography.titleLarge.toBold,
-              ),
-              Gap.h16,
-
-              // Group by academic year
-              ...() {
-                // Group transkrip by academic year
-                final Map<String, List<dynamic>> academicYearGroups = {};
-                for (var item in transcript.transkrip) {
-                  if (!academicYearGroups.containsKey(item.academicYear)) {
-                    academicYearGroups[item.academicYear] = [];
-                  }
-                  academicYearGroups[item.academicYear]!.add(item);
-                }
-
-                return academicYearGroups.entries.map((entry) {
-                  final academicYear = entry.key;
-                  final items = entry.value;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Academic Year Header
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(BaseSize.w12),
-                        decoration: BoxDecoration(
-                          color: BaseColor.primaryInspire.withValues(
-                            alpha: 0.1,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            BaseSize.radiusSm,
-                          ),
-                        ),
-                        child: Text(
-                          academicYear,
-                          style: BaseTypography.titleMedium.toBold,
-                        ),
-                      ),
-                      Gap.h12,
-
-                      // Mata Kuliah List
-                      ...items.map((mk) {
-                        return Container(
-                          margin: EdgeInsets.only(bottom: BaseSize.h8),
-                          padding: EdgeInsets.all(BaseSize.w12),
-                          decoration: BoxDecoration(
-                            color: BaseColor.white,
-                            borderRadius: BorderRadius.circular(
-                              BaseSize.radiusSm,
-                            ),
-                            border: Border.all(
-                              color: BaseColor.grey.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      mk.matakuliah,
-                                      style: BaseTypography.bodyLarge.toBold,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Gap.h4,
-                                    Text(
-                                      mk.kode,
-                                      style: BaseTypography.bodySmall.copyWith(
-                                        color: BaseColor.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Gap.w12,
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: BaseSize.w12,
-                                      vertical: BaseSize.h4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: _getGradeColor(mk.nilaiHuruf),
-                                      borderRadius: BorderRadius.circular(
-                                        BaseSize.radiusSm,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      mk.nilaiHuruf,
-                                      style: BaseTypography
-                                          .titleMedium
-                                          .toBold
-                                          .toWhite,
-                                    ),
-                                  ),
-                                  Gap.h4,
-                                  Text(
-                                    '${mk.sks} SKS',
-                                    style: BaseTypography.bodySmall,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                      Gap.h24,
-                    ],
-                  );
-                }).toList();
-              }(),
+              _buildStatItem('Total SKS', '${stat.totalSKS}'),
+              Container(width: 1, height: 36, color: Colors.white30),
+              _buildStatItem('Mata Kuliah', '${stat.totalMataKuliah}'),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(label, style: BaseTypography.bodySmall.toWhite),
+        Gap.h4,
+        Text(value,
+            style: BaseTypography.titleLarge.toBold.toWhite),
+      ],
+    );
+  }
+
+  Widget _buildSemesterSection(TranskripSemesterModel sem) {
+    const headerStyle = TextStyle(
+      fontWeight: FontWeight.w700,
+      fontSize: 11,
+      color: Colors.white,
+    );
+    const cellStyle = TextStyle(fontSize: 11);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: BaseSize.h16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Semester header bar
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF555555),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(BaseSize.radiusSm),
+                topRight: Radius.circular(BaseSize.radiusSm),
+              ),
+            ),
+            child: Text(
+              '${sem.label}  (${sem.academicYear})',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ),
+
+          // Grade table
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(BaseSize.radiusSm),
+                bottomRight: Radius.circular(BaseSize.radiusSm),
+              ),
+            ),
+            child: Table(
+              columnWidths: const {
+                0: FixedColumnWidth(28),  // No
+                1: FixedColumnWidth(68),  // Kode
+                2: FlexColumnWidth(),     // Nama MK
+                3: FixedColumnWidth(34),  // SKS
+                4: FixedColumnWidth(38),  // Nilai
+                5: FixedColumnWidth(42),  // Angka
+                6: FixedColumnWidth(50),  // Nil.SKS
+              },
+              border: TableBorder.all(color: Colors.grey.shade300, width: 0.5),
+              children: [
+                // Column header
+                TableRow(
+                  decoration:
+                      BoxDecoration(color: BaseColor.primaryInspire.withValues(alpha: 0.85)),
+                  children: [
+                    _tc('No', headerStyle, TextAlign.center),
+                    _tc('Kode', headerStyle, TextAlign.center),
+                    _tc('Mata Kuliah', headerStyle, TextAlign.left),
+                    _tc('SKS', headerStyle, TextAlign.center),
+                    _tc('Nilai', headerStyle, TextAlign.center),
+                    _tc('Angka', headerStyle, TextAlign.center),
+                    _tc('Nil.\nSKS', headerStyle, TextAlign.center),
+                  ],
+                ),
+                // Data rows
+                ...sem.matakuliah.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final mk = entry.value;
+                  final rowBg = idx.isOdd
+                      ? const Color(0xFFF7F7F7)
+                      : Colors.white;
+                  final gradeColor = _gradeColor(mk.nilaiHuruf);
+                  return TableRow(
+                    decoration: BoxDecoration(color: rowBg),
+                    children: [
+                      _tc('${mk.no}', cellStyle, TextAlign.center),
+                      _tc(mk.kode, cellStyle, TextAlign.left),
+                      _tc(mk.nama, cellStyle, TextAlign.left),
+                      _tc('${mk.sks}', cellStyle, TextAlign.center),
+                      _tcGrade(mk.nilaiHuruf, gradeColor),
+                      _tc(mk.indeks.toStringAsFixed(2), cellStyle, TextAlign.center),
+                      _tc(mk.nilaiSks.toStringAsFixed(2), cellStyle, TextAlign.right),
+                    ],
+                  );
+                }),
+                // Sub-total row
+                TableRow(
+                  decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+                  children: [
+                    _tc('', cellStyle, TextAlign.center),
+                    _tc('', cellStyle, TextAlign.center),
+                    _tc(
+                      'Sub Total',
+                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                      TextAlign.left,
+                    ),
+                    _tc(
+                      '${sem.subTotal.sks}',
+                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                      TextAlign.center,
+                    ),
+                    _tc('', cellStyle, TextAlign.center),
+                    _tc('', cellStyle, TextAlign.center),
+                    _tc(
+                      sem.subTotal.nilaiSks.toStringAsFixed(2),
+                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                      TextAlign.right,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGrandSummary(TranskripStatistikModel stat) {
+    return Container(
+      padding: EdgeInsets.all(BaseSize.w16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryRow('Total SKS', '${stat.totalSKS}'),
+          Gap.h6,
+          _buildSummaryRow('Indeks Prestasi Kumulatif (IPK)', stat.ipk),
+          Gap.h6,
+          _buildSummaryRow('Predikat Kelulusan', stat.predikat),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value) {
+    return Row(
+      children: [
+        Expanded(
+            child: Text(label, style: BaseTypography.bodySmall)),
+        Text(
+          ': $value',
+          style: BaseTypography.bodySmall.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        error: (message) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Gagal memuat transkrip', style: BaseTypography.titleMedium),
-              Gap.h8,
-              Text(
-                message,
-                style: BaseTypography.bodyMedium.copyWith(color: BaseColor.red),
-                textAlign: TextAlign.center,
-              ),
-              Gap.h16,
-              ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(transcriptControllerProvider.notifier)
-                      .loadTranscript();
-                },
-                child: const Text('Coba Lagi'),
-              ),
-            ],
+      ],
+    );
+  }
+
+  Widget _tc(String text, TextStyle style, TextAlign align) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+      child: Text(text, style: style, textAlign: align),
+    );
+  }
+
+  Widget _tcGrade(String grade, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            grade,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
+              color: color,
+            ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
     );
   }
 
-  Color _getGradeColor(String grade) {
+  Widget _buildError(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Gagal memuat transkrip',
+              style: BaseTypography.titleMedium),
+          Gap.h8,
+          Text(
+            message,
+            style: BaseTypography.bodyMedium
+                .copyWith(color: BaseColor.red),
+            textAlign: TextAlign.center,
+          ),
+          Gap.h16,
+          ElevatedButton(
+            onPressed: () {
+              ref
+                  .read(transcriptControllerProvider.notifier)
+                  .loadTranscript();
+            },
+            child: const Text('Coba Lagi'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _gradeColor(String grade) {
     switch (grade) {
       case 'A':
-        return BaseColor.green;
+        return Colors.green;
+      case 'A-':
+      case 'B+':
+        return Colors.lightGreen.shade700;
       case 'B':
-        return BaseColor.blue;
+      case 'B-':
+        return Colors.blue;
+      case 'C+':
       case 'C':
         return Colors.orange;
       case 'D':
         return Colors.deepOrange;
       case 'E':
-        return BaseColor.red;
+        return Colors.red;
       default:
-        return BaseColor.grey;
+        return Colors.grey;
     }
-  }
-
-  Future<void> _handleViewHtml(BuildContext context) async {
-    try {
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(color: Colors.white),
-              Gap.h16,
-              Container(
-                padding: EdgeInsets.all(BaseSize.w16),
-                decoration: BoxDecoration(
-                  color: BaseColor.white,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                ),
-                child: Text(
-                  'Memuat transkrip HTML...',
-                  style: BaseTypography.bodyMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-      // Download HTML
-      final htmlContent = await ref
-          .read(transcriptControllerProvider.notifier)
-          .downloadHtml();
-
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-
-      // Show HTML preview
-      if (context.mounted) {
-        _showHtmlPreview(context, htmlContent);
-      }
-    } catch (e) {
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-
-      // Show error
-      if (context.mounted) {
-        showErrorAlertDialogWidget(
-          context,
-          title: 'Gagal memuat transkrip',
-          subtitle: '$e',
-          actionButtonTitle: 'Coba Lagi',
-          action: () => _handleViewHtml(context),
-        );
-      }
-    }
-  }
-
-  Future<void> _handleDownload(BuildContext context) async {
-    try {
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(color: Colors.white),
-              Gap.h16,
-              Container(
-                padding: EdgeInsets.all(BaseSize.w16),
-                decoration: BoxDecoration(
-                  color: BaseColor.white,
-                  borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-                ),
-                child: Text(
-                  'Mengunduh transkrip...',
-                  style: BaseTypography.bodyMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-      // Download HTML
-      final htmlContent = await ref
-          .read(transcriptControllerProvider.notifier)
-          .downloadHtml();
-
-      // Save to file
-      final directory = await getApplicationDocumentsDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${directory.path}/transkrip_$timestamp.html');
-      await file.writeAsString(htmlContent);
-
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-
-      // Show success dialog with options
-      if (context.mounted) {
-        showDialogCustomWidget<void>(
-          context: context,
-          title: 'Berhasil',
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.check_circle, color: BaseColor.green),
-                  Gap.w12,
-                  Text(
-                    'Transkrip berhasil didownload!',
-                    style: BaseTypography.bodyLarge,
-                  ),
-                ],
-              ),
-              Gap.h8,
-              Text('File disimpan di:', style: BaseTypography.bodySmall.toGrey),
-              Gap.h4,
-              Container(
-                padding: EdgeInsets.all(BaseSize.w8),
-                decoration: BoxDecoration(
-                  color: BaseColor.grey.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                ),
-                child: Text(
-                  file.path,
-                  style: BaseTypography.bodySmall.copyWith(
-                    fontFamily: 'monospace',
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showHtmlPreview(context, htmlContent);
-                    },
-                    child: const Text('Preview'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: BaseColor.primaryInspire,
-                      foregroundColor: BaseColor.white,
-                    ),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-
-      // Show error
-      if (context.mounted) {
-        showErrorAlertDialogWidget(
-          context,
-          title: 'Gagal download transkrip',
-          subtitle: '$e',
-          actionButtonTitle: 'Coba Lagi',
-          action: () => _handleDownload(context),
-        );
-      }
-    }
-  }
-
-  void _showHtmlPreview(BuildContext context, String htmlContent) {
-    bool showRawHtml = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => DraggableScrollableSheet(
-          initialChildSize: 0.9,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          builder: (_, controller) => Container(
-            decoration: BoxDecoration(
-              color: BaseColor.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(BaseSize.radiusXl),
-                topRight: Radius.circular(BaseSize.radiusXl),
-              ),
-            ),
-            child: Column(
-              children: [
-                // Handle bar
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: BaseSize.h12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: BaseColor.grey.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                // Title and actions
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Preview Transkrip',
-                        style: BaseTypography.titleLarge.toBold,
-                      ),
-                      Row(
-                        children: [
-                          // Toggle button
-                          IconButton(
-                            icon: Icon(
-                              showRawHtml ? Icons.visibility : Icons.code,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                showRawHtml = !showRawHtml;
-                              });
-                            },
-                            tooltip: showRawHtml
-                                ? 'Lihat Rendered'
-                                : 'Lihat Raw HTML',
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(color: BaseColor.grey.withValues(alpha: 0.3)),
-                // HTML Content - Rendered or Raw
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: controller,
-                    padding: EdgeInsets.all(BaseSize.w16),
-                    child: showRawHtml
-                        ? SelectableText(
-                            htmlContent,
-                            style: BaseTypography.bodySmall.copyWith(
-                              fontFamily: 'monospace',
-                              fontSize: 11,
-                            ),
-                          )
-                        : Html(
-                            data: htmlContent,
-                            style: {
-                              "body": Style(
-                                fontSize: FontSize(14),
-                                lineHeight: LineHeight.number(1.5),
-                              ),
-                              "table": Style(
-                                border: Border.all(color: Colors.black),
-                              ),
-                              "th": Style(
-                                backgroundColor: const Color(0xFFF0F0F0),
-                                padding: HtmlPaddings.all(8),
-                                fontWeight: FontWeight.bold,
-                              ),
-                              "td": Style(
-                                border: Border.all(color: Colors.black),
-                                padding: HtmlPaddings.all(8),
-                              ),
-                              "h2": Style(
-                                fontSize: FontSize(20),
-                                fontWeight: FontWeight.bold,
-                                textAlign: TextAlign.center,
-                                margin: Margins.zero,
-                              ),
-                              "h3": Style(
-                                fontSize: FontSize(16),
-                                textAlign: TextAlign.center,
-                                margin: Margins.symmetric(vertical: 5),
-                              ),
-                            },
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

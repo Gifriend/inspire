@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/endpoint/endpoint.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
@@ -28,12 +29,18 @@ class KhsRepository {
     }
   }
 
-  // Get KHS download URL
-  String getKhsDownloadUrl(String semester) {
-    return Endpoint.khsDownload(semester);
+  // Download KHS as PDF bytes (with auth header via DioClient)
+  Future<List<int>> downloadKhsPdf(String semester) async {
+    try {
+      final bytes = await _dioClient.get<List<int>>(
+        Endpoint.khsDownload(semester),
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return bytes ?? [];
+    } catch (e) {
+      rethrow;
+    }
   }
-
-
 }
 
 final khsRepositoryProvider = Provider<KhsRepository>((ref) {

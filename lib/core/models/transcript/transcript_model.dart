@@ -3,59 +3,94 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'transcript_model.freezed.dart';
 part 'transcript_model.g.dart';
 
-// Model untuk data mahasiswa
+// Model untuk data mahasiswa pada transkrip
 @freezed
-abstract class MahasiswaInfoModel with _$MahasiswaInfoModel {
-  const factory MahasiswaInfoModel({
+abstract class TranskripMahasiswaModel with _$TranskripMahasiswaModel {
+  const factory TranskripMahasiswaModel({
     required String nama,
     required String nim,
+    required String angkatan,
+    required String jenisKelamin,
+    String? tempatLahir,
+    String? tanggalLahir,
     required String prodi,
+    required String jenjang,
     required String fakultas,
-  }) = _MahasiswaInfoModel;
+    String? tanggalMasuk,
+    required String tanggalCetak,
+  }) = _TranskripMahasiswaModel;
 
-  factory MahasiswaInfoModel.fromJson(Map<String, dynamic> json) =>
-      _$MahasiswaInfoModelFromJson(json);
+  factory TranskripMahasiswaModel.fromJson(Map<String, dynamic> json) =>
+      _$TranskripMahasiswaModelFromJson(json);
 }
 
-// Model untuk statistik
+// Model untuk statistik transkrip
 @freezed
-abstract class StatistikModel with _$StatistikModel {
-  const factory StatistikModel({
+abstract class TranskripStatistikModel with _$TranskripStatistikModel {
+  const factory TranskripStatistikModel({
     required int totalSKS,
     required int totalMataKuliah,
     required String ipk,
     required String predikat,
-  }) = _StatistikModel;
+  }) = _TranskripStatistikModel;
 
-  factory StatistikModel.fromJson(Map<String, dynamic> json) =>
-      _$StatistikModelFromJson(json);
+  factory TranskripStatistikModel.fromJson(Map<String, dynamic> json) =>
+      _$TranskripStatistikModelFromJson(json);
 }
 
-// Model untuk item transkrip
+// Model untuk item mata kuliah pada tiap semester
 @freezed
-abstract class TranskripItemModel with _$TranskripItemModel {
-  const factory TranskripItemModel({
+abstract class TranskripMkItemModel with _$TranskripMkItemModel {
+  const factory TranskripMkItemModel({
+    required int no,
     required String kode,
-    required String matakuliah,
+    required String nama,
     required int sks,
     required String nilaiHuruf,
-    required double indeksNilai,
-    required String academicYear, // UPDATED: Sesuai dengan backend
-  }) = _TranskripItemModel;
+    required double indeks,
+    required double nilaiSks,
+  }) = _TranskripMkItemModel;
 
-  factory TranskripItemModel.fromJson(Map<String, dynamic> json) =>
-      _$TranskripItemModelFromJson(json);
+  factory TranskripMkItemModel.fromJson(Map<String, dynamic> json) =>
+      _$TranskripMkItemModelFromJson(json);
+}
+
+// Model untuk sub-total per semester
+@freezed
+abstract class TranskripSubTotalModel with _$TranskripSubTotalModel {
+  const factory TranskripSubTotalModel({
+    required int sks,
+    required double nilaiSks,
+  }) = _TranskripSubTotalModel;
+
+  factory TranskripSubTotalModel.fromJson(Map<String, dynamic> json) =>
+      _$TranskripSubTotalModelFromJson(json);
+}
+
+// Model per semester dalam transkrip
+@freezed
+abstract class TranskripSemesterModel with _$TranskripSemesterModel {
+  const factory TranskripSemesterModel({
+    required int semesterKe,
+    required String label,
+    required String academicYear,
+    required List<TranskripMkItemModel> matakuliah,
+    required TranskripSubTotalModel subTotal,
+  }) = _TranskripSemesterModel;
+
+  factory TranskripSemesterModel.fromJson(Map<String, dynamic> json) =>
+      _$TranskripSemesterModelFromJson(json);
 }
 
 // Model utama transkrip (response dari backend)
 @freezed
-abstract class TranscriptSummaryModel with _$TranscriptSummaryModel {
-  const factory TranscriptSummaryModel({
-    required MahasiswaInfoModel mahasiswa,
-    required StatistikModel statistik,
-    required List<TranskripItemModel> transkrip,
-  }) = _TranscriptSummaryModel;
+abstract class TranscriptModel with _$TranscriptModel {
+  const factory TranscriptModel({
+    required TranskripMahasiswaModel mahasiswa,
+    required TranskripStatistikModel statistik,
+    required List<TranskripSemesterModel> bySemester,
+  }) = _TranscriptModel;
 
-  factory TranscriptSummaryModel.fromJson(Map<String, dynamic> json) =>
-      _$TranscriptSummaryModelFromJson(json);
+  factory TranscriptModel.fromJson(Map<String, dynamic> json) =>
+      _$TranscriptModelFromJson(json);
 }

@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:inspire/features/presentation.dart';
+import 'package:path_provider/path_provider.dart';
 
 class KhsDetailScreen extends ConsumerStatefulWidget {
   final String semester;
@@ -17,6 +19,8 @@ class KhsDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
+  bool _isDownloading = false;
+
   @override
   void initState() {
     super.initState();
@@ -100,7 +104,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
     );
   }
 
-  Widget _buildMahasiswaInfo(MahasiswaInfoModel mahasiswa) {
+  Widget _buildMahasiswaInfo(KhsMahasiswaModel mahasiswa) {
     return Container(
       padding: EdgeInsets.all(BaseSize.w16),
       decoration: BoxDecoration(
@@ -114,6 +118,8 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
           _buildInfoRow('Nama', mahasiswa.nama),
           Gap.h8,
           _buildInfoRow('NIM', mahasiswa.nim),
+          Gap.h8,
+          _buildInfoRow('Angkatan', mahasiswa.angkatan),
           Gap.h8,
           _buildInfoRow('Program Studi', mahasiswa.prodi),
         ],
@@ -146,6 +152,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
   }
 
   Widget _buildStatistikCard(KhsModel khs) {
+    final stat = khs.statistik;
     return Container(
       padding: EdgeInsets.all(BaseSize.w16),
       decoration: BoxDecoration(
@@ -171,7 +178,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
           Row(
             children: [
               Expanded(
-                child: _buildStatItem('Total SKS', khs.totalSks.toString()),
+                child: _buildStatItem('Total SKS', stat.totalSks.toString()),
               ),
               Container(
                 width: 1,
@@ -179,7 +186,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
                 color: Colors.white30,
               ),
               Expanded(
-                child: _buildStatItem('Total Bobot', khs.totalBobot.toStringAsFixed(2)),
+                child: _buildStatItem('Total Bobot', stat.totalNilaiSks.toStringAsFixed(2)),
               ),
             ],
           ),
@@ -189,7 +196,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
           Row(
             children: [
               Expanded(
-                child: _buildStatItem('IPS', khs.ips.toStringAsFixed(2)),
+                child: _buildStatItem('IPS', stat.ips.toStringAsFixed(2)),
               ),
               Container(
                 width: 1,
@@ -197,7 +204,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
                 color: Colors.white30,
               ),
               Expanded(
-                child: _buildStatItem('IPK', khs.ipk.toStringAsFixed(2)),
+                child: _buildStatItem('IPK', stat.ipk.toStringAsFixed(2)),
               ),
             ],
           ),
@@ -227,7 +234,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
     );
   }
 
-  Widget _buildNilaiSection(List<NilaiItemModel> nilaiList) {
+  Widget _buildNilaiSection(List<KhsNilaiItemModel> nilaiList) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -263,7 +270,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
     );
   }
 
-  Widget _buildNilaiCard(NilaiItemModel nilai, int no) {
+  Widget _buildNilaiCard(KhsNilaiItemModel nilai, int no) {
     Color gradeColor = _getGradeColor(nilai.nilaiHuruf);
 
     return Container(
@@ -345,7 +352,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
               Gap.w20,
               _buildDetailItem('Indeks', nilai.indeks.toStringAsFixed(1)),
               Gap.w20,
-              _buildDetailItem('Mutu', (nilai.sks * nilai.indeks).toStringAsFixed(2)),
+              _buildDetailItem('Mutu', nilai.nilaiSks.toStringAsFixed(2)),
             ],
           ),
         ],
@@ -396,15 +403,16 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () async {
-          final url = ref.read(khsControllerProvider(widget.semester).notifier).getDownloadUrl();
-          final uri = Uri.parse(url);
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-          }
-        },
-        icon: const Icon(Icons.download),
-        label: const Text('Unduh KHS (PDF)'),
+        onPressed: _isDownloading ? null : _handleDownload,
+        icon: _isDownloading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white),
+              )
+            : const Icon(Icons.print),
+        label: Text(_isDownloading ? 'Mengunduh...' : 'Cetak KHS (PDF)'),
         style: ElevatedButton.styleFrom(
           backgroundColor: BaseColor.primaryInspire,
           foregroundColor: Colors.white,
@@ -415,6 +423,40 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleDownload() async {
+    setState(() => _isDownloading = true);
+    try {
+      final bytes = await ref
+          .read(khsControllerProvider(widget.semester).notifier)
+          .downloadKhsPdf();
+      if (bytes.isEmpty) throw Exception('File PDF kosong');
+      final dir = await getApplicationDocumentsDirectory();
+      final safe = widget.semester.replaceAll(RegExp(r'[\/\s]'), '_');
+      final file = File('\${dir.path}/KHS_\$safe.pdf');
+      await file.writeAsBytes(bytes);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('PDF disimpan: \${file.path}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengunduh PDF: \$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDownloading = false);
+    }
   }
 
   Widget _buildErrorState(String message) {

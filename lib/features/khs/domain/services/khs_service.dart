@@ -25,12 +25,14 @@ class KhsService {
     }
   }
 
-  // Get KHS download URL
-  String getKhsDownloadUrl(String semester) {
-    return _repository.getKhsDownloadUrl(semester);
+  // Download KHS as PDF bytes
+  Future<List<int>> downloadKhsPdf(String semester) async {
+    try {
+      return await _repository.downloadKhsPdf(semester);
+    } catch (e) {
+      throw Exception('Gagal mengunduh KHS: ${e.toString()}');
+    }
   }
-
-
 }
 
 final khsServiceProvider = Provider<KhsService>((ref) {

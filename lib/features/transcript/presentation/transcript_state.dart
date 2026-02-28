@@ -7,6 +7,6 @@ part 'transcript_state.freezed.dart';
 class TranscriptState with _$TranscriptState {
   const factory TranscriptState.initial() = _Initial;
   const factory TranscriptState.loading() = _Loading;
-  const factory TranscriptState.loaded(TranscriptSummaryModel transcript) = _Loaded;
+  const factory TranscriptState.loaded(TranscriptModel transcript) = _Loaded;
   const factory TranscriptState.error(String message) = _Error;
 }

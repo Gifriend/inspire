@@ -18,15 +18,18 @@ class KhsController extends StateNotifier<KhsState> {
     }
   }
 
-  String getDownloadUrl() {
-    return _service.getKhsDownloadUrl(semester);
+  Future<List<int>> downloadKhsPdf() async {
+    return await _service.downloadKhsPdf(semester);
   }
 }
 
-final khsControllerProvider = StateNotifierProvider.family<KhsController, KhsState, String>((ref, semester) {
-  final service = ref.watch(khsServiceProvider);
-  return KhsController(service, semester);
-});
+final khsControllerProvider =
+    StateNotifierProvider.family<KhsController, KhsState, String>(
+  (ref, semester) {
+    final service = ref.watch(khsServiceProvider);
+    return KhsController(service, semester);
+  },
+);
 
 class SemesterListController extends StateNotifier<SemesterListState> {
   final KhsService _service;
@@ -44,7 +47,8 @@ class SemesterListController extends StateNotifier<SemesterListState> {
   }
 }
 
-final semesterListControllerProvider = StateNotifierProvider<SemesterListController, SemesterListState>((ref) {
+final semesterListControllerProvider =
+    StateNotifierProvider<SemesterListController, SemesterListState>((ref) {
   final service = ref.watch(khsServiceProvider);
   return SemesterListController(service);
 });

@@ -4,45 +4,60 @@ part 'khs_model.freezed.dart';
 part 'khs_model.g.dart';
 
 @freezed
-abstract class KhsModel with _$KhsModel {
-  const factory KhsModel({
-    required String semester,
-    required int totalSks,
-    required double totalBobot,
-    required double ips,
-    required double ipk,
-    required MahasiswaInfoModel mahasiswa,
-    required List<NilaiItemModel> nilai,
-  }) = _KhsModel;
-
-  factory KhsModel.fromJson(Map<String, dynamic> json) =>
-      _$KhsModelFromJson(json);
-}
-
-@freezed
-abstract class MahasiswaInfoModel with _$MahasiswaInfoModel {
-  const factory MahasiswaInfoModel({
+abstract class KhsMahasiswaModel with _$KhsMahasiswaModel {
+  const factory KhsMahasiswaModel({
     required String nama,
     required String nim,
+    required String angkatan,
     required String prodi,
-  }) = _MahasiswaInfoModel;
+    String? pembimbingAkademik,
+  }) = _KhsMahasiswaModel;
 
-  factory MahasiswaInfoModel.fromJson(Map<String, dynamic> json) =>
-      _$MahasiswaInfoModelFromJson(json);
+  factory KhsMahasiswaModel.fromJson(Map<String, dynamic> json) =>
+      _$KhsMahasiswaModelFromJson(json);
 }
 
 @freezed
-abstract class NilaiItemModel with _$NilaiItemModel {
-  const factory NilaiItemModel({
+abstract class KhsStatistikModel with _$KhsStatistikModel {
+  const factory KhsStatistikModel({
+    required int totalSks,
+    required double totalNilaiSks,
+    required double ips,
+    required double ipk,
+    required int maksBebaSksBerikutnya,
+  }) = _KhsStatistikModel;
+
+  factory KhsStatistikModel.fromJson(Map<String, dynamic> json) =>
+      _$KhsStatistikModelFromJson(json);
+}
+
+@freezed
+abstract class KhsNilaiItemModel with _$KhsNilaiItemModel {
+  const factory KhsNilaiItemModel({
+    required int no,
     required String kodeMk,
     required String namaMk,
     required int sks,
     required String nilaiHuruf,
     required double indeks,
-  }) = _NilaiItemModel;
+    required double nilaiSks,
+  }) = _KhsNilaiItemModel;
 
-  factory NilaiItemModel.fromJson(Map<String, dynamic> json) =>
-      _$NilaiItemModelFromJson(json);
+  factory KhsNilaiItemModel.fromJson(Map<String, dynamic> json) =>
+      _$KhsNilaiItemModelFromJson(json);
+}
+
+@freezed
+abstract class KhsModel with _$KhsModel {
+  const factory KhsModel({
+    required String semester,
+    required KhsMahasiswaModel mahasiswa,
+    required KhsStatistikModel statistik,
+    required List<KhsNilaiItemModel> nilai,
+  }) = _KhsModel;
+
+  factory KhsModel.fromJson(Map<String, dynamic> json) =>
+      _$KhsModelFromJson(json);
 }
 
 
