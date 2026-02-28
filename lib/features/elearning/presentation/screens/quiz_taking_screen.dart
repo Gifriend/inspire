@@ -31,16 +31,25 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
     if (widget.quiz.attempts.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (mounted) {
-          await showDialog(
+          await showDialogCustomWidget<void>(
             context: context,
-            barrierDismissible: false,
-            builder: (context) => AlertDialog(
-              title: const Text('Quiz Sudah Dikerjakan'),
-              content: const Text('Anda telah mengerjakan quiz ini.'),
-              actions: [
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
+            dismissible: false,
+            dragAble: false,
+            title: 'Quiz Sudah Dikerjakan',
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Anda telah mengerjakan quiz ini.'),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -130,25 +139,35 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
       'answers': answers,
     };
 
-    final shouldSubmit = await showDialog<bool>(
+    final shouldSubmit = await showDialogCustomWidget<bool>(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Kirim Jawaban?'),
-        content: Text(
-          'Anda telah menjawab ${_answers.length} dari ${widget.quiz.questions.length} soal.\n\nApakah Anda yakin ingin mengirim jawaban?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+      dismissible: false,
+      dragAble: false,
+      title: 'Kirim Jawaban?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Anda telah menjawab ${_answers.length} dari ${widget.quiz.questions.length} soal.\n\nApakah Anda yakin ingin mengirim jawaban?',
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: BaseColor.primaryInspire,
-            ),
-            child: Text('Kirim', style: TextStyle(color: BaseColor.white)),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BaseColor.primaryInspire,
+                ),
+                child: Text('Kirim', style: TextStyle(color: BaseColor.white)),
+              ),
+            ],
           ),
         ],
       ),
@@ -171,14 +190,14 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
         }
 
         context.pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isError ? 'Gagal mengirim jawaban' : 'Jawaban berhasil dikirim',
-            ),
-            backgroundColor: isError ? Colors.red : null,
-          ),
-        );
+        if (isError) {
+          showErrorAlertDialogWidget(context, title: 'Gagal mengirim jawaban');
+        } else {
+          showSuccessAlertDialogWidget(
+            context,
+            title: 'Jawaban berhasil dikirim',
+          );
+        }
       }
     }
   }
@@ -224,22 +243,31 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        final shouldExit = await showDialog<bool>(
+        final shouldExit = await showDialogCustomWidget<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Keluar dari Kuis?'),
-            content: const Text(
-              'Progres Anda akan hilang jika keluar sekarang.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Batal'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Keluar'),
+          title: 'Keluar dari Kuis?',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Progres Anda akan hilang jika keluar sekarang.'),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Batal'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text('Keluar'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -403,7 +431,9 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                                   BaseSize.radiusMd,
                                 ),
                                 color: isSelected
-                                    ? BaseColor.primaryInspire.withValues(alpha: 0.05)
+                                    ? BaseColor.primaryInspire.withValues(
+                                        alpha: 0.05,
+                                      )
                                     : null,
                               ),
                               child: Row(
@@ -593,7 +623,9 @@ class _TrueFalseOption extends StatelessWidget {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
-          color: isSelected ? BaseColor.primaryInspire.withValues(alpha: 0.05) : null,
+          color: isSelected
+              ? BaseColor.primaryInspire.withValues(alpha: 0.05)
+              : null,
         ),
         child: Row(
           children: [

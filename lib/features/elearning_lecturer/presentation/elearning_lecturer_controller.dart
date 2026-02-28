@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/models/models.dart';
 import 'package:inspire/features/elearning_lecturer/data/services/elearning_lecturer_service.dart';
 import 'elearning_lecturer_state.dart';
 import 'package:flutter/foundation.dart';
@@ -33,6 +34,8 @@ class ElearningLecturerController
     state = const ElearningLecturerLoading();
     try {
       final courseDetail = await _service.getCourseDetail(kelasId);
+      final setupConfig = await _service.getClassSetup(kelasId);
+      final lecturerCourses = await _service.getLecturerCourses();
 
       // Primary: Use sessions from courseDetail response
       var sessions = courseDetail.sessions;
@@ -52,9 +55,92 @@ class ElearningLecturerController
       }
 
       debugPrint('[DEBUG] Final sessions count: ${sessions.length}');
-      state = CourseDetailLoaded(courseDetail, sessions);
+      state = CourseDetailLoaded(
+        courseDetail,
+        sessions,
+        setupConfig: setupConfig,
+        lecturerCourses: lecturerCourses,
+      );
     } catch (e) {
       debugPrint('[DEBUG] loadCourseDetail error: $e');
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  Future<void> setupClass({
+    required int kelasPerkuliahanId,
+    required ElearningSetupMode setupMode,
+    int? sourceKelasPerkuliahanId,
+    bool? isMergedClass,
+    bool? cloneContentAsHidden,
+  }) async {
+    try {
+      final response = await _service.setupClass(
+        kelasPerkuliahanId: kelasPerkuliahanId,
+        setupMode: setupMode,
+        sourceKelasPerkuliahanId: sourceKelasPerkuliahanId,
+        isMergedClass: isMergedClass,
+        cloneContentAsHidden: cloneContentAsHidden,
+      );
+
+      final message =
+          (response['message'] as String?) ??
+          'Pengaturan e-learning kelas berhasil disimpan';
+      state = SetupClassSaved(message);
+    } catch (e) {
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  Future<void> mergeClasses({
+    required int masterKelasPerkuliahanId,
+    required List<int> memberKelasPerkuliahanIds,
+  }) async {
+    try {
+      final response = await _service.mergeClasses(
+        masterKelasPerkuliahanId: masterKelasPerkuliahanId,
+        memberKelasPerkuliahanIds: memberKelasPerkuliahanIds,
+      );
+
+      final message =
+          (response['message'] as String?) ??
+          'Penggabungan kelas e-learning berhasil disimpan';
+      state = MergeClassesSaved(message);
+    } catch (e) {
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  Future<void> unmergeClass(int kelasPerkuliahanId) async {
+    try {
+      await _service.unmergeClass(kelasPerkuliahanId);
+      state = const UnmergeClassSaved();
+    } catch (e) {
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  Future<void> toggleVisibility({
+    required ElearningEntityType entityType,
+    required String entityId,
+    required bool isHidden,
+  }) async {
+    try {
+      await _service.toggleVisibility(
+        entityType: entityType,
+        entityId: entityId,
+        isHidden: isHidden,
+      );
+      state = const VisibilityUpdated();
+    } catch (e) {
       state = ElearningLecturerError(
         e.toString().replaceAll('Exception: ', ''),
       );

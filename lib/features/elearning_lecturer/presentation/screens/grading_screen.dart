@@ -360,11 +360,9 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
     _gradeController.clear();
     _feedbackController.clear();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Penilaian berhasil disimpan'),
-        backgroundColor: Colors.green,
-      ),
+    showSuccessAlertDialogWidget(
+      context,
+      title: 'Penilaian berhasil disimpan',
     );
   }
 }

@@ -13,6 +13,7 @@ abstract class MaterialModel with _$MaterialModel {
     required MaterialType type,
     String? content,
     String? fileUrl,
+    @Default(false) bool isHidden,
     required String sessionId,
     required DateTime createdAt,
   }) = _MaterialModel;

@@ -165,11 +165,9 @@ class _AnnouncementLecturerScreenState
                 .loadAnnouncements(kelasId: _selectedFilterKelasId);
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Pengumuman berhasil dibuat'),
-              backgroundColor: Colors.green,
-            ),
+          showSuccessAlertDialogWidget(
+            context,
+            title: 'Pengumuman berhasil dibuat',
           );
 
           return const SizedBox.shrink();
@@ -184,11 +182,9 @@ class _AnnouncementLecturerScreenState
                 .loadAnnouncements(kelasId: _selectedFilterKelasId);
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Pengumuman berhasil dihapus'),
-              backgroundColor: Colors.green,
-            ),
+          showSuccessAlertDialogWidget(
+            context,
+            title: 'Pengumuman berhasil dihapus',
           );
 
           return const SizedBox.shrink();
@@ -322,17 +318,17 @@ class _AnnouncementLecturerScreenState
                   },
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, size: 20, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Hapus'),
-                        ],
-                      ),
-                    ),
-                  ],
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Hapus'),
+                            ],
+                          ),
+                        ),
+                      ],
                 ),
               ],
             ),
@@ -351,134 +347,146 @@ class _AnnouncementLecturerScreenState
       _loadLecturerCourses();
     }
 
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text('Buat Pengumuman'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+      title: 'Buat Pengumuman',
+      content: StatefulBuilder(
+        builder: (context, setDialogState) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Judul Pengumuman',
+                    border: OutlineInputBorder(),
+                    hintText: 'Masukkan judul pengumuman',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Isi Pengumuman',
+                    border: OutlineInputBorder(),
+                    hintText: 'Masukkan isi pengumuman',
+                  ),
+                  maxLines: 5,
+                ),
+                const SizedBox(height: 16),
+                DropdownWidget<int?>(
+                  labelText: 'Riwayat Pengumuman Kelas',
+                  hintText: 'Pilih Kelas',
+                  value: selectedKelasId,
+                  items: _lecturerCourses.map((c) => c.id).toList(),
+                  itemLabelBuilder: (id) {
+                    final course = _lecturerCourses.firstWhere(
+                      (c) => c.id == id,
+                    );
+                    return '${course.kode} - ${course.nama}';
+                  },
+                  onChanged: (value) {
+                    setDialogState(() {
+                      selectedKelasId = value;
+                    });
+                  },
+                ),
+                if (_lecturerCourses.isEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Kelas belum tersedia. Silakan muat ulang kelas terlebih dahulu.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Judul Pengumuman',
-                        border: OutlineInputBorder(),
-                        hintText: 'Masukkan judul pengumuman',
-                      ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Batal'),
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: contentController,
-                      decoration: const InputDecoration(
-                        labelText: 'Isi Pengumuman',
-                        border: OutlineInputBorder(),
-                        hintText: 'Masukkan isi pengumuman',
-                      ),
-                      maxLines: 5,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownWidget<int?>(
-                      labelText: 'Riwayat Pengumuman Kelas',
-                      hintText: 'Pilih Kelas',
-                      value: selectedKelasId,
-                      items: _lecturerCourses.map((c) => c.id).toList(),
-                      itemLabelBuilder: (id) {
-                        final course = _lecturerCourses.firstWhere((c) => c.id == id);
-                        return '${course.kode} - ${course.nama}';
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (titleController.text.isEmpty ||
+                            contentController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Judul dan isi harus diisi'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (selectedKelasId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Silakan pilih kelas terlebih dahulu',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        ref
+                            .read(
+                              announcementLecturerControllerProvider.notifier,
+                            )
+                            .createAnnouncement(
+                              judul: titleController.text,
+                              isi: contentController.text,
+                              kelasId: selectedKelasId!,
+                            );
+
+                        Navigator.pop(context);
                       },
-                      onChanged: (value) {
-                        setDialogState(() {
-                          selectedKelasId = value;
-                        });
-                      },
+                      child: const Text('Buat'),
                     ),
-                    if (_lecturerCourses.isEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        'Kelas belum tersedia. Silakan muat ulang kelas terlebih dahulu.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
                   ],
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (titleController.text.isEmpty ||
-                        contentController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Judul dan isi harus diisi'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    if (selectedKelasId == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Silakan pilih kelas terlebih dahulu'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    ref
-                        .read(announcementLecturerControllerProvider.notifier)
-                        .createAnnouncement(
-                          judul: titleController.text,
-                          isi: contentController.text,
-                          kelasId: selectedKelasId!,
-                        );
-
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Buat'),
-                ),
               ],
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 
   void _showDeleteConfirmation(BuildContext context, int announcementId) {
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Hapus Pengumuman?'),
-          content: const Text(
-            'Apakah Anda yakin ingin menghapus pengumuman ini?',
+      title: 'Hapus Pengumuman?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Apakah Anda yakin ingin menghapus pengumuman ini?'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  ref
+                      .read(announcementLecturerControllerProvider.notifier)
+                      .deleteAnnouncement(announcementId);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Hapus'),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                ref
-                    .read(announcementLecturerControllerProvider.notifier)
-                    .deleteAnnouncement(announcementId);
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 

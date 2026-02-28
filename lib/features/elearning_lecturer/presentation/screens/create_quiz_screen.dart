@@ -147,14 +147,17 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
 
       if (mounted) {
         context.pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kuis berhasil dibuat')),
+        showSuccessAlertDialogWidget(
+          context,
+          title: 'Kuis berhasil dibuat',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal membuat kuis: $e')),
+        showErrorAlertDialogWidget(
+          context,
+          title: 'Gagal membuat kuis',
+          subtitle: '$e',
         );
       }
     }

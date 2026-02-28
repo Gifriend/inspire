@@ -12,6 +12,7 @@ abstract class AssignmentModel with _$AssignmentModel {
     String? fileUrl,
     required DateTime deadline,
     @Default(false) bool allowLate,
+    @Default(false) bool isHidden,
     required String sessionId,
     required DateTime createdAt,
     SubmissionModel? submission, // Current user's submission if any

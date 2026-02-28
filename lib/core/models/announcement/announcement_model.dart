@@ -10,6 +10,7 @@ abstract class AnnouncementModel with _$AnnouncementModel {
     required String judul,
     required String isi,
     required String kategori,
+    @Default('NORMAL') String prioritas,
     required int dosenId,
     required bool aktif,
     required bool isGlobal,

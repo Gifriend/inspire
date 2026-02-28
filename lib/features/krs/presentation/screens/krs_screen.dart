@@ -350,27 +350,36 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
   }
 
   void _showDeleteConfirmation(KelasPerkuliahanModel kelas) {
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Mata Kuliah?'),
-        content: Text(
-          'Apakah Anda yakin ingin menghapus ${kelas.mataKuliah?.name ?? kelas.nama}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      title: 'Hapus Mata Kuliah?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Apakah Anda yakin ingin menghapus ${kelas.mataKuliah?.name ?? kelas.nama}?',
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref
-                  .read(krsControllerProvider(widget.semester).notifier)
-                  .removeClass(kelas.id);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Hapus'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(krsControllerProvider(widget.semester).notifier)
+                      .removeClass(kelas.id);
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Hapus'),
+              ),
+            ],
           ),
         ],
       ),
@@ -378,27 +387,36 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
   }
 
   void _showSubmitConfirmation(KrsModel krs) {
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ajukan KRS?'),
-        content: Text(
-          'Total ${krs.totalSKS} SKS dengan ${krs.kelasPerkuliahan.length} mata kuliah.\n\n'
-          'Setelah diajukan, KRS tidak dapat diubah sampai disetujui/ditolak dosen.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      title: 'Ajukan KRS?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Total ${krs.totalSKS} SKS dengan ${krs.kelasPerkuliahan.length} mata kuliah.\n\n'
+            'Setelah diajukan, KRS tidak dapat diubah sampai disetujui/ditolak dosen.',
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref
-                  .read(krsControllerProvider(widget.semester).notifier)
-                  .submitKrs();
-            },
-            child: const Text('Ajukan'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(krsControllerProvider(widget.semester).notifier)
+                      .submitKrs();
+                },
+                child: const Text('Ajukan'),
+              ),
+            ],
           ),
         ],
       ),

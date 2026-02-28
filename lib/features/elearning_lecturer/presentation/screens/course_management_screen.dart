@@ -51,27 +51,55 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
       }
 
       if (next is MaterialCreated) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Materi berhasil dibuat')));
+        showSuccessAlertDialogWidget(context, title: 'Materi berhasil dibuat');
         ref
             .read(elearningLecturerControllerProvider.notifier)
             .loadCourseDetail(widget.kelasId);
       }
 
       if (next is AssignmentCreated) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Tugas berhasil dibuat')));
+        showSuccessAlertDialogWidget(context, title: 'Tugas berhasil dibuat');
         ref
             .read(elearningLecturerControllerProvider.notifier)
             .loadCourseDetail(widget.kelasId);
       }
 
       if (next is QuizCreated) {
-        ScaffoldMessenger.of(
+        showSuccessAlertDialogWidget(context, title: 'Kuis berhasil dibuat');
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+
+      if (next is SetupClassSaved) {
+        showSuccessAlertDialogWidget(context, title: next.message);
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+
+      if (next is MergeClassesSaved) {
+        showSuccessAlertDialogWidget(context, title: next.message);
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+
+      if (next is UnmergeClassSaved) {
+        showSuccessAlertDialogWidget(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Kuis berhasil dibuat')));
+          title: 'Kelas berhasil dipisahkan dari gabungan',
+        );
+        ref
+            .read(elearningLecturerControllerProvider.notifier)
+            .loadCourseDetail(widget.kelasId);
+      }
+
+      if (next is VisibilityUpdated) {
+        showSuccessAlertDialogWidget(
+          context,
+          title: 'Visibilitas konten berhasil diperbarui',
+        );
         ref
             .read(elearningLecturerControllerProvider.notifier)
             .loadCourseDetail(widget.kelasId);
@@ -79,6 +107,10 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     });
 
     final state = ref.watch(elearningLecturerControllerProvider);
+    final loadedState = state is CourseDetailLoaded ? state : null;
+    final isClassStarted = loadedState != null
+        ? _hasClassStarted(loadedState)
+        : false;
 
     return ScaffoldWidget(
       appBar: AppBarWidget(
@@ -90,20 +122,28 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
       disableSingleChildScrollView: true,
       child: Column(
         children: [
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildTab('Materi', 0),
-                  _buildTab('Tugas', 1),
-                  _buildTab('Kuis', 2),
-                ],
+          if (loadedState != null && !isClassStarted)
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: _buildPreClassSetupCard(loadedState),
+            )
+          else
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildTab('Materi', 0),
+                    _buildTab('Tugas', 1),
+                    _buildTab('Kuis', 2),
+                  ],
+                ),
               ),
             ),
-          ),
           const Divider(height: 1),
           Expanded(child: _buildContent(state)),
         ],
@@ -177,21 +217,26 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
       return const SizedBox.shrink();
     }
 
-    final sessions = state.sessions;
+    final loaded = state;
+
+    if (!_hasClassStarted(loaded)) {
+      return _buildPreClassSetupBody();
+    }
 
     switch (_selectedTabIndex) {
       case 0:
-        return _buildMaterialTab(sessions);
+        return _buildMaterialTab(loaded);
       case 1:
-        return _buildAssignmentTab(sessions);
+        return _buildAssignmentTab(loaded);
       case 2:
-        return _buildQuizTab(sessions);
+        return _buildQuizTab(loaded);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildMaterialTab(List<SessionModel> sessions) {
+  Widget _buildMaterialTab(CourseDetailLoaded loaded) {
+    final sessions = loaded.sessions;
     final materialsBySession = <_SessionMaterial>[];
     for (final session in sessions) {
       for (final material in session.materials) {
@@ -293,12 +338,32 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               ),
             ),
           ],
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                ref
+                    .read(elearningLecturerControllerProvider.notifier)
+                    .toggleVisibility(
+                      entityType: ElearningEntityType.material,
+                      entityId: material.id,
+                      isHidden: !material.isHidden,
+                    );
+              },
+              icon: Icon(
+                material.isHidden ? Icons.visibility : Icons.visibility_off,
+              ),
+              label: Text(material.isHidden ? 'Tampilkan' : 'Sembunyikan'),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAssignmentTab(List<SessionModel> sessions) {
+  Widget _buildAssignmentTab(CourseDetailLoaded loaded) {
+    final sessions = loaded.sessions;
     final assignmentsBySession = <_SessionAssignment>[];
     for (final session in sessions) {
       for (final assignment in session.assignments) {
@@ -394,29 +459,48 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             ),
           ],
           const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => GradingScreen(
-                      assignmentId: assignment.id,
-                      assignmentTitle: assignment.title,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                  ref
+                      .read(elearningLecturerControllerProvider.notifier)
+                      .toggleVisibility(
+                        entityType: ElearningEntityType.assignment,
+                        entityId: assignment.id,
+                        isHidden: !assignment.isHidden,
+                      );
+                },
+                icon: Icon(
+                  assignment.isHidden ? Icons.visibility : Icons.visibility_off,
+                ),
+                label: Text(assignment.isHidden ? 'Tampilkan' : 'Sembunyikan'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => GradingScreen(
+                        assignmentId: assignment.id,
+                        assignmentTitle: assignment.title,
+                      ),
                     ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.grade),
-              label: const Text('Nilai Tugas'),
-            ),
+                  );
+                },
+                icon: const Icon(Icons.grade),
+                label: const Text('Nilai Tugas'),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuizTab(List<SessionModel> sessions) {
+  Widget _buildQuizTab(CourseDetailLoaded loaded) {
+    final sessions = loaded.sessions;
     final quizzesBySession = <_SessionQuiz>[];
     for (final session in sessions) {
       for (final quiz in session.quizzes) {
@@ -528,24 +612,300 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             ),
           ),
           const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => QuizAttemptsScreen(
-                      quizId: quiz.id,
-                      quizTitle: quiz.title,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                  ref
+                      .read(elearningLecturerControllerProvider.notifier)
+                      .toggleVisibility(
+                        entityType: ElearningEntityType.quiz,
+                        entityId: quiz.id,
+                        isHidden: !quiz.isHidden,
+                      );
+                },
+                icon: Icon(
+                  quiz.isHidden ? Icons.visibility : Icons.visibility_off,
+                ),
+                label: Text(quiz.isHidden ? 'Tampilkan' : 'Sembunyikan'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => QuizAttemptsScreen(
+                        quizId: quiz.id,
+                        quizTitle: quiz.title,
+                      ),
                     ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.bar_chart),
-              label: const Text('Lihat Nilai Quiz'),
-            ),
+                  );
+                },
+                icon: const Icon(Icons.bar_chart),
+                label: const Text('Lihat Nilai Quiz'),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  bool _hasClassStarted(CourseDetailLoaded loaded) {
+    return loaded.sessions.isNotEmpty;
+  }
+
+  Widget _buildPreClassSetupCard(CourseDetailLoaded loaded) {
+    final setupMode = loaded.setupConfig?.setupMode;
+    final setupModeLabel = setupMode == ElearningSetupMode.existing
+        ? 'EXISTING'
+        : 'NEW';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pengaturan Awal E-Learning',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Perkuliahan belum dimulai. Pilih membuat e-learning baru atau gunakan e-learning yang sudah ada sebelum kelas berjalan.',
+          style: TextStyle(
+            fontSize: 12,
+            color: BaseColor.primaryText.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: BaseColor.primaryInspire.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            'Mode saat ini: $setupModeLabel',
+            style: const TextStyle(
+              color: BaseColor.primaryInspire,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton.icon(
+          onPressed: () => _showSetupDialog(loaded),
+          icon: const Icon(Icons.settings),
+          label: const Text('Atur E-Learning Kelas'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPreClassSetupBody() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _buildEmpty(
+          'Perkuliahan belum dimulai. Silakan lakukan pengaturan awal e-learning terlebih dahulu.',
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showSetupDialog(CourseDetailLoaded loaded) async {
+    final sameCourseClasses = loaded.lecturerCourses
+        .where(
+          (course) => course.mataKuliahId == loaded.courseDetail.mataKuliahId,
+        )
+        .toList();
+    final sourceCandidates = sameCourseClasses
+        .where((course) => course.id != widget.kelasId)
+        .toList();
+
+    ElearningSetupMode setupMode =
+        loaded.setupConfig?.setupMode ?? ElearningSetupMode.newClass;
+    int? sourceKelasPerkuliahanId =
+        loaded.setupConfig?.sourceKelasPerkuliahanId;
+    bool cloneContentAsHidden = true;
+    final Set<int> selectedMergedMembers = <int>{};
+
+    await showDialogCustomWidget<void>(
+      context: context,
+      title: 'Pengaturan E-Learning Kelas',
+      content: StatefulBuilder(
+        builder: (context, setDialogState) {
+          final canChooseSource = setupMode == ElearningSetupMode.existing;
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Pilih mode e-learning sebelum perkuliahan berjalan: buat baru otomatis untuk kelas ini, atau gunakan konten dari kelas sebelumnya.',
+                  style: TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                DropdownWidget<ElearningSetupMode>(
+                  labelText: 'Mode Setup',
+                  hintText: 'Pilih Mode Setup',
+                  value: setupMode,
+                  items: const [
+                    ElearningSetupMode.newClass,
+                    ElearningSetupMode.existing,
+                  ],
+                  itemLabelBuilder: (mode) =>
+                      mode == ElearningSetupMode.newClass
+                      ? 'NEW (Buat E-Learning Baru)'
+                      : 'EXISTING (Gunakan Kelas Sebelumnya)',
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() {
+                      setupMode = value;
+                      if (setupMode == ElearningSetupMode.newClass) {
+                        sourceKelasPerkuliahanId = null;
+                      }
+                    });
+                  },
+                ),
+                if (canChooseSource) ...[
+                  const SizedBox(height: 12),
+                  DropdownWidget<int>(
+                    labelText: 'Kelas Sumber',
+                    hintText: 'Pilih Kelas Sumber',
+                    value: sourceKelasPerkuliahanId,
+                    items: sourceCandidates.map((course) => course.id).toList(),
+                    itemLabelBuilder: (id) {
+                      final selected = sourceCandidates.firstWhere(
+                        (c) => c.id == id,
+                      );
+                      final mkName = selected.mataKuliah?.name ?? selected.nama;
+                      return '${selected.kode} - $mkName';
+                    },
+                    onChanged: (value) {
+                      setDialogState(() {
+                        sourceKelasPerkuliahanId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: cloneContentAsHidden,
+                    title: const Text('Konten hasil clone disembunyikan dulu'),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        cloneContentAsHidden = value ?? true;
+                      });
+                    },
+                  ),
+                ],
+                const Divider(height: 24),
+                const Text(
+                  'Gabung E-Learning',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Pilih kelas dengan mata kuliah yang sama untuk digabung ke kelas ini.',
+                  style: TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 8),
+                if (sourceCandidates.isEmpty)
+                  const Text('Tidak ada kelas lain yang bisa digabungkan')
+                else
+                  ...sourceCandidates.map(
+                    (course) => CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: selectedMergedMembers.contains(course.id),
+                      onChanged: (checked) {
+                        setDialogState(() {
+                          if (checked ?? false) {
+                            selectedMergedMembers.add(course.id);
+                          } else {
+                            selectedMergedMembers.remove(course.id);
+                          }
+                        });
+                      },
+                      title: Text(
+                        '${course.kode} - ${course.mataKuliah?.name ?? course.nama}',
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: const Text('Tutup'),
+                    ),
+                    if (loaded.setupConfig?.isMergedClass == true)
+                      TextButton(
+                        onPressed: () {
+                          ref
+                              .read(
+                                elearningLecturerControllerProvider.notifier,
+                              )
+                              .unmergeClass(widget.kelasId);
+                          context.pop();
+                        },
+                        child: const Text('Lepas Gabungan'),
+                      ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (setupMode == ElearningSetupMode.existing &&
+                            sourceKelasPerkuliahanId == null) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Kelas sumber wajib dipilih untuk mode EXISTING',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        ref
+                            .read(elearningLecturerControllerProvider.notifier)
+                            .setupClass(
+                              kelasPerkuliahanId: widget.kelasId,
+                              setupMode: setupMode,
+                              sourceKelasPerkuliahanId:
+                                  sourceKelasPerkuliahanId,
+                              isMergedClass: false,
+                              cloneContentAsHidden: cloneContentAsHidden,
+                            );
+                        context.pop();
+                      },
+                      child: const Text('Simpan Setup'),
+                    ),
+                    ElevatedButton(
+                      onPressed: selectedMergedMembers.isEmpty
+                          ? null
+                          : () {
+                              ref
+                                  .read(
+                                    elearningLecturerControllerProvider
+                                        .notifier,
+                                  )
+                                  .mergeClasses(
+                                    masterKelasPerkuliahanId: widget.kelasId,
+                                    memberKelasPerkuliahanIds:
+                                        selectedMergedMembers.toList(),
+                                  );
+                              context.pop();
+                            },
+                      child: const Text('Simpan Gabungan'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -575,148 +935,151 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     String selectedSessionId = sessions.first.id;
     MaterialType selectedType = MaterialType.text;
 
-    await showDialog<void>(
+    await showDialogCustomWidget<void>(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final bool showContent =
-                selectedType == MaterialType.text ||
-                selectedType == MaterialType.hybrid;
-            final bool showFile =
-                selectedType == MaterialType.file ||
-                selectedType == MaterialType.hybrid;
+      title: 'Tambah Materi',
+      content: StatefulBuilder(
+        builder: (context, setDialogState) {
+          final bool showContent =
+              selectedType == MaterialType.text ||
+              selectedType == MaterialType.hybrid;
+          final bool showFile =
+              selectedType == MaterialType.file ||
+              selectedType == MaterialType.hybrid;
 
-            return AlertDialog(
-              title: const Text('Tambah Materi'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownWidget<String>(
+                  labelText: 'Sesi',
+                  hintText: 'Pilih Sesi',
+                  value: selectedSessionId,
+                  items: sessions.map((s) => s.id).toList(),
+                  itemLabelBuilder: (id) {
+                    final session = sessions.firstWhere((s) => s.id == id);
+                    return 'Minggu ${session.weekNumber}: ${session.title}';
+                  },
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() {
+                      selectedSessionId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Judul Materi',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DropdownWidget<MaterialType>(
+                  labelText: 'Tipe Materi',
+                  hintText: 'Pilih Tipe',
+                  value: selectedType,
+                  items: const [
+                    MaterialType.text,
+                    MaterialType.file,
+                    MaterialType.hybrid,
+                  ],
+                  itemLabelBuilder: (type) => type.name.toUpperCase(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() {
+                      selectedType = value;
+                    });
+                  },
+                ),
+                if (showContent) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: contentController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Konten Materi',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+                if (showFile) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: fileUrlController,
+                    decoration: const InputDecoration(
+                      labelText: 'File URL',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    DropdownWidget<String>(
-                      labelText: 'Sesi',
-                      hintText: 'Pilih Sesi',
-                      value: selectedSessionId,
-                      items: sessions.map((s) => s.id).toList(),
-                      itemLabelBuilder: (id) {
-                        final session = sessions.firstWhere((s) => s.id == id);
-                        return 'Minggu ${session.weekNumber}: ${session.title}';
-                      },
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setDialogState(() {
-                          selectedSessionId = value;
-                        });
-                      },
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: const Text('Batal'),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Judul Materi',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownWidget<MaterialType>(
-                      labelText: 'Tipe Materi',
-                      hintText: 'Pilih Tipe',
-                      value: selectedType,
-                      items: const [
-                        MaterialType.text,
-                        MaterialType.file,
-                        MaterialType.hybrid,
-                      ],
-                      itemLabelBuilder: (type) => type.name.toUpperCase(),
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setDialogState(() {
-                          selectedType = value;
-                        });
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        final title = titleController.text.trim();
+                        final content = contentController.text.trim();
+                        final fileUrl = fileUrlController.text.trim();
+
+                        if (title.isEmpty) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Judul materi wajib diisi'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        if ((selectedType == MaterialType.text ||
+                                selectedType == MaterialType.hybrid) &&
+                            content.isEmpty) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Konten materi wajib diisi'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        if ((selectedType == MaterialType.file ||
+                                selectedType == MaterialType.hybrid) &&
+                            fileUrl.isEmpty) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text('File URL wajib diisi'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        ref
+                            .read(elearningLecturerControllerProvider.notifier)
+                            .createMaterial(
+                              title: title,
+                              type: selectedType.name.toUpperCase(),
+                              content: content.isEmpty ? null : content,
+                              fileUrl: fileUrl.isEmpty ? null : fileUrl,
+                              sessionId: selectedSessionId,
+                            );
+                        context.pop();
                       },
+                      child: const Text('Simpan'),
                     ),
-                    if (showContent) ...[
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: contentController,
-                        maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: 'Konten Materi',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ],
-                    if (showFile) ...[
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: fileUrlController,
-                        decoration: const InputDecoration(
-                          labelText: 'File URL',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final title = titleController.text.trim();
-                    final content = contentController.text.trim();
-                    final fileUrl = fileUrlController.text.trim();
-
-                    if (title.isEmpty) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Judul materi wajib diisi'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    if ((selectedType == MaterialType.text ||
-                            selectedType == MaterialType.hybrid) &&
-                        content.isEmpty) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Konten materi wajib diisi'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    if ((selectedType == MaterialType.file ||
-                            selectedType == MaterialType.hybrid) &&
-                        fileUrl.isEmpty) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(content: Text('File URL wajib diisi')),
-                      );
-                      return;
-                    }
-
-                    ref
-                        .read(elearningLecturerControllerProvider.notifier)
-                        .createMaterial(
-                          title: title,
-                          type: selectedType.name.toUpperCase(),
-                          content: content.isEmpty ? null : content,
-                          fileUrl: fileUrl.isEmpty ? null : fileUrl,
-                          sessionId: selectedSessionId,
-                        );
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Simpan'),
-                ),
               ],
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
 
     titleController.dispose();
@@ -731,147 +1094,148 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     String selectedSessionId = sessions.first.id;
     DateTime? selectedDeadline;
 
-    await showDialog<void>(
+    await showDialogCustomWidget<void>(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text('Tambah Tugas'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+      title: 'Tambah Tugas',
+      content: StatefulBuilder(
+        builder: (context, setDialogState) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownWidget<String>(
+                  labelText: 'Sesi',
+                  hintText: 'Pilih Sesi',
+                  value: selectedSessionId,
+                  items: sessions.map((s) => s.id).toList(),
+                  itemLabelBuilder: (id) {
+                    final session = sessions.firstWhere((s) => s.id == id);
+                    return 'Minggu ${session.weekNumber}: ${session.title}';
+                  },
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() {
+                      selectedSessionId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Judul Tugas',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descriptionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Deskripsi',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+
+                    if (pickedDate == null || !mounted) {
+                      return;
+                    }
+
+                    final pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime == null) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      selectedDeadline = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                    });
+                  },
+                  icon: const Icon(Icons.schedule),
+                  label: Text(
+                    selectedDeadline == null
+                        ? 'Pilih Deadline'
+                        : _formatDateTime(selectedDeadline!),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    DropdownWidget<String>(
-                      labelText: 'Sesi',
-                      hintText: 'Pilih Sesi',
-                      value: selectedSessionId,
-                      items: sessions.map((s) => s.id).toList(),
-                      itemLabelBuilder: (id) {
-                        final session = sessions.firstWhere((s) => s.id == id);
-                        return 'Minggu ${session.weekNumber}: ${session.title}';
-                      },
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setDialogState(() {
-                          selectedSessionId = value;
-                        });
-                      },
+                    TextButton(
+                      onPressed: () => context.pop(),
+                      child: const Text('Batal'),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Judul Tugas',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: descriptionController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Deskripsi',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(
-                            const Duration(days: 365),
-                          ),
-                        );
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        final title = titleController.text.trim();
+                        final description = descriptionController.text.trim();
 
-                        if (pickedDate == null || !mounted) {
-                          return;
-                        }
-
-                        final pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-
-                        if (pickedTime == null) {
-                          return;
-                        }
-
-                        setDialogState(() {
-                          selectedDeadline = DateTime(
-                            pickedDate.year,
-                            pickedDate.month,
-                            pickedDate.day,
-                            pickedTime.hour,
-                            pickedTime.minute,
+                        if (title.isEmpty) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Judul tugas wajib diisi'),
+                            ),
                           );
-                        });
+                          return;
+                        }
+
+                        if (description.isEmpty) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Deskripsi tugas wajib diisi'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (selectedDeadline == null) {
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Deadline wajib dipilih'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        ref
+                            .read(elearningLecturerControllerProvider.notifier)
+                            .createAssignment(
+                              title: title,
+                              description: description,
+                              deadline: selectedDeadline!,
+                              sessionId: selectedSessionId,
+                            );
+                        context.pop();
                       },
-                      icon: const Icon(Icons.schedule),
-                      label: Text(
-                        selectedDeadline == null
-                            ? 'Pilih Deadline'
-                            : _formatDateTime(selectedDeadline!),
-                      ),
+                      child: const Text('Buat'),
                     ),
                   ],
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final title = titleController.text.trim();
-                    final description = descriptionController.text.trim();
-
-                    if (title.isEmpty) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Judul tugas wajib diisi'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    if (description.isEmpty) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Deskripsi tugas wajib diisi'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    if (selectedDeadline == null) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(content: Text('Deadline wajib dipilih')),
-                      );
-                      return;
-                    }
-
-                    ref
-                        .read(elearningLecturerControllerProvider.notifier)
-                        .createAssignment(
-                          title: title,
-                          description: description,
-                          deadline: selectedDeadline!,
-                          sessionId: selectedSessionId,
-                        );
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Buat'),
-                ),
               ],
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
 
     titleController.dispose();

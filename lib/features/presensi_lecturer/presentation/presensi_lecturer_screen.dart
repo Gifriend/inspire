@@ -38,14 +38,11 @@ class _PresensiLecturerScreenState
       if (message == null || message.isEmpty) return;
 
       final isError = next.errorMessage != null;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: isError ? BaseColor.red : BaseColor.primaryInspire,
-          ),
-        );
+      if (isError) {
+        showErrorAlertDialogWidget(context, title: message);
+      } else {
+        showSuccessAlertDialogWidget(context, title: message);
+      }
 
       ref.read(presensiLecturerControllerProvider.notifier).clearMessage();
     });

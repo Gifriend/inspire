@@ -6,9 +6,27 @@ import 'package:inspire/core/models/models.dart';
 abstract class ElearningLecturerService {
   Future<List<CourseListModel>> getLecturerCourses();
   Future<CourseDetailModel> getCourseDetail(int kelasId);
+  Future<ElearningClassConfigModel?> getClassSetup(int kelasId);
   Future<List<SessionModel>> getCourseContent(int kelasId);
   Future<List<StudentInfoModel>> getCourseStudents(int kelasId);
   Future<List<StudentInfoModel>> getCourseLeaderboard(int kelasId);
+  Future<Map<String, dynamic>> setupClass({
+    required int kelasPerkuliahanId,
+    required ElearningSetupMode setupMode,
+    int? sourceKelasPerkuliahanId,
+    bool? isMergedClass,
+    bool? cloneContentAsHidden,
+  });
+  Future<Map<String, dynamic>> mergeClasses({
+    required int masterKelasPerkuliahanId,
+    required List<int> memberKelasPerkuliahanIds,
+  });
+  Future<ElearningClassConfigModel> unmergeClass(int kelasId);
+  Future<void> toggleVisibility({
+    required ElearningEntityType entityType,
+    required String entityId,
+    required bool isHidden,
+  });
   Future<MaterialModel> createMaterial({
     required String title,
     required String type,
@@ -16,7 +34,7 @@ abstract class ElearningLecturerService {
     String? fileUrl,
     required String sessionId,
   });
-  
+
   Future<AssignmentModel> createAssignment({
     required String title,
     required String description,
@@ -85,7 +103,9 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
 
       final items = response;
       return items
-          .map((item) => StudentInfoModel.fromJson(item as Map<String, dynamic>))
+          .map(
+            (item) => StudentInfoModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       throw Exception('Error loading course students: $e');
@@ -105,7 +125,9 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
 
       final items = response;
       return items
-          .map((item) => StudentInfoModel.fromJson(item as Map<String, dynamic>))
+          .map(
+            (item) => StudentInfoModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       throw Exception('Error loading course leaderboard: $e');
@@ -130,6 +152,23 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
   }
 
   @override
+  Future<ElearningClassConfigModel?> getClassSetup(int kelasId) async {
+    try {
+      final response = await _dioClient.get<Map<String, dynamic>>(
+        '/elearning/setup/class/$kelasId',
+      );
+
+      if (response == null) {
+        return null;
+      }
+
+      return ElearningClassConfigModel.fromJson(response);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
   Future<List<SessionModel>> getCourseContent(int kelasId) async {
     try {
       final response = await _dioClient.get<dynamic>(
@@ -142,7 +181,9 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
       }
 
       if (response is List) {
-        debugPrint('[DEBUG] getCourseContent: response is List with ${response.length} items');
+        debugPrint(
+          '[DEBUG] getCourseContent: response is List with ${response.length} items',
+        );
         return response
             .map((item) => SessionModel.fromJson(item as Map<String, dynamic>))
             .toList();
@@ -151,18 +192,117 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
       if (response is Map<String, dynamic>) {
         final sessions = response['sessions'];
         if (sessions is List) {
-          debugPrint('[DEBUG] getCourseContent: response is Map with sessions List of ${sessions.length} items');
+          debugPrint(
+            '[DEBUG] getCourseContent: response is Map with sessions List of ${sessions.length} items',
+          );
           return sessions
-              .map((item) => SessionModel.fromJson(item as Map<String, dynamic>))
+              .map(
+                (item) => SessionModel.fromJson(item as Map<String, dynamic>),
+              )
               .toList();
         }
       }
 
-      debugPrint('[DEBUG] getCourseContent: response is unknown format, returning empty');
+      debugPrint(
+        '[DEBUG] getCourseContent: response is unknown format, returning empty',
+      );
       return [];
     } catch (e) {
       debugPrint('[DEBUG] getCourseContent error: $e');
       throw Exception('Error loading course content: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> setupClass({
+    required int kelasPerkuliahanId,
+    required ElearningSetupMode setupMode,
+    int? sourceKelasPerkuliahanId,
+    bool? isMergedClass,
+    bool? cloneContentAsHidden,
+  }) async {
+    try {
+      final response = await _dioClient.post<Map<String, dynamic>>(
+        '/elearning/setup/class',
+        data: {
+          'kelasPerkuliahanId': kelasPerkuliahanId,
+          'setupMode': _setupModeToApiValue(setupMode),
+          if (sourceKelasPerkuliahanId != null)
+            'sourceKelasPerkuliahanId': sourceKelasPerkuliahanId,
+          if (isMergedClass != null) 'isMergedClass': isMergedClass,
+          if (cloneContentAsHidden != null)
+            'cloneContentAsHidden': cloneContentAsHidden,
+        },
+      );
+
+      if (response == null) {
+        throw Exception('Gagal menyimpan pengaturan e-learning kelas');
+      }
+
+      return response;
+    } catch (e) {
+      throw Exception('Error setup kelas e-learning: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> mergeClasses({
+    required int masterKelasPerkuliahanId,
+    required List<int> memberKelasPerkuliahanIds,
+  }) async {
+    try {
+      final response = await _dioClient.post<Map<String, dynamic>>(
+        '/elearning/setup/merge',
+        data: {
+          'masterKelasPerkuliahanId': masterKelasPerkuliahanId,
+          'memberKelasPerkuliahanIds': memberKelasPerkuliahanIds,
+        },
+      );
+
+      if (response == null) {
+        throw Exception('Gagal menyimpan penggabungan kelas e-learning');
+      }
+
+      return response;
+    } catch (e) {
+      throw Exception('Error merge kelas e-learning: $e');
+    }
+  }
+
+  @override
+  Future<ElearningClassConfigModel> unmergeClass(int kelasId) async {
+    try {
+      final response = await _dioClient.patch<Map<String, dynamic>>(
+        '/elearning/setup/unmerge/$kelasId',
+      );
+
+      if (response == null) {
+        throw Exception('Gagal memisahkan kelas e-learning');
+      }
+
+      return ElearningClassConfigModel.fromJson(response);
+    } catch (e) {
+      throw Exception('Error unmerge kelas e-learning: $e');
+    }
+  }
+
+  @override
+  Future<void> toggleVisibility({
+    required ElearningEntityType entityType,
+    required String entityId,
+    required bool isHidden,
+  }) async {
+    try {
+      await _dioClient.patch<Map<String, dynamic>>(
+        '/elearning/setup/visibility',
+        data: {
+          'entityType': _entityTypeToApiValue(entityType),
+          'entityId': entityId,
+          'isHidden': isHidden,
+        },
+      );
+    } catch (e) {
+      throw Exception('Error mengatur visibilitas konten: $e');
     }
   }
 
@@ -271,10 +411,7 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
     try {
       await _dioClient.patch(
         '/elearning/submission/$submissionId/grade',
-        data: {
-          'grade': grade,
-          'feedback': feedback,
-        },
+        data: {'grade': grade, 'feedback': feedback},
       );
     } catch (e) {
       throw Exception('Error grading submission: $e');
@@ -283,7 +420,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
 
   @override
   Future<List<SubmissionModel>> getAssignmentSubmissions(
-      String assignmentId) async {
+    String assignmentId,
+  ) async {
     try {
       final response = await _dioClient.get<List>(
         '/elearning/assignment/$assignmentId/submissions',
@@ -293,8 +431,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
         return [];
       }
 
-        final items = response;
-        return items
+      final items = response;
+      return items
           .map((item) => SubmissionModel.fromJson(item as Map<String, dynamic>))
           .toList();
     } catch (e) {
@@ -330,18 +468,40 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
         return [];
       }
 
-        final items = response;
-        return items
-          .map((item) =>
-            QuizAttemptModel.fromJson(item as Map<String, dynamic>))
+      final items = response;
+      return items
+          .map(
+            (item) => QuizAttemptModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       throw Exception('Error loading quiz attempts: $e');
     }
   }
+
+  String _setupModeToApiValue(ElearningSetupMode mode) {
+    switch (mode) {
+      case ElearningSetupMode.newClass:
+        return 'NEW';
+      case ElearningSetupMode.existing:
+        return 'EXISTING';
+    }
+  }
+
+  String _entityTypeToApiValue(ElearningEntityType type) {
+    switch (type) {
+      case ElearningEntityType.material:
+        return 'MATERIAL';
+      case ElearningEntityType.assignment:
+        return 'ASSIGNMENT';
+      case ElearningEntityType.quiz:
+        return 'QUIZ';
+    }
+  }
 }
 
-final elearningLecturerServiceProvider =
-    Provider<ElearningLecturerService>((ref) {
+final elearningLecturerServiceProvider = Provider<ElearningLecturerService>((
+  ref,
+) {
   return ElearningLecturerServiceImpl(ref.watch(dioClientProvider));
 });

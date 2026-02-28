@@ -107,11 +107,9 @@ class _AnnouncementKoorprodiScreenState
                 .loadAnnouncements();
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Pengumuman berhasil dibuat'),
-              backgroundColor: Colors.green,
-            ),
+          showSuccessAlertDialogWidget(
+            context,
+            title: 'Pengumuman berhasil dibuat',
           );
 
           return const SizedBox.shrink();
@@ -127,11 +125,9 @@ class _AnnouncementKoorprodiScreenState
                 .loadAnnouncements();
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Pengumuman berhasil dihapus'),
-              backgroundColor: Colors.green,
-            ),
+          showSuccessAlertDialogWidget(
+            context,
+            title: 'Pengumuman berhasil dihapus',
           );
 
           return const SizedBox.shrink();
@@ -256,97 +252,105 @@ class _AnnouncementKoorprodiScreenState
     final titleController = TextEditingController();
     final contentController = TextEditingController();
 
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Buat Pengumuman Global'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+      title: 'Buat Pengumuman Global',
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(
+                labelText: 'Judul Pengumuman',
+                border: OutlineInputBorder(),
+                hintText: 'Masukkan judul pengumuman',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: contentController,
+              decoration: const InputDecoration(
+                labelText: 'Isi Pengumuman',
+                border: OutlineInputBorder(),
+                hintText: 'Masukkan isi pengumuman',
+                helperText:
+                    'Pengumuman ini akan dilihat oleh semua mahasiswa Informatika',
+              ),
+              maxLines: 5,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Judul Pengumuman',
-                    border: OutlineInputBorder(),
-                    hintText: 'Masukkan judul pengumuman',
-                  ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: contentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Isi Pengumuman',
-                    border: OutlineInputBorder(),
-                    hintText: 'Masukkan isi pengumuman',
-                    helperText:
-                        'Pengumuman ini akan dilihat oleh semua mahasiswa Informatika',
-                  ),
-                  maxLines: 5,
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    if (titleController.text.isEmpty ||
+                        contentController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Judul dan isi harus diisi'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    ref
+                        .read(announcementKoorprodiControllerProvider.notifier)
+                        .createGlobalAnnouncement(
+                          judul: titleController.text,
+                          isi: contentController.text,
+                        );
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Buat'),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (titleController.text.isEmpty ||
-                    contentController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Judul dan isi harus diisi')),
-                  );
-                  return;
-                }
-
-                ref
-                    .read(announcementKoorprodiControllerProvider.notifier)
-                    .createGlobalAnnouncement(
-                      judul: titleController.text,
-                      isi: contentController.text,
-                    );
-
-                Navigator.pop(context);
-              },
-              child: const Text('Buat'),
-            ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
   void _showDeleteConfirmation(BuildContext context, int announcementId) {
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Hapus Pengumuman?'),
-          content: const Text(
-            'Apakah Anda yakin ingin menghapus pengumuman ini?',
+      title: 'Hapus Pengumuman?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Apakah Anda yakin ingin menghapus pengumuman ini?'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  ref
+                      .read(announcementKoorprodiControllerProvider.notifier)
+                      .deleteAnnouncement(announcementId);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Hapus'),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                ref
-                    .read(announcementKoorprodiControllerProvider.notifier)
-                    .deleteAnnouncement(announcementId);
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 

@@ -18,7 +18,7 @@ class AddClassScreen extends ConsumerStatefulWidget {
   ConsumerState<AddClassScreen> createState() => _AddClassScreenState();
 }
 
-class _AddClassScreenState extends ConsumerState<AddClassScreen>{
+class _AddClassScreenState extends ConsumerState<AddClassScreen> {
   final String _searchQuery = '';
 
   @override
@@ -330,47 +330,47 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen>{
   }
 
   void _showAddConfirmation(KelasPerkuliahanModel kelas) {
-    showDialog(
+    showDialogCustomWidget<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tambah Mata Kuliah?'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              kelas.mataKuliah?.name ?? kelas.nama,
-              style: BaseTypography.bodyMedium.toBold,
-            ),
-            Gap.h8,
-            Text('Kode: ${kelas.kode}'),
-            Text('SKS: ${kelas.mataKuliah?.sks ?? 0}'),
-            Text('Kelas: ${kelas.nama}'),
-            if (kelas.dosen != null) Text('Dosen: ${kelas.dosen!.name}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      title: 'Tambah Mata Kuliah?',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            kelas.mataKuliah?.name ?? kelas.nama,
+            style: BaseTypography.bodyMedium.toBold,
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref
-                  .read(krsControllerProvider(widget.semester).notifier)
-                  .addClass(kelas.id)
-                  .then((_) {
-                    // Show success message
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Berhasil menambahkan mata kuliah'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  });
-            },
-            child: const Text('Tambah'),
+          Gap.h8,
+          Text('Kode: ${kelas.kode}'),
+          Text('SKS: ${kelas.mataKuliah?.sks ?? 0}'),
+          Text('Kelas: ${kelas.nama}'),
+          if (kelas.dosen != null) Text('Dosen: ${kelas.dosen!.name}'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(krsControllerProvider(widget.semester).notifier)
+                      .addClass(kelas.id)
+                      .then((_) {
+                        showSuccessAlertDialogWidget(
+                          context,
+                          title: 'Berhasil menambahkan mata kuliah',
+                        );
+                      });
+                },
+                child: const Text('Tambah'),
+              ),
+            ],
           ),
         ],
       ),

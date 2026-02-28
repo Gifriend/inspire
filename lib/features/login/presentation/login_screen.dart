@@ -46,36 +46,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen<LoginState>(loginControllerProvider, (previous, next) {
       next.maybeWhen(
         success: () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login berhasil'),
-              backgroundColor: Colors.green,
-            ),
+          await showSuccessAlertDialogWidget(
+            context,
+            title: 'Login berhasil',
+            actionButtonTitle: 'Lanjut',
           );
-          
+
+          if (!context.mounted) return;
+
           // Load user profile
           final profileNotifier = ref.read(profileControllerProvider.notifier);
           profileNotifier.clearCache();
           await profileNotifier.loadProfile(forceRefresh: true);
-          
+
           // Debug: Check loaded user
           final user = profileNotifier.cachedUser;
           if (user != null) {
             debugPrint('🔑 Login - User loaded: ${user.name}, Role: ${user.role}');
           }
-          
+
           if (!context.mounted) return;
-          
+
           // Redirect semua user ke home (baik mahasiswa maupun dosen)
           // HomeScreen akan menampilkan konten sesuai role
           context.goNamed(AppRoute.home);
         },
-        error: (message) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: Colors.red,
-            ),
+        error: (message) async {
+          await showErrorAlertDialogWidget(
+            context,
+            title: 'Login gagal',
+            subtitle: message,
           );
         },
         orElse: () {},

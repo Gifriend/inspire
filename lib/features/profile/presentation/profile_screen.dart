@@ -258,19 +258,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Future<void> _handleLogout(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDialogCustomWidget<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Logout'),
-        content: const Text('Apakah Anda yakin ingin keluar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('Logout', style: TextStyle(color: BaseColor.red)),
+      title: 'Konfirmasi Logout',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Apakah Anda yakin ingin keluar?'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal'),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text('Logout', style: TextStyle(color: BaseColor.red)),
+              ),
+            ],
           ),
         ],
       ),
@@ -285,9 +294,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(
+          showErrorAlertDialogWidget(
             context,
-          ).showSnackBar(SnackBar(content: Text('Gagal logout: $e')));
+            title: 'Logout gagal',
+            subtitle: '$e',
+          );
         }
       }
     }

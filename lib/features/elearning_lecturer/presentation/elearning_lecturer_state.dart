@@ -27,7 +27,15 @@ class CourseListLoaded extends ElearningLecturerState {
 class CourseDetailLoaded extends ElearningLecturerState {
   final CourseDetailModel courseDetail;
   final List<SessionModel> sessions;
-  const CourseDetailLoaded(this.courseDetail, this.sessions);
+  final ElearningClassConfigModel? setupConfig;
+  final List<CourseListModel> lecturerCourses;
+
+  const CourseDetailLoaded(
+    this.courseDetail,
+    this.sessions, {
+    this.setupConfig,
+    this.lecturerCourses = const [],
+  });
 }
 
 // For students list
@@ -69,4 +77,22 @@ class QuizCreated extends ElearningLecturerState {
 
 class SubmissionGraded extends ElearningLecturerState {
   const SubmissionGraded();
+}
+
+class SetupClassSaved extends ElearningLecturerState {
+  final String message;
+  const SetupClassSaved(this.message);
+}
+
+class MergeClassesSaved extends ElearningLecturerState {
+  final String message;
+  const MergeClassesSaved(this.message);
+}
+
+class UnmergeClassSaved extends ElearningLecturerState {
+  const UnmergeClassSaved();
+}
+
+class VisibilityUpdated extends ElearningLecturerState {
+  const VisibilityUpdated();
 }

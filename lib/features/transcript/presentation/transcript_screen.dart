@@ -99,7 +99,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                 ),
               ),
               Gap.h16,
-              
+
               // Summary Card
               Container(
                 width: double.infinity,
@@ -144,7 +144,8 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                             Gap.h4,
                             Text(
                               '${transcript.statistik.totalSKS}',
-                              style: BaseTypography.headlineSmall.toBold.toWhite,
+                              style:
+                                  BaseTypography.headlineSmall.toBold.toWhite,
                             ),
                           ],
                         ),
@@ -157,7 +158,8 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                             Gap.h4,
                             Text(
                               '${transcript.statistik.totalMataKuliah}',
-                              style: BaseTypography.headlineSmall.toBold.toWhite,
+                              style:
+                                  BaseTypography.headlineSmall.toBold.toWhite,
                             ),
                           ],
                         ),
@@ -167,14 +169,14 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                 ),
               ),
               Gap.h24,
-              
+
               // Daftar Mata Kuliah
               Text(
                 'Daftar Mata Kuliah',
                 style: BaseTypography.titleLarge.toBold,
               ),
               Gap.h16,
-              
+
               // Group by academic year
               ...() {
                 // Group transkrip by academic year
@@ -185,11 +187,11 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                   }
                   academicYearGroups[item.academicYear]!.add(item);
                 }
-                
+
                 return academicYearGroups.entries.map((entry) {
                   final academicYear = entry.key;
                   final items = entry.value;
-                  
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -198,8 +200,12 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                         width: double.infinity,
                         padding: EdgeInsets.all(BaseSize.w12),
                         decoration: BoxDecoration(
-                          color: BaseColor.primaryInspire.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                          color: BaseColor.primaryInspire.withValues(
+                            alpha: 0.1,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            BaseSize.radiusSm,
+                          ),
                         ),
                         child: Text(
                           academicYear,
@@ -207,7 +213,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                         ),
                       ),
                       Gap.h12,
-                      
+
                       // Mata Kuliah List
                       ...items.map((mk) {
                         return Container(
@@ -215,8 +221,12 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                           padding: EdgeInsets.all(BaseSize.w12),
                           decoration: BoxDecoration(
                             color: BaseColor.white,
-                            borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-                            border: Border.all(color: BaseColor.grey.withValues(alpha: 0.3)),
+                            borderRadius: BorderRadius.circular(
+                              BaseSize.radiusSm,
+                            ),
+                            border: Border.all(
+                              color: BaseColor.grey.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -233,8 +243,9 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                                     Gap.h4,
                                     Text(
                                       mk.kode,
-                                      style: BaseTypography.bodySmall
-                                          .copyWith(color: BaseColor.grey),
+                                      style: BaseTypography.bodySmall.copyWith(
+                                        color: BaseColor.grey,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -250,11 +261,16 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                                     ),
                                     decoration: BoxDecoration(
                                       color: _getGradeColor(mk.nilaiHuruf),
-                                      borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+                                      borderRadius: BorderRadius.circular(
+                                        BaseSize.radiusSm,
+                                      ),
                                     ),
                                     child: Text(
                                       mk.nilaiHuruf,
-                                      style: BaseTypography.titleMedium.toBold.toWhite,
+                                      style: BaseTypography
+                                          .titleMedium
+                                          .toBold
+                                          .toWhite,
                                     ),
                                   ),
                                   Gap.h4,
@@ -280,10 +296,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Gagal memuat transkrip',
-                style: BaseTypography.titleMedium,
-              ),
+              Text('Gagal memuat transkrip', style: BaseTypography.titleMedium),
               Gap.h8,
               Text(
                 message,
@@ -293,7 +306,9 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
               Gap.h16,
               ElevatedButton(
                 onPressed: () {
-                  ref.read(transcriptControllerProvider.notifier).loadTranscript();
+                  ref
+                      .read(transcriptControllerProvider.notifier)
+                      .loadTranscript();
                 },
                 child: const Text('Coba Lagi'),
               ),
@@ -371,16 +386,12 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
 
       // Show error
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal memuat transkrip: $e'),
-            backgroundColor: BaseColor.red,
-            action: SnackBarAction(
-              label: 'Coba Lagi',
-              textColor: BaseColor.white,
-              onPressed: () => _handleViewHtml(context),
-            ),
-          ),
+        showErrorAlertDialogWidget(
+          context,
+          title: 'Gagal memuat transkrip',
+          subtitle: '$e',
+          actionButtonTitle: 'Coba Lagi',
+          action: () => _handleViewHtml(context),
         );
       }
     }
@@ -432,62 +443,62 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
 
       // Show success dialog with options
       if (context.mounted) {
-        showDialog(
+        showDialogCustomWidget<void>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.check_circle, color: BaseColor.green),
-                Gap.w12,
-                const Text('Berhasil'),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Transkrip berhasil didownload!',
-                  style: BaseTypography.bodyLarge,
-                ),
-                Gap.h8,
-                Text(
-                  'File disimpan di:',
-                  style: BaseTypography.bodySmall.toGrey,
-                ),
-                Gap.h4,
-                Container(
-                  padding: EdgeInsets.all(BaseSize.w8),
-                  decoration: BoxDecoration(
-                    color: BaseColor.grey.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(BaseSize.radiusSm),
+          title: 'Berhasil',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.check_circle, color: BaseColor.green),
+                  Gap.w12,
+                  Text(
+                    'Transkrip berhasil didownload!',
+                    style: BaseTypography.bodyLarge,
                   ),
-                  child: Text(
-                    file.path,
-                    style: BaseTypography.bodySmall.copyWith(
-                      fontFamily: 'monospace',
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showHtmlPreview(context, htmlContent);
-                },
-                child: const Text('Preview'),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: BaseColor.primaryInspire,
-                  foregroundColor: BaseColor.white,
+              Gap.h8,
+              Text('File disimpan di:', style: BaseTypography.bodySmall.toGrey),
+              Gap.h4,
+              Container(
+                padding: EdgeInsets.all(BaseSize.w8),
+                decoration: BoxDecoration(
+                  color: BaseColor.grey.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                 ),
-                child: const Text('OK'),
+                child: Text(
+                  file.path,
+                  style: BaseTypography.bodySmall.copyWith(
+                    fontFamily: 'monospace',
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showHtmlPreview(context, htmlContent);
+                    },
+                    child: const Text('Preview'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: BaseColor.primaryInspire,
+                      foregroundColor: BaseColor.white,
+                    ),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -501,16 +512,12 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
 
       // Show error
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal download transkrip: $e'),
-            backgroundColor: BaseColor.red,
-            action: SnackBarAction(
-              label: 'Coba Lagi',
-              textColor: BaseColor.white,
-              onPressed: () => _handleDownload(context),
-            ),
-          ),
+        showErrorAlertDialogWidget(
+          context,
+          title: 'Gagal download transkrip',
+          subtitle: '$e',
+          actionButtonTitle: 'Coba Lagi',
+          action: () => _handleDownload(context),
         );
       }
     }
@@ -518,7 +525,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
 
   void _showHtmlPreview(BuildContext context, String htmlContent) {
     bool showRawHtml = false;
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -571,7 +578,9 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                                 showRawHtml = !showRawHtml;
                               });
                             },
-                            tooltip: showRawHtml ? 'Lihat Rendered' : 'Lihat Raw HTML',
+                            tooltip: showRawHtml
+                                ? 'Lihat Rendered'
+                                : 'Lihat Raw HTML',
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
