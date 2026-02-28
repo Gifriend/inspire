@@ -62,6 +62,7 @@ class AppRoute {
   //Lecturer Dashboard
   static const String lecturerDashboard = 'lecturer-dashboard';
   static const String krsLecturer = 'krs-lecturer';
+  static const String krsLecturerDetail = 'krs-lecturer-detail';
   static const String presensiLecturer = 'presensi-lecturer';
   static const String eLearningLecturer = 'elearning-lecturer';
   static const String lecturerCourseDetail = 'lecturer-course-detail';
@@ -212,6 +213,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const KrsLecturerScreen(),
       ),
       GoRoute(
+        path: '/krs-lecturer-detail/:krsId',
+        name: AppRoute.krsLecturerDetail,
+        builder: (context, state) {
+          final krsId = int.parse(state.pathParameters['krsId']!);
+          return KrsLecturerDetailScreen(krsId: krsId);
+        },
+      ),
+      GoRoute(
         path: '/presensi-lecturer',
         name: AppRoute.presensiLecturer,
         builder: (context, state) => const PresensiLecturerScreen(),
@@ -256,12 +265,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/grading-lecturer',
         name: AppRoute.gradingLecturer,
-        builder: (context, state) => const ElearningLecturerScreen(),
+        builder: (context, state) {
+          final kelasId = state.extra as int;
+          return GradingLecturerScreen(kelasId: kelasId);
+        },
       ),
       GoRoute(
         path: '/my-classes-lecturer',
         name: AppRoute.myClassesLecturer,
-        builder: (context, state) => const ElearningLecturerScreen(),
+        builder: (context, state) => const MyClassesLecturerScreen(),
       ),
       // GoRoute(
       //   path: '/login',

@@ -184,8 +184,8 @@ class _LecturerDashboardScreenState
                   icon: Icons.grade,
                   color: Colors.red,
                   onTap: () {
-                    // Navigate to Grading
-                    context.pushNamed(AppRoute.gradingLecturer);
+                    // Navigate to class list → pick class → grading detail
+                    context.pushNamed(AppRoute.myClassesLecturer);
                   },
                 ),
                 DashboardMenuCard(

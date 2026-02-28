@@ -78,9 +78,10 @@ export 'krs/presentation/screens/add_class_screen.dart';
 export 'krs/presentation/screens/krs_screen.dart';
 export 'krs/presentation/states/krs_state.dart';
 //krs lecturer
-export 'krs_lecturer/presentation/krs_lecturer_controller.dart';
-export 'krs_lecturer/presentation/krs_lecturer_state.dart';
-export 'krs_lecturer/presentation/krs_lecturer_screen.dart';
+export 'krs_lecturer/presentation/controllers/krs_lecturer_controller.dart';
+export 'krs_lecturer/presentation/states/krs_lecturer_state.dart';
+export 'krs_lecturer/presentation/screens/krs_lecturer_screen.dart';
+export 'krs_lecturer/presentation/screens/krs_lecturer_detail_screen.dart';
 //schedule
 export 'schedule/presentation/schedule_controller.dart';
 export 'schedule/presentation/schedule_screen.dart';
@@ -93,3 +94,6 @@ export 'lecturer/presentation/lecturer_dashboard_state.dart';
 export 'lecturer/presentation/grading_lecturer_screen.dart';
 export 'lecturer/presentation/my_classes_lecturer_screen.dart';
 export 'lecturer/presentation/widgets/widgets.dart';
+//nilai
+export 'nilai/presentation/controllers/nilai_controller.dart';
+export 'nilai/presentation/states/nilai_state.dart';

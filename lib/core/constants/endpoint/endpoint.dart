@@ -72,12 +72,24 @@ class Endpoint {
   static String krsAddClass = '$krsBase/add-class';
   static String krsRemoveClass = '$krsBase/remove-class';
   static String krsSubmit = '$krsBase/submit';
+  // KRS Lecturer endpoints
+    static String krsSubmissions = '$krsBase/pa/mahasiswa';
+    static String krsSubmissionDetail(int krsId) => '$krsBase/pa/detail/$krsId';
   static String krsApprove(int krsId) => '$krsBase/approve/$krsId';
   static String krsReject(int krsId) => '$krsBase/reject/$krsId';
   static String krsCancel(int krsId) => '$krsBase/cancel/$krsId';
   static String krsLoadAvailableCourses(String academicYear) =>
       '$krsBase/available-courses?academicYear=$academicYear';
 
+    // Academic PA endpoints
+    static String academicPaBase = '$academic/pa';
+    static String academicPaMahasiswa = '$academicPaBase/mahasiswa';
+    static String academicPaStudentSemesters(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/semesters';
+    static String academicPaKhs(int mahasiswaId, String semester) => '$academicPaBase/mahasiswa/$mahasiswaId/khs?semester=$semester';
+    static String academicPaKhsDownload(int mahasiswaId, String semester) => '$academicPaBase/mahasiswa/$mahasiswaId/khs/download?semester=$semester';
+    static String academicPaTranskrip(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/transkrip';
+    static String academicPaTranskripDownload(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/transkrip/download';
+    static String academicPaRingkasan(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/ringkasan';
   // Class selection endpoint (you may need to add this to backend)
   static String availableClasses = _baseUrl(
     path: "/kelas-perkuliahan/available",
@@ -88,4 +100,11 @@ class Endpoint {
   static String scheduleMonthly = '$schedule/monthly';
   static String scheduleToday = '$schedule/today';
   static String scheduleIcal = '$schedule/ical';
+
+  // Nilai (Grading) endpoints
+  static String nilaiBase = _baseUrl(path: "/nilai");
+  static String nilaiKelasDosen = '$nilaiBase/kelas';
+  static String nilaiByKelas(int kelasId) => '$nilaiBase/kelas/$kelasId';
+  static String nilaiInput = '$nilaiBase/input';
+  static String nilaiInputBatch = '$nilaiBase/input/batch';
 }
