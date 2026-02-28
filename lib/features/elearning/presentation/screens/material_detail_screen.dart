@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/elearning/material_model.dart' as elearning;
 import 'package:inspire/core/widgets/widgets.dart';
+
+import '../../../../core/assets/assets.dart';
 // Bisa gunakan package url_launcher untuk buka link
 
 class MaterialDetailScreen extends StatelessWidget {
@@ -12,7 +15,11 @@ class MaterialDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldWidget(
-      appBar: const AppBarWidget(title: 'Detail Materi'),
+      appBar: AppBarWidget(
+        title: 'Detail Materi',
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -24,12 +31,10 @@ class MaterialDetailScreen extends StatelessWidget {
             labelStyle: TextStyle(color: BaseColor.primaryInspire),
           ),
           Gap.h24,
-          if (material.type == elearning.MaterialType.text || material.type == elearning.MaterialType.hybrid)
-            Text(
-              material.content ?? '',
-              style: BaseTypography.bodyMedium,
-            ),
-          
+          if (material.type == elearning.MaterialType.text ||
+              material.type == elearning.MaterialType.hybrid)
+            Text(material.content ?? '', style: BaseTypography.bodyMedium),
+
           if (material.fileUrl != null) ...[
             Gap.h24,
             ButtonWidget.outlined(
@@ -38,8 +43,8 @@ class MaterialDetailScreen extends StatelessWidget {
                 // Gunakan url_launcher di sini
                 // launchUrl(Uri.parse(material.fileUrl!));
               },
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );

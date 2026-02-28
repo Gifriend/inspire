@@ -42,6 +42,8 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
     final quizState = ref.watch(quizControllerProvider);
 
     return ScaffoldWidget(
+      disableSingleChildScrollView: true,
+      
       appBar: AppBarWidget(
         title: 'Detail Kuis',
         leadIcon: Assets.icons.fill.arrowBack,
@@ -105,6 +107,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
 
                 // Info Card
                 Card(
+                  color: BaseColor.white,
                   child: Padding(
                     padding: EdgeInsets.all(BaseSize.w16),
                     child: Column(
@@ -153,6 +156,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                   Gap.h12,
                   ...quiz.attempts.map(
                     (attempt) => Card(
+                      color: BaseColor.white,
                       margin: EdgeInsets.only(bottom: BaseSize.h8),
                       child: ListTile(
                         leading: CircleAvatar(
@@ -172,7 +176,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                           style: BaseTypography.bodySmall.toGrey,
                         ),
                         trailing: Text(
-                          '$attempt.score.toStringAsFixed(0)',
+                          attempt.score.toStringAsFixed(0),
                           style: BaseTypography.titleMedium.toBold,
                         ),
                       ),
@@ -182,22 +186,7 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                 ],
 
                 // Start Button
-                if (!hasAttempt)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ButtonWidget.primary(
-                      color: BaseColor.primaryInspire,
-                      text: 'Mulai Kuis',
-                      onTap: () {
-                        context.pushNamed(
-                          AppRoute.quizTaking,
-                          pathParameters: {'quizId': widget.quizId},
-                          extra: quiz,
-                        );
-                      },
-                    ),
-                  )
-                else if (hasAttempt)
+                if (hasAttempt)
                   SizedBox(
                     width: double.infinity,
                     child: Center(
@@ -248,7 +237,24 @@ class _QuizDetailScreenState extends ConsumerState<QuizDetailScreen> {
                         ),
                       ],
                     ),
-                  ),
+                  )
+                else if (isActive)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ButtonWidget.primary(
+                      color: BaseColor.primaryInspire,
+                      text: 'Mulai Kuis',
+                      onTap: () {
+                        context.pushNamed(
+                          AppRoute.quizTaking,
+                          pathParameters: {'quizId': widget.quizId},
+                          extra: quiz,
+                        );
+                      },
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
               ],
             ),
           );
@@ -334,7 +340,15 @@ class _InfoRow extends StatelessWidget {
         Icon(icon, size: 20, color: BaseColor.primaryInspire),
         Gap.w12,
         Expanded(child: Text(label, style: BaseTypography.bodyMedium.toGrey)),
-        Text(value, style: BaseTypography.bodyMedium.toBold),
+        Flexible(
+          child: Text(
+            value,
+            style: BaseTypography.bodyMedium.toBold,
+            textAlign: TextAlign.start,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }

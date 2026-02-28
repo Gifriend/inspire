@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/elearning/assignment_model.dart';
 import 'package:inspire/core/models/elearning/material_model.dart' as elearning;
@@ -8,7 +9,7 @@ import 'package:inspire/core/models/elearning/quiz_model.dart';
 import 'package:inspire/core/models/elearning/session_model.dart';
 import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/utils/utils.dart';
-import 'package:inspire/core/widgets/widgets.dart'; 
+import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:jiffy/jiffy.dart';
 
@@ -33,10 +34,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   void initState() {
     super.initState();
     _parsedKelasId = int.tryParse(widget.kelasId);
-    
+
     if (_parsedKelasId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(courseControllerProvider(_parsedKelasId).notifier).loadCourseContent();
+        ref
+            .read(courseControllerProvider(_parsedKelasId).notifier)
+            .loadCourseContent();
       });
     }
   }
@@ -51,7 +54,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
-      appBar: AppBarWidget(title: widget.courseName),
+      appBar: AppBarWidget(
+        title: widget.courseName,
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: courseState.when(
         initial: () => const SizedBox.shrink(),
         // Implementasi Skeleton Loading
@@ -66,7 +73,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
               Gap.h16,
               ButtonWidget.primary(
                 text: 'Coba Lagi',
-                onTap: () => ref.read(courseControllerProvider(_parsedKelasId).notifier).loadCourseContent(),
+                onTap: () => ref
+                    .read(courseControllerProvider(_parsedKelasId).notifier)
+                    .loadCourseContent(),
               ),
             ],
           ),
@@ -79,7 +88,10 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
                 children: [
                   Icon(Icons.school_outlined, size: 64, color: BaseColor.grey),
                   Gap.h16,
-                  Text('Belum ada sesi perkuliahan', style: BaseTypography.bodyLarge.toGrey),
+                  Text(
+                    'Belum ada sesi perkuliahan',
+                    style: BaseTypography.bodyLarge.toGrey,
+                  ),
                 ],
               ),
             );
@@ -99,7 +111,6 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   }
 }
 
-
 class _SessionCard extends StatelessWidget {
   final SessionModel session;
 
@@ -109,31 +120,61 @@ class _SessionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BaseSize.radiusMd)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+      ),
       child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(horizontal: BaseSize.w16, vertical: BaseSize.h8),
-        childrenPadding: EdgeInsets.fromLTRB(BaseSize.w16, 0, BaseSize.w16, BaseSize.w16),
+        tilePadding: EdgeInsets.symmetric(
+          horizontal: BaseSize.w16,
+          vertical: BaseSize.h8,
+        ),
+        childrenPadding: EdgeInsets.fromLTRB(
+          BaseSize.w16,
+          0,
+          BaseSize.w16,
+          BaseSize.w16,
+        ),
         leading: CircleAvatar(
           backgroundColor: BaseColor.primaryInspire,
-          child: Text('${session.weekNumber}', style: BaseTypography.titleMedium.toBold.toWhite),
+          child: Text(
+            '${session.weekNumber}',
+            style: BaseTypography.titleMedium.toBold.toWhite,
+          ),
         ),
         title: Text(session.title, style: BaseTypography.titleMedium.toBold),
         subtitle: session.description != null
-            ? Text(session.description!, style: BaseTypography.bodySmall.toGrey, maxLines: 2, overflow: TextOverflow.ellipsis)
+            ? Text(
+                session.description!,
+                style: BaseTypography.bodySmall.toGrey,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )
             : null,
         children: [
           if (session.materials.isNotEmpty) ...[
-            _SectionHeader(icon: Icons.article, color: BaseColor.primaryInspire, title: 'Materi'),
+            _SectionHeader(
+              icon: Icons.article,
+              color: BaseColor.primaryInspire,
+              title: 'Materi',
+            ),
             ...session.materials.map((m) => _MaterialItem(material: m)),
             Gap.h12,
           ],
           if (session.assignments.isNotEmpty) ...[
-            const _SectionHeader(icon: Icons.assignment, color: Colors.orange, title: 'Tugas'),
+            const _SectionHeader(
+              icon: Icons.assignment,
+              color: Colors.orange,
+              title: 'Tugas',
+            ),
             ...session.assignments.map((a) => _AssignmentItem(assignment: a)),
             Gap.h12,
           ],
           if (session.quizzes.isNotEmpty) ...[
-            const _SectionHeader(icon: Icons.quiz, color: Colors.purple, title: 'Kuis'),
+            const _SectionHeader(
+              icon: Icons.quiz,
+              color: Colors.purple,
+              title: 'Kuis',
+            ),
             ...session.quizzes.map((q) => _QuizItem(quiz: q)),
           ],
         ],
@@ -148,7 +189,11 @@ class _SectionHeader extends StatelessWidget {
   final Color color;
   final String title;
 
-  const _SectionHeader({required this.icon, required this.color, required this.title});
+  const _SectionHeader({
+    required this.icon,
+    required this.color,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +209,6 @@ class _SectionHeader extends StatelessWidget {
     );
   }
 }
-
 
 class _MaterialItem extends StatelessWidget {
   final elearning.MaterialModel material;
@@ -182,12 +226,16 @@ class _MaterialItem extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            material.type == elearning.MaterialType.file ? Icons.insert_drive_file : Icons.text_fields,
+            material.type == elearning.MaterialType.file
+                ? Icons.insert_drive_file
+                : Icons.text_fields,
             color: Colors.blue,
             size: 20,
           ),
           Gap.w12,
-          Expanded(child: Text(material.title, style: BaseTypography.bodyMedium)),
+          Expanded(
+            child: Text(material.title, style: BaseTypography.bodyMedium),
+          ),
           Icon(Icons.chevron_right, color: BaseColor.grey),
         ],
       ),
@@ -218,11 +266,18 @@ class _AssignmentItem extends StatelessWidget {
             children: [
               Icon(
                 isSubmitted ? Icons.assignment_turned_in : Icons.assignment,
-                color: isSubmitted ? Colors.green : (isOverdue ? Colors.red : Colors.orange),
+                color: isSubmitted
+                    ? Colors.green
+                    : (isOverdue ? Colors.red : Colors.orange),
                 size: 20,
               ),
               Gap.w12,
-              Expanded(child: Text(assignment.title, style: BaseTypography.bodyMedium.toBold)),
+              Expanded(
+                child: Text(
+                  assignment.title,
+                  style: BaseTypography.bodyMedium.toBold,
+                ),
+              ),
               if (isSubmitted)
                 _StatusChip(text: 'Submitted', color: Colors.green),
             ],
@@ -230,7 +285,11 @@ class _AssignmentItem extends StatelessWidget {
           Gap.h4,
           Row(
             children: [
-              Icon(Icons.access_time, size: 14, color: isOverdue ? Colors.red : BaseColor.grey),
+              Icon(
+                Icons.access_time,
+                size: 14,
+                color: isOverdue ? Colors.red : BaseColor.grey,
+              ),
               Gap.w4,
               Text(
                 'Deadline: ${Jiffy.parse(assignment.deadline.toString()).yMMMd}',
@@ -269,7 +328,12 @@ class _QuizItem extends StatelessWidget {
             children: [
               const Icon(Icons.quiz_outlined, color: Colors.purple, size: 20),
               Gap.w12,
-              Expanded(child: Text(quiz.title, style: BaseTypography.bodyMedium.toBold)),
+              Expanded(
+                child: Text(
+                  quiz.title,
+                  style: BaseTypography.bodyMedium.toBold,
+                ),
+              ),
               if (hasAttempt)
                 _StatusChip(text: 'Selesai', color: Colors.blue)
               else if (isActive)
@@ -281,7 +345,10 @@ class _QuizItem extends StatelessWidget {
             children: [
               Icon(Icons.timer, size: 14, color: BaseColor.grey),
               Gap.w4,
-              Text('${quiz.duration} menit', style: BaseTypography.bodySmall.toGrey),
+              Text(
+                '${quiz.duration} menit',
+                style: BaseTypography.bodySmall.toGrey,
+              ),
             ],
           ),
         ],
@@ -316,7 +383,9 @@ class _BaseItemContainer extends StatelessWidget {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(BaseSize.radiusSm),
-            border: borderColor != null ? Border.all(color: borderColor!, width: 1) : null,
+            border: borderColor != null
+                ? Border.all(color: borderColor!, width: 1)
+                : null,
           ),
           child: child,
         ),
@@ -333,7 +402,10 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w8, vertical: BaseSize.h4),
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w8,
+        vertical: BaseSize.h4,
+      ),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(BaseSize.radiusSm),
@@ -342,7 +414,6 @@ class _StatusChip extends StatelessWidget {
     );
   }
 }
-
 
 class _CourseDetailSkeleton extends StatelessWidget {
   const _CourseDetailSkeleton();
@@ -355,7 +426,9 @@ class _CourseDetailSkeleton extends StatelessWidget {
       separatorBuilder: (_, _) => Gap.h16,
       itemBuilder: (_, _) => Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BaseSize.radiusMd)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        ),
         child: Padding(
           padding: EdgeInsets.all(BaseSize.w16),
           child: Column(
@@ -363,7 +436,11 @@ class _CourseDetailSkeleton extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const SkeletonLoading(width: 40, height: 40, borderRadius: 20), // Circle Avatar
+                  const SkeletonLoading(
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                  ), // Circle Avatar
                   Gap.w12,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +453,10 @@ class _CourseDetailSkeleton extends StatelessWidget {
                 ],
               ),
               Gap.h16,
-              const SkeletonLoading(width: double.infinity, height: 60), // Content placeholder
+              const SkeletonLoading(
+                width: double.infinity,
+                height: 60,
+              ), // Content placeholder
             ],
           ),
         ),

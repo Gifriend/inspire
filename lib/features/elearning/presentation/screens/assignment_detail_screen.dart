@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart'; // SkeletonLoading
 import 'package:inspire/features/elearning/presentation/controllers/assignment_controller.dart';
 import 'package:inspire/features/elearning/presentation/states/assignment_state.dart';
+
+import '../../../../core/assets/assets.dart';
 
 class AssignmentDetailScreen extends ConsumerStatefulWidget {
   final String assignmentId;
@@ -12,10 +15,12 @@ class AssignmentDetailScreen extends ConsumerStatefulWidget {
   const AssignmentDetailScreen({super.key, required this.assignmentId});
 
   @override
-  ConsumerState<AssignmentDetailScreen> createState() => _AssignmentDetailScreenState();
+  ConsumerState<AssignmentDetailScreen> createState() =>
+      _AssignmentDetailScreenState();
 }
 
-class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen> {
+class _AssignmentDetailScreenState
+    extends ConsumerState<AssignmentDetailScreen> {
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
 
@@ -23,7 +28,9 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(assignmentControllerProvider.notifier).loadAssignmentDetail(widget.assignmentId);
+      ref
+          .read(assignmentControllerProvider.notifier)
+          .loadAssignmentDetail(widget.assignmentId);
     });
   }
 
@@ -32,7 +39,11 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
     final state = ref.watch(assignmentControllerProvider);
 
     return ScaffoldWidget(
-      appBar: const AppBarWidget(title: 'Detail Tugas'),
+      appBar: AppBarWidget(
+        title: 'Detail Tugas',
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: state.maybeWhen(
         loading: () => _buildSkeleton(),
         loaded: (assignment) => Column(
@@ -64,11 +75,11 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
               ),
             ),
             Gap.h24,
-            
+
             // Status Submission
             Text('Pengumpulan Tugas', style: BaseTypography.titleMedium.toBold),
             Gap.h12,
-            if (assignment.submission != null) 
+            if (assignment.submission != null)
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -81,8 +92,10 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                     const Icon(Icons.check_circle, color: Colors.green),
                     Gap.w8,
                     Expanded(
-                        child: Text(
-                            'Sudah dikumpulkan pada ${assignment.submission!.submittedAt}')),
+                      child: Text(
+                        'Sudah dikumpulkan pada ${assignment.submission!.submittedAt}',
+                      ),
+                    ),
                   ],
                 ),
               )
@@ -96,14 +109,20 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-               const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
-               Gap.h16,
-               const Text("Berhasil Dikirim!"),
-               Gap.h16,
-               ButtonWidget.primary(
-                 text: "Kembali", 
-                 onTap: () => ref.read(assignmentControllerProvider.notifier).loadAssignmentDetail(widget.assignmentId)
-               )
+              const Icon(
+                Icons.check_circle_outline,
+                size: 64,
+                color: Colors.green,
+              ),
+              Gap.h16,
+              const Text("Berhasil Dikirim!"),
+              Gap.h16,
+              ButtonWidget.primary(
+                text: "Kembali",
+                onTap: () => ref
+                    .read(assignmentControllerProvider.notifier)
+                    .loadAssignmentDetail(widget.assignmentId),
+              ),
             ],
           ),
         ),
@@ -131,11 +150,15 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
         ButtonWidget.primary(
           text: 'Kirim Tugas',
           onTap: () {
-            ref.read(assignmentControllerProvider.notifier).submitAssignment(
-              assignmentId: int.parse(id), // Pastikan tipe data sesuai (int/string)
-              fileUrl: _urlController.text,
-              textContent: _textController.text,
-            );
+            ref
+                .read(assignmentControllerProvider.notifier)
+                .submitAssignment(
+                  assignmentId: int.parse(
+                    id,
+                  ), // Pastikan tipe data sesuai (int/string)
+                  fileUrl: _urlController.text,
+                  textContent: _textController.text,
+                );
           },
         ),
       ],

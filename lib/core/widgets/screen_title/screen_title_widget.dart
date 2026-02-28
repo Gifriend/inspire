@@ -52,6 +52,9 @@ class ScreenTitleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconSize = BaseSize.w24;
+    final hasLeadIcon = leadIcon != null;
+    final hasTrailIcon = trailIcon != null;
+
     if (leadIcon == null && trailIcon == null) {
       return Text(
         title,
@@ -63,36 +66,43 @@ class ScreenTitleWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        buildIcon(
-          icon: leadIcon ?? Assets.icons.line.times,
-          iconColor: leadIconColor ?? Colors.transparent,
-          iconSize: iconSize,
-          onPressedIcon: leadIcon != null ? onPressedLeadIcon! : null,
-        ),
-        Gap.w24,
+        if (hasLeadIcon) ...[
+          buildIcon(
+            icon: leadIcon!,
+            iconColor: leadIconColor ?? Colors.transparent,
+            iconSize: iconSize,
+            onPressedIcon: onPressedLeadIcon,
+          ),
+          Gap.w24,
+        ],
         Expanded(
           child: Column(
+            crossAxisAlignment:
+                hasLeadIcon ? CrossAxisAlignment.center : CrossAxisAlignment.start,
             children: [
               Text(
                 title,
                 style: BaseTypography.headlineSmall,
+                textAlign: hasLeadIcon ? TextAlign.center : TextAlign.start,
               ),
               if (subTitle != null)
                 Text(
                   subTitle!,
-                  textAlign: TextAlign.center,
+                  textAlign: hasLeadIcon ? TextAlign.center : TextAlign.start,
                   style: BaseTypography.titleMedium,
                 ),
             ],
           ),
         ),
-        Gap.w24,
-        buildIcon(
-          icon: trailIcon ?? Assets.icons.line.times,
-          iconColor: trailIconColor ?? Colors.transparent,
-          iconSize: iconSize,
-          onPressedIcon: trailIcon != null ? onPressedTrailIcon! : null,
-        ),
+        if (hasTrailIcon) ...[
+          Gap.w24,
+          buildIcon(
+            icon: trailIcon!,
+            iconColor: trailIconColor ?? Colors.transparent,
+            iconSize: iconSize,
+            onPressedIcon: onPressedTrailIcon,
+          ),
+        ],
       ],
     );
   }

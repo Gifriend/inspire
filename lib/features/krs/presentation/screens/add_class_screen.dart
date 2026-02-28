@@ -352,7 +352,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
             children: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Batal'),
+                child: Text('Batal', style: BaseTypography.bodyMedium.toRed500),
               ),
               const SizedBox(width: 8),
               TextButton(
@@ -368,7 +368,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
                         );
                       });
                 },
-                child: const Text('Tambah'),
+                child: Text('Tambah', style: BaseTypography.bodyMedium.toGreen500),
               ),
             ],
           ),

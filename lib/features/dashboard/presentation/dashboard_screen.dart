@@ -531,12 +531,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             children: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Batal'),
+                child: Text('Batal', style: BaseTypography.bodyMedium.toGrey),
               ),
               const SizedBox(width: 8),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text('Logout', style: TextStyle(color: BaseColor.red)),
+                child: Text('Logout', style: BaseTypography.bodyMedium.toRed500),
               ),
             ],
           ),

@@ -18,6 +18,7 @@ Future<T?> showDialogCustomWidget<T>({
     isScrollControlled: scrollControlled,
     isDismissible: dismissible,
     enableDrag: dragAble,
+    backgroundColor: BaseColor.white,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(BaseSize.customRadius(BaseSize.radiusMd)),

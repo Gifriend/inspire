@@ -82,7 +82,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   leadIcon != null
                       ? buildIcon(
                           icon: leadIcon!,
-                          iconColor: leadIconColor ?? Colors.black,
+                          iconColor: leadIconColor ?? BaseColor.white,
                           onPressedIcon: onPressedLeadIcon ?? () {},
                         )
                       : (trailIcon != null
