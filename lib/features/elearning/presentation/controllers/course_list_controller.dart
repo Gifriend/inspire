@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/elearning/domain/services/elearning_service.dart';
 import 'package:inspire/features/elearning/presentation/states/course_list_state.dart';
 
 final courseListControllerProvider =
     StateNotifierProvider.autoDispose<CourseListController, CourseListState>(
   (ref) {
+    keepAliveFor(ref, const Duration(minutes: 10));
     return CourseListController(
       ref.watch(elearningServiceProvider),
     );

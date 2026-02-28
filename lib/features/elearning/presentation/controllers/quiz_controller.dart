@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/models/elearning/quiz_model.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/elearning/domain/services/elearning_service.dart';
 import 'package:inspire/features/elearning/presentation/states/quiz_state.dart';
 
 final quizControllerProvider =
     StateNotifierProvider.autoDispose<QuizController, QuizState>((ref) {
+      keepAliveFor(ref, const Duration(minutes: 10));
       return QuizController(ref.watch(elearningServiceProvider));
     });
 

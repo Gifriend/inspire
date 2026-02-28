@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/elearning/domain/services/elearning_service.dart';
 import 'package:inspire/features/elearning/presentation/states/assignment_state.dart';
 
@@ -6,6 +7,7 @@ final assignmentControllerProvider =
     StateNotifierProvider.autoDispose<AssignmentController, AssignmentState>((
       ref,
     ) {
+      keepAliveFor(ref, const Duration(minutes: 10));
       return AssignmentController(ref.watch(elearningServiceProvider));
     });
 

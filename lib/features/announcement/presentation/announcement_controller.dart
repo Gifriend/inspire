@@ -1,11 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/models/announcement/announcement_model.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/announcement/domain/services/announcement_service.dart';
 import 'package:inspire/features/announcement/presentation/announcement_state.dart';
 
 final announcementControllerProvider =
     StateNotifierProvider.autoDispose<AnnouncementController, AnnouncementState>(
-  (ref) => AnnouncementController(ref),
+  (ref) {
+    keepAliveFor(ref, const Duration(minutes: 10));
+    return AnnouncementController(ref);
+  },
 );
 
 class AnnouncementController extends StateNotifier<AnnouncementState> {
@@ -37,7 +41,10 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
 
 final announcementDetailControllerProvider = StateNotifierProvider.autoDispose
     .family<AnnouncementDetailController, AnnouncementDetailState, int>(
-  (ref, id) => AnnouncementDetailController(ref, id),
+  (ref, id) {
+    keepAliveFor(ref, const Duration(minutes: 10));
+    return AnnouncementDetailController(ref, id);
+  },
 );
 
 class AnnouncementDetailController extends StateNotifier<AnnouncementDetailState> {

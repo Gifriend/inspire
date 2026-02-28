@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/krs/data/repositories/krs_repository.dart';
 import 'package:inspire/features/krs/domain/services/krs_service.dart';
 import 'package:inspire/features/krs/presentation/states/krs_state.dart';
@@ -20,6 +21,7 @@ final krsServiceProvider = Provider<KrsService>((ref) {
 final krsControllerProvider =
     StateNotifierProvider.autoDispose.family<KrsController, KrsState, String>(
   (ref, semester) {
+    keepAliveFor(ref, const Duration(minutes: 10));
     final service = ref.watch(krsServiceProvider);
     return KrsController(service, semester);
   },
@@ -86,6 +88,7 @@ class KrsController extends StateNotifier<KrsState> {
 final availableClassesControllerProvider = StateNotifierProvider.autoDispose
     .family<AvailableClassesController, AvailableClassesState, String>(
   (ref, semester) {
+    keepAliveFor(ref, const Duration(minutes: 10));
     final service = ref.watch(krsServiceProvider);
     return AvailableClassesController(service, semester);
   },

@@ -356,17 +356,19 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
               ),
               const SizedBox(width: 8),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
-                  ref
+
+                  await ref
                       .read(krsControllerProvider(widget.semester).notifier)
-                      .addClass(kelas.id)
-                      .then((_) {
-                        showSuccessAlertDialogWidget(
-                          context,
-                          title: 'Berhasil menambahkan mata kuliah',
-                        );
-                      });
+                      .addClass(kelas.id);
+
+                  if (!mounted) return;
+
+                  showSuccessAlertDialogWidget(
+                    context,
+                    title: 'Berhasil menambahkan mata kuliah',
+                  );
                 },
                 child: Text('Tambah', style: BaseTypography.bodyMedium.toGreen500),
               ),

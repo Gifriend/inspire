@@ -1,11 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/models/announcement/announcement_model.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/announcement/domain/services/announcement_service.dart';
 import 'announcement_koorprodi_state.dart';
 
 final announcementKoorprodiControllerProvider =
     StateNotifierProvider.autoDispose<AnnouncementKoorprodiController, AnnouncementKoorprodiState>(
-  (ref) => AnnouncementKoorprodiController(ref),
+  (ref) {
+    keepAliveFor(ref, const Duration(minutes: 10));
+    return AnnouncementKoorprodiController(ref);
+  },
 );
 
 class AnnouncementKoorprodiController extends StateNotifier<AnnouncementKoorprodiState> {

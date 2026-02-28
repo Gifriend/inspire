@@ -22,7 +22,17 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(courseListControllerProvider.notifier).loadCourses();
+      final currentState = ref.read(courseListControllerProvider);
+
+      final shouldLoad = currentState.maybeWhen(
+        initial: () => true,
+        error: (_) => true,
+        orElse: () => false,
+      );
+
+      if (shouldLoad) {
+        ref.read(courseListControllerProvider.notifier).loadCourses();
+      }
     });
   }
 

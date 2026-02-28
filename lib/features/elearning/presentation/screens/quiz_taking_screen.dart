@@ -30,34 +30,34 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
 
     if (widget.quiz.attempts.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (mounted) {
-          await showDialogCustomWidget<void>(
-            context: context,
-            dismissible: false,
-            dragAble: false,
-            title: 'Quiz Sudah Dikerjakan',
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Anda telah mengerjakan quiz ini.'),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-          if (mounted) {
-            context.pop(); // Navigate back
-          }
-        }
+        if (!mounted) return;
+
+        await showDialogCustomWidget<void>(
+          context: context,
+          dismissible: false,
+          dragAble: false,
+          title: 'Quiz Sudah Dikerjakan',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Anda telah mengerjakan quiz ini.'),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+
+        if (!mounted) return;
+        context.pop();
       });
       return;
     }
@@ -173,31 +173,35 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
       ),
     );
 
-    if (shouldSubmit == true && mounted) {
+    if (shouldSubmit == true) {
+      if (!mounted) return;
+
       await ref.read(quizControllerProvider.notifier).submitQuiz(payload);
 
-      if (mounted) {
-        final state = ref.read(quizControllerProvider);
-        final isError = state.maybeWhen(
-          error: (_) => true,
-          orElse: () => false,
+      if (!mounted) return;
+
+      final state = ref.read(quizControllerProvider);
+      final isError = state.maybeWhen(
+        error: (_) => true,
+        orElse: () => false,
+      );
+
+      if (!isError) {
+        await ref
+            .read(quizControllerProvider.notifier)
+            .loadQuizDetail(widget.quiz.id);
+
+        if (!mounted) return;
+      }
+
+      context.pop();
+      if (isError) {
+        showErrorAlertDialogWidget(context, title: 'Gagal mengirim jawaban');
+      } else {
+        showSuccessAlertDialogWidget(
+          context,
+          title: 'Jawaban berhasil dikirim',
         );
-
-        if (!isError) {
-          await ref
-              .read(quizControllerProvider.notifier)
-              .loadQuizDetail(widget.quiz.id);
-        }
-
-        context.pop();
-        if (isError) {
-          showErrorAlertDialogWidget(context, title: 'Gagal mengirim jawaban');
-        } else {
-          showSuccessAlertDialogWidget(
-            context,
-            title: 'Jawaban berhasil dikirim',
-          );
-        }
       }
     }
   }
@@ -273,7 +277,8 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
           ),
         );
 
-        if (shouldExit == true && mounted) {
+        if (shouldExit == true) {
+          if (!context.mounted) return;
           context.pop();
         }
       },

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/models/announcement/announcement_model.dart';
+import 'package:inspire/core/utils/riverpod_keep_alive.dart';
 import 'package:inspire/features/announcement/domain/services/announcement_service.dart';
 import 'announcement_lecturer_state.dart';
 
@@ -7,7 +8,10 @@ final announcementLecturerControllerProvider =
     StateNotifierProvider.autoDispose<
       AnnouncementLecturerController,
       AnnouncementLecturerState
-    >((ref) => AnnouncementLecturerController(ref));
+    >((ref) {
+      keepAliveFor(ref, const Duration(minutes: 10));
+      return AnnouncementLecturerController(ref);
+    });
 
 class AnnouncementLecturerController
     extends StateNotifier<AnnouncementLecturerState> {
