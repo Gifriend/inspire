@@ -2,12 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../../../core/assets/assets.dart';
 
 class KhsDetailScreen extends ConsumerStatefulWidget {
   final String semester;
@@ -35,11 +38,14 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
+      appBar: AppBarWidget(
+        title: 'Kartu Hasil Studi',
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Gap.h16,
-          ScreenTitleWidget.titleOnly(title: 'Kartu Hasil Studi'),
           Gap.h12,
           _buildSemesterInfo(),
           Gap.h20,

@@ -82,7 +82,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                   ),
                 )
               : IconButton(
-                  icon: const Icon(Icons.download),
+                  icon: Icon(Icons.download, color: BaseColor.white),
                   onPressed: transcriptState.maybeWhen(
                     loaded: (_) => _handleDownloadPdf,
                     orElse: () => null,

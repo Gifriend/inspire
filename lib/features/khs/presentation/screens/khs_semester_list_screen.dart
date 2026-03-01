@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/utils/utils.dart';
@@ -84,12 +86,15 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
         : null;
 
     return ScaffoldWidget(
+      appBar: AppBarWidget(
+        title: "Kartu Hasil Studi",
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Gap.h16,
-            ScreenTitleWidget.titleOnly(title: 'KHS'),
             Gap.h12,
             _buildInfoCard(),
             Gap.h20,
@@ -106,7 +111,8 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
               initial: () => const SizedBox.shrink(),
               loading: () => Center(
                 child: CircularProgressIndicator(
-                    color: BaseColor.primaryInspire),
+                  color: BaseColor.primaryInspire,
+                ),
               ),
               loaded: (semesters) => _buildDropdown(semesters),
               error: (message) => _buildSemesterError(message),
@@ -121,11 +127,9 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: BaseColor.primaryInspire,
                   foregroundColor: Colors.white,
-                  padding:
-                      EdgeInsets.symmetric(vertical: BaseSize.h12),
+                  padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(BaseSize.radiusMd),
+                    borderRadius: BorderRadius.circular(BaseSize.radiusMd),
                   ),
                 ),
                 child: const Text(
@@ -144,7 +148,8 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: BaseSize.h32),
                     child: CircularProgressIndicator(
-                        color: BaseColor.primaryInspire),
+                      color: BaseColor.primaryInspire,
+                    ),
                   ),
                 ),
                 loaded: (khs) => _buildKhsResult(khs),
@@ -209,7 +214,10 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
   Widget _buildSemesterError(String message) {
     return Column(
       children: [
-        Text('Gagal memuat semester', style: BaseTypography.bodyMedium.toRed500),
+        Text(
+          'Gagal memuat semester',
+          style: BaseTypography.bodyMedium.toRed500,
+        ),
         Gap.h8,
         TextButton(
           onPressed: () =>
@@ -260,7 +268,9 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : const Icon(Icons.print),
             label: Text(_isDownloading ? 'Mengunduh...' : 'Cetak KHS (PDF)'),
@@ -310,11 +320,9 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
               children: [
                 SizedBox(
                   width: 130,
-                  child: Text(e.key,
-                      style: BaseTypography.bodySmall.toGrey),
+                  child: Text(e.key, style: BaseTypography.bodySmall.toGrey),
                 ),
-                Text(': ',
-                    style: BaseTypography.bodySmall.toGrey),
+                Text(': ', style: BaseTypography.bodySmall.toGrey),
                 Expanded(
                   child: Text(
                     e.value,
@@ -350,7 +358,7 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
           columnWidths: const {
             0: FixedColumnWidth(30), // No
             1: FixedColumnWidth(72), // Kode
-            2: FlexColumnWidth(),    // Nama MK
+            2: FlexColumnWidth(), // Nama MK
             3: FixedColumnWidth(38), // SKS
             4: FixedColumnWidth(40), // Nilai
             5: FixedColumnWidth(44), // Angka
@@ -360,8 +368,7 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
           children: [
             // Header row
             TableRow(
-              decoration:
-                  BoxDecoration(color: BaseColor.primaryInspire),
+              decoration: BoxDecoration(color: BaseColor.primaryInspire),
               children: [
                 _tableCell('No', headerStyle, TextAlign.center),
                 _tableCell('Kode', headerStyle, TextAlign.center),
@@ -376,8 +383,9 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
             ...nilaiList.asMap().entries.map((entry) {
               final idx = entry.key;
               final n = entry.value;
-              final rowColor =
-                  idx.isOdd ? const Color(0xFFF7F7F7) : Colors.white;
+              final rowColor = idx.isOdd
+                  ? const Color(0xFFF7F7F7)
+                  : Colors.white;
               final gradeColor = _gradeColor(n.nilaiHuruf);
               return TableRow(
                 decoration: BoxDecoration(color: rowColor),
@@ -387,8 +395,16 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
                   _tableCell(n.namaMk, cellStyle, TextAlign.left),
                   _tableCell('${n.sks}', cellStyle, TextAlign.center),
                   _tableCellGrade(n.nilaiHuruf, gradeColor),
-                  _tableCell(n.indeks.toStringAsFixed(2), cellStyle, TextAlign.center),
-                  _tableCell(n.nilaiSks.toStringAsFixed(2), cellStyle, TextAlign.right),
+                  _tableCell(
+                    n.indeks.toStringAsFixed(2),
+                    cellStyle,
+                    TextAlign.center,
+                  ),
+                  _tableCell(
+                    n.nilaiSks.toStringAsFixed(2),
+                    cellStyle,
+                    TextAlign.right,
+                  ),
                 ],
               );
             }),
@@ -490,14 +506,10 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
   Widget _buildStatRow(String label, String value) {
     return Row(
       children: [
-        Expanded(
-          child: Text(label, style: BaseTypography.bodySmall),
-        ),
+        Expanded(child: Text(label, style: BaseTypography.bodySmall)),
         Text(
           ': $value',
-          style: BaseTypography.bodySmall.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: BaseTypography.bodySmall.copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -511,7 +523,11 @@ class _KhsSemesterListScreenState extends ConsumerState<KhsSemesterListScreen> {
           Gap.h8,
           Text('Gagal memuat KHS', style: BaseTypography.bodyLarge),
           Gap.h4,
-          Text(message, style: BaseTypography.bodySmall.toGrey, textAlign: TextAlign.center),
+          Text(
+            message,
+            style: BaseTypography.bodySmall.toGrey,
+            textAlign: TextAlign.center,
+          ),
           Gap.h12,
           ElevatedButton(
             onPressed: () {
