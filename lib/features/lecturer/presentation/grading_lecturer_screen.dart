@@ -119,7 +119,7 @@ class _GradingLecturerScreenState
                       vertical: BaseSize.customWidth(8),
                     ),
                     itemCount: data.mahasiswa.length,
-                    separatorBuilder: (_, __) => Gap.h12,
+                    separatorBuilder: (_, _) => Gap.h12,
                     itemBuilder: (context, index) {
                       final mhs = data.mahasiswa[index];
                       return _StudentGradeCard(

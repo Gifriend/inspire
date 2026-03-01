@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/models.dart' hide MaterialType;
-import 'package:inspire/core/utils/extensions/text_style_extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:go_router/go_router.dart';
@@ -342,8 +341,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           Gap.h8,
           Align(
             alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: () {
+            child: ButtonWidget.outlined(
+              buttonSize: ButtonSize.small,
+              onTap: () {
                 ref
                     .read(elearningLecturerControllerProvider.notifier)
                     .toggleVisibility(
@@ -352,10 +352,11 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                       isHidden: !material.isHidden,
                     );
               },
-              icon: Icon(
-                material.isHidden ? Icons.visibility : Icons.visibility_off,
-              ),
-              label: Text(material.isHidden ? 'Tampilkan' : 'Sembunyikan'),
+              icon: material.isHidden
+                  ? Assets.icons.fill.eyeOff.svg(width: BaseSize.customHeight(10.0), height: BaseSize.customHeight(10.0))
+                  : Assets.icons.fill.eyeOn.svg(width: BaseSize.customHeight(10.0), height: BaseSize.customHeight(10.0)),
+              text: material.isHidden ? 'Tampilkan' : 'Sembunyikan',
+              isShrink: true,
             ),
           ),
         ],
@@ -400,8 +401,8 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     final session = item.session;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: BaseSize.customHeight(12.0)),
+      padding: EdgeInsets.symmetric(horizontal: BaseSize.customHeight(8.0), vertical: BaseSize.customWidth(8.0)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -423,6 +424,8 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               Expanded(
                 child: Text(
                   assignment.title,
+                  maxLines: 2, // ← tambahan
+                  overflow: TextOverflow.ellipsis, // ← tambahan
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -434,6 +437,8 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           Gap.h8,
           Text(
             'Minggu ${session.weekNumber}: ${session.title}',
+            maxLines: 1, // ← tambahan
+            overflow: TextOverflow.ellipsis, // ← tambahan
             style: TextStyle(
               fontSize: 12,
               color: BaseColor.primaryText.withValues(alpha: 0.6),
@@ -463,8 +468,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              OutlinedButton.icon(
-                onPressed: () {
+              ButtonWidget.outlined(
+                buttonSize: ButtonSize.small,
+                onTap: () {
                   ref
                       .read(elearningLecturerControllerProvider.notifier)
                       .toggleVisibility(
@@ -473,14 +479,22 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                         isHidden: !assignment.isHidden,
                       );
                 },
-                icon: Icon(
-                  assignment.isHidden ? Icons.visibility : Icons.visibility_off,
-                ),
-                label: Text(assignment.isHidden ? 'Tampilkan' : 'Sembunyikan'),
+                icon: assignment.isHidden
+                    ? Assets.icons.fill.eyeOff.svg(
+                        width: BaseSize.customWidth(10.0),
+                        height: BaseSize.customHeight(10.0),
+                      )
+                    : Assets.icons.fill.eyeOn.svg(
+                        width: BaseSize.customWidth(10.0),
+                        height: BaseSize.customHeight(10.0),
+                      ),
+                text: assignment.isHidden ? 'Tampilkan' : 'Sembunyikan',
+                isShrink: true,
               ),
               Gap.w8,
-              OutlinedButton.icon(
-                onPressed: () {
+              ButtonWidget.outlined(
+                buttonSize: ButtonSize.small,
+                onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => GradingScreen(
@@ -490,12 +504,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     ),
                   );
                 },
-                icon: Icon(Icons.grade),
-                label: Text(
-                  'Nilai Tugas',
-                  style: BaseTypography.bodyMedium.singleLine,
-                  maxLines: 1,
+                icon: Assets.icons.fill.star.svg(
+                  height: BaseSize.customHeight(10.0),
+                  width: BaseSize.customWidth(10.0),
                 ),
+                text: 'Nilai Tugas',
+                isShrink: true,
               ),
             ],
           ),
@@ -620,8 +634,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              OutlinedButton.icon(
-                onPressed: () {
+              ButtonWidget.outlined(
+                buttonSize: ButtonSize.small,
+                onTap: () {
                   ref
                       .read(elearningLecturerControllerProvider.notifier)
                       .toggleVisibility(
@@ -630,14 +645,16 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                         isHidden: !quiz.isHidden,
                       );
                 },
-                icon: Icon(
-                  quiz.isHidden ? Icons.visibility : Icons.visibility_off,
-                ),
-                label: Text(quiz.isHidden ? 'Tampilkan' : 'Sembunyikan'),
+                icon: quiz.isHidden
+                    ? Assets.icons.fill.eyeOff.svg(width: BaseSize.customHeight(10.0), height: BaseSize.customHeight(10.0))
+                    : Assets.icons.fill.eyeOn.svg(width: BaseSize.customHeight(10.0), height: BaseSize.customHeight(10.0)),
+                text: quiz.isHidden ? 'Tampilkan' : 'Sembunyikan',
+                isShrink: true,
               ),
               const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: () {
+              ButtonWidget.outlined(
+                buttonSize: ButtonSize.small,
+                onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => QuizAttemptsScreen(
@@ -647,8 +664,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     ),
                   );
                 },
-                icon: const Icon(Icons.bar_chart),
-                label: const Text('Lihat Nilai Quiz'),
+                icon: Assets.icons.fill.checkBadge.svg(),
+                text: 'Lihat Nilai Quiz',
+                isShrink: true,
               ),
             ],
           ),

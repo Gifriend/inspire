@@ -125,7 +125,7 @@ class _MyClassesLecturerScreenState
       child: ListView.separated(
         padding: EdgeInsets.all(BaseSize.customWidth(16)),
         itemCount: kelasList.length,
-        separatorBuilder: (_, __) => Gap.h12,
+        separatorBuilder: (_, _) => Gap.h12,
         itemBuilder: (context, index) {
           final kelas = kelasList[index];
           return _KelasCard(

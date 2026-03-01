@@ -17,6 +17,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     this.trailIcon,
     this.trailIconColor,
     this.onPressedTrailIcon,
+    this.actions,
     this.backgorundColor,
   });
 
@@ -31,6 +32,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final SvgGenImage? trailIcon;
   final Color? trailIconColor;
   final VoidCallback? onPressedTrailIcon;
+  final List<Widget>? actions;
   final Color? backgorundColor;
 
   @override
@@ -111,22 +113,33 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                       ],
                     ),
                   ),
-                  trailIcon != null
-                      ? buildIcon(
-                          icon: trailIcon!,
-                          iconColor: trailIconColor ?? Colors.black,
-                          onPressedIcon: onPressedTrailIcon ?? () {},
+                  // If `actions` provided, render them; otherwise fallback to single `trailIcon`
+                  actions != null && actions!.isNotEmpty
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: actions!
+                              .map((w) => Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: w,
+                                  ))
+                              .toList(),
                         )
-                      : (leadIcon != null
-                            ? Opacity(
-                                opacity: 0.0,
-                                child: buildIcon(
-                                  icon: leadIcon!,
-                                  iconColor: Colors.transparent,
-                                  onPressedIcon: null,
-                                ),
-                              )
-                            : const SizedBox()),
+                      : (trailIcon != null
+                          ? buildIcon(
+                              icon: trailIcon!,
+                              iconColor: trailIconColor ?? Colors.black,
+                              onPressedIcon: onPressedTrailIcon ?? () {},
+                            )
+                          : (leadIcon != null
+                              ? Opacity(
+                                  opacity: 0.0,
+                                  child: buildIcon(
+                                    icon: leadIcon!,
+                                    iconColor: Colors.transparent,
+                                    onPressedIcon: null,
+                                  ),
+                                )
+                              : const SizedBox())),
                 ],
               ),
             ),

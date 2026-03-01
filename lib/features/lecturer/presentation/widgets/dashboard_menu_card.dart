@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/utils/extensions/text_style_extension.dart';
 
 class DashboardMenuCard extends StatelessWidget {
   final String title;
@@ -84,19 +85,12 @@ class DashboardMenuCard extends StatelessWidget {
               Gap.h16,
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: BaseColor.primaryText,
-                ),
+                style: BaseTypography.titleMedium.toBold
               ),
               Gap.h4,
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: BaseColor.primaryText.withValues(alpha: 0.6),
-                ),
+                style:BaseTypography.bodyMedium,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

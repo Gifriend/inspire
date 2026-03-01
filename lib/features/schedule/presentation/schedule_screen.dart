@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/holiday/holiday_model.dart';
 import 'package:inspire/core/models/schedule/schedule_model.dart';
-import 'package:inspire/features/schedule/data/repositories/holiday_repository.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -113,19 +114,20 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
     return ScaffoldWidget(
       disableSingleChildScrollView: true,
-      appBar: AppBar(
-        title: const Text('Jadwal Kuliah'),
-        backgroundColor: BaseColor.primaryInspire,
-        foregroundColor: BaseColor.white,
+      appBar: AppBarWidget(
+        title: 'Jadwal Kuliah',
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
         actions: [
           IconButton(
-            icon: const Icon(Icons.today),
+            icon: const Icon(Icons.today, color: BaseColor.white),
             onPressed: _goToToday,
             tooltip: 'Hari Ini',
           ),
+          // show Google Calendar action only when schedule is loaded
           scheduleState.maybeWhen(
             loaded: (schedule) => IconButton(
-              icon: const Icon(Icons.calendar_month),
+              icon: Icon(Icons.calendar_month, color: BaseColor.white,),
               onPressed: () => _showGoogleCalendarOptions(schedule.icalUrl),
               tooltip: 'Google Calendar',
             ),
