@@ -81,7 +81,7 @@ class DashboardMenuCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
+              Gap.h16,
               Text(
                 title,
                 style: const TextStyle(
@@ -90,7 +90,7 @@ class DashboardMenuCard extends StatelessWidget {
                   color: BaseColor.primaryText,
                 ),
               ),
-              const SizedBox(height: 4),
+              Gap.h4,
               Text(
                 subtitle,
                 style: TextStyle(

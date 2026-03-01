@@ -62,7 +62,7 @@ class _ElearningLecturerScreenState
                       color: BaseColor.primaryText,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  Gap.h8,
                   Text(
                     'NIP: ${user.nip ?? "-"}',
                     style: TextStyle(
@@ -70,7 +70,7 @@ class _ElearningLecturerScreenState
                       color: BaseColor.primaryText.withValues(alpha: 0.7),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  Gap.h24,
                 ],
               ),
               orElse: () => const SizedBox.shrink(),
@@ -85,7 +85,7 @@ class _ElearningLecturerScreenState
                 color: BaseColor.primaryText,
               ),
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
 
             // Course List
             _buildContent(state),
@@ -111,13 +111,13 @@ class _ElearningLecturerScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            Gap.h16,
             Text(
               state.message,
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.red),
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             ElevatedButton(
               onPressed: () {
                 ref
@@ -133,14 +133,14 @@ class _ElearningLecturerScreenState
 
     if (state is CourseListLoaded) {
       if (state.courses.isEmpty) {
-        return const Center(
+        return Center(
           child: Padding(
             padding: EdgeInsets.all(32.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.school_outlined, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
+                Gap.h16,
                 Text(
                   'Anda belum mengampu kelas',
                   style: TextStyle(color: Colors.grey),
@@ -241,7 +241,7 @@ class _CourseCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    Gap.h8,
                     // Course name
                     Expanded(
                       child: Text(
@@ -255,7 +255,7 @@ class _CourseCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    Gap.h8,
                     // Class info
                     Row(
                       children: [
@@ -270,7 +270,7 @@ class _CourseCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    Gap.h4,
                     if (course.ruangan != null)
                       Row(
                         children: [

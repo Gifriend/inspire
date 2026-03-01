@@ -71,13 +71,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(),
-            SizedBox(height: 16),
+            Gap.h16,
             Text('Memuat profil...'),
           ],
         ),
@@ -92,9 +92,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            Gap.h16,
             Text('Error: $message'),
-            const SizedBox(height: 16),
+            Gap.h16,
             ElevatedButton(
               onPressed: () {
                 ref.read(profileControllerProvider.notifier).loadProfile();

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../constants/constants.dart';
+
 class SkeletonLoading extends StatefulWidget {
   final double width;
   final double height;
@@ -72,9 +74,9 @@ class CourseContentSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SkeletonLoading(height: 24, width: 150), // Session Title
-            const SizedBox(height: 8),
+            Gap.h8,
             const SkeletonLoading(height: 16, width: double.infinity), // Desc
-            const SizedBox(height: 12),
+            Gap.h12,
             Row(
               children: const [
                 SkeletonLoading(height: 60, width: 60), // Icon box

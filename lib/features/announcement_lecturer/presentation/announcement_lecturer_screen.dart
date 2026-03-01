@@ -95,13 +95,13 @@ class _AnnouncementLecturerScreenState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.error_outline, color: Colors.red, size: 54),
-                const SizedBox(height: 12),
+                Gap.h12,
                 Text(
                   message,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.red),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 ElevatedButton(
                   onPressed: () {
                     ref
@@ -132,7 +132,7 @@ class _AnnouncementLecturerScreenState
                               size: 64,
                               color: Colors.grey[300],
                             ),
-                            const SizedBox(height: 16),
+                            Gap.h16,
                             Text(
                               'Belum ada pengumuman',
                               style: TextStyle(
@@ -266,7 +266,7 @@ class _AnnouncementLecturerScreenState
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      Gap.h4,
                       if (announcement.kelas != null &&
                           announcement.kelas!.isNotEmpty)
                         Text(
@@ -289,7 +289,7 @@ class _AnnouncementLecturerScreenState
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             Text(
               announcement.isi,
               style: TextStyle(
@@ -300,7 +300,7 @@ class _AnnouncementLecturerScreenState
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -364,7 +364,7 @@ class _AnnouncementLecturerScreenState
                     hintText: 'Masukkan judul pengumuman',
                   ),
                 ),
-                const SizedBox(height: 16),
+                Gap.h16,
                 TextField(
                   controller: contentController,
                   decoration: const InputDecoration(
@@ -374,7 +374,7 @@ class _AnnouncementLecturerScreenState
                   ),
                   maxLines: 5,
                 ),
-                const SizedBox(height: 16),
+                Gap.h16,
                 DropdownWidget<int?>(
                   labelText: 'Riwayat Pengumuman Kelas',
                   hintText: 'Pilih Kelas',
@@ -393,13 +393,13 @@ class _AnnouncementLecturerScreenState
                   },
                 ),
                 if (_lecturerCourses.isEmpty) ...[
-                  const SizedBox(height: 8),
+                  Gap.h8,
                   Text(
                     'Kelas belum tersedia. Silakan muat ulang kelas terlebih dahulu.',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
-                const SizedBox(height: 12),
+                Gap.h12,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -464,7 +464,7 @@ class _AnnouncementLecturerScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Apakah Anda yakin ingin menghapus pengumuman ini?'),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

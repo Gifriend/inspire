@@ -33,7 +33,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.asset(Assets.icons.app.logoInspire.path),
-              const SizedBox(height: 20),
+              Gap.h20,
               splashState.maybeWhen(
                 loading: () => const CircularProgressIndicator(color: Colors.white),
                 error: (message) => Text(

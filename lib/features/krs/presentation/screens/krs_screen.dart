@@ -360,7 +360,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
           Text(
             'Apakah Anda yakin ingin menghapus ${kelas.mataKuliah?.name ?? kelas.nama}?',
           ),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -398,7 +398,7 @@ class _KrsScreenState extends ConsumerState<KrsScreen> {
             'Total ${krs.totalSKS} SKS dengan ${krs.kelasPerkuliahan.length} mata kuliah.\n\n'
             'Setelah diajukan, KRS tidak dapat diubah sampai disetujui/ditolak dosen.',
           ),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

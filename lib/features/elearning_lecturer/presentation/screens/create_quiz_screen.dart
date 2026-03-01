@@ -189,7 +189,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               },
               validator: (value) => value == null ? 'Pilih sesi' : null,
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -199,7 +199,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Judul harus diisi' : null,
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             TextFormField(
               controller: _durationController,
               decoration: const InputDecoration(
@@ -214,7 +214,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             InkWell(
               onTap: () => _pickDateTime(true),
               child: InputDecorator(
@@ -236,7 +236,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             InkWell(
               onTap: () => _pickDateTime(false),
               child: InputDecorator(
@@ -258,7 +258,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             DropdownWidget<String>(
               labelText: 'Metode Penilaian',
               hintText: 'Pilih Metode Penilaian',
@@ -283,7 +283,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 });
               },
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             const Text(
               'Pengaturan',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -306,7 +306,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 });
               },
             ),
-            const SizedBox(height: 24),
+            Gap.h24,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -321,7 +321,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             if (_questions.isEmpty)
               Container(
                 padding: const EdgeInsets.all(32),
@@ -347,7 +347,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                   onDelete: () => _removeQuestion(index),
                 );
               }),
-            const SizedBox(height: 32),
+            Gap.h32,
             SizedBox(
               height: 50,
               child: ElevatedButton(
@@ -361,7 +361,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            Gap.h32,
           ],
         ),
       ),
@@ -494,7 +494,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             DropdownWidget<String>(
               labelText: 'Tipe Soal',
               hintText: 'Pilih Tipe Soal',
@@ -542,7 +542,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                 });
               },
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             TextFormField(
               controller: widget.question.questionController,
               decoration: const InputDecoration(
@@ -552,7 +552,7 @@ class _QuestionCardState extends State<_QuestionCard> {
               ),
               maxLines: 3,
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             if (widget.question.type != 'ESSAY') ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -573,7 +573,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                     ),
                 ],
               ),
-              const SizedBox(height: 8),
+              Gap.h8,
               ...widget.question.optionControllers.asMap().entries.map((entry) {
                 final optionIndex = entry.key;
                 final controller = entry.value;

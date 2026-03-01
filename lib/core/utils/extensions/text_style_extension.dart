@@ -141,4 +141,11 @@ extension XTextStyle on TextStyle {
         color: Colors.transparent,
         decorationColor: BaseColor.black,
       );
+
+  /// [INFO]
+  /// Extension for setting maxLines to 1
+  ///
+  /// Example:
+  /// TypographyTheme.subtitle1.singleLine;
+  TextStyle get singleLine => copyWith(overflow: TextOverflow.ellipsis);
 }

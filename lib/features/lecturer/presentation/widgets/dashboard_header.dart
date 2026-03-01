@@ -68,7 +68,7 @@ class DashboardHeader extends StatelessWidget {
                           fontSize: 14,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      Gap.h4,
                       Text(
                         user.name,
                         style: const TextStyle(
@@ -80,7 +80,7 @@ class DashboardHeader extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (user.nip != null) ...[
-                        const SizedBox(height: 2),
+                        Gap.h4,
                         Text(
                           'NIP: ${user.nip}',
                           style: const TextStyle(
@@ -94,7 +94,7 @@ class DashboardHeader extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(

@@ -53,7 +53,7 @@ class RecentActivityCard extends StatelessWidget {
                     color: BaseColor.primaryText,
                   ),
                 ),
-                const SizedBox(height: 4),
+                Gap.h4,
                 Text(
                   activity.description,
                   style: TextStyle(
@@ -63,7 +63,7 @@ class RecentActivityCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                Gap.h4,
                 Text(
                   Jiffy.parse(activity.timestamp.toString()).fromNow(),
                   style: TextStyle(

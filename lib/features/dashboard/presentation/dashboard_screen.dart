@@ -488,7 +488,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               ),
               child: Center(child: _buildIcon(icon)),
             ),
-            const SizedBox(height: 8),
+            Gap.h8,
             Text(
               label,
               textAlign: TextAlign.center,

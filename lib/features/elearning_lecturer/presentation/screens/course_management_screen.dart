@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/models.dart' hide MaterialType;
+import 'package:inspire/core/utils/extensions/text_style_extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:go_router/go_router.dart';
@@ -192,13 +193,13 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, color: Colors.red, size: 54),
-              const SizedBox(height: 12),
+              Gap.h12,
               Text(
                 state.message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.red),
               ),
-              const SizedBox(height: 12),
+              Gap.h12,
               ElevatedButton(
                 onPressed: () {
                   ref
@@ -256,7 +257,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           icon: const Icon(Icons.add),
           label: const Text('Tambah Materi'),
         ),
-        const SizedBox(height: 16),
+        Gap.h16,
         if (sessions.isEmpty)
           _buildEmpty('Belum ada sesi pembelajaran di kelas ini')
         else if (materialsBySession.isEmpty)
@@ -318,7 +319,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          Gap.h8,
           Text(
             'Minggu ${session.weekNumber}: ${session.title}',
             style: TextStyle(
@@ -327,7 +328,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             ),
           ),
           if ((material.content ?? '').isNotEmpty) ...[
-            const SizedBox(height: 8),
+            Gap.h8,
             Text(
               material.content!,
               maxLines: 2,
@@ -338,7 +339,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               ),
             ),
           ],
-          const SizedBox(height: 10),
+          Gap.h8,
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton.icon(
@@ -383,7 +384,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           icon: const Icon(Icons.add),
           label: const Text('Tambah Tugas'),
         ),
-        const SizedBox(height: 16),
+        Gap.h16,
         if (sessions.isEmpty)
           _buildEmpty('Belum ada sesi pembelajaran di kelas ini')
         else if (assignmentsBySession.isEmpty)
@@ -430,7 +431,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          Gap.h8,
           Text(
             'Minggu ${session.weekNumber}: ${session.title}',
             style: TextStyle(
@@ -438,7 +439,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               color: BaseColor.primaryText.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: 4),
+          Gap.h4,
           Text(
             'Deadline: ${_formatDateTime(assignment.deadline)}',
             style: TextStyle(
@@ -447,7 +448,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             ),
           ),
           if ((assignment.description ?? '').isNotEmpty) ...[
-            const SizedBox(height: 8),
+            Gap.h8,
             Text(
               assignment.description!,
               maxLines: 2,
@@ -458,7 +459,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               ),
             ),
           ],
-          const SizedBox(height: 10),
+          Gap.h8,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -477,7 +478,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 ),
                 label: Text(assignment.isHidden ? 'Tampilkan' : 'Sembunyikan'),
               ),
-              const SizedBox(width: 8),
+              Gap.w8,
               OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -489,8 +490,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     ),
                   );
                 },
-                icon: const Icon(Icons.grade),
-                label: const Text('Nilai Tugas'),
+                icon: Icon(Icons.grade),
+                label: Text(
+                  'Nilai Tugas',
+                  style: BaseTypography.bodyMedium.singleLine,
+                  maxLines: 1,
+                ),
               ),
             ],
           ),
@@ -533,7 +538,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           icon: const Icon(Icons.add),
           label: const Text('Tambah Kuis'),
         ),
-        const SizedBox(height: 16),
+        Gap.h16,
         if (sessions.isEmpty)
           _buildEmpty('Belum ada sesi pembelajaran di kelas ini')
         else if (quizzesBySession.isEmpty)
@@ -568,7 +573,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           Row(
             children: [
               const Icon(Icons.quiz, color: Colors.orange, size: 30),
-              const SizedBox(width: 10),
+              Gap.w8,
               Expanded(
                 child: Text(
                   quiz.title,
@@ -595,7 +600,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          Gap.h8,
           Text(
             'Minggu ${session.weekNumber}: ${session.title}',
             style: TextStyle(
@@ -603,7 +608,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               color: BaseColor.primaryText.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: 4),
+          Gap.h4,
           Text(
             '${quiz.questions.length} soal • ${_formatDateTime(quiz.startTime)} - ${_formatDateTime(quiz.endTime)}',
             style: TextStyle(
@@ -611,7 +616,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               color: BaseColor.primaryText.withValues(alpha: 0.7),
             ),
           ),
-          const SizedBox(height: 10),
+          Gap.h8,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -669,7 +674,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           'Pengaturan Awal E-Learning',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 6),
+        Gap.h6,
         Text(
           'Perkuliahan belum dimulai. Pilih membuat e-learning baru atau gunakan e-learning yang sudah ada sebelum kelas berjalan.',
           style: TextStyle(
@@ -677,7 +682,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             color: BaseColor.primaryText.withValues(alpha: 0.7),
           ),
         ),
-        const SizedBox(height: 10),
+        Gap.h8,
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
@@ -692,7 +697,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        Gap.h12,
         ElevatedButton.icon(
           onPressed: () => _showSetupDialog(loaded),
           icon: const Icon(Icons.settings),
@@ -745,7 +750,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                   'Pilih mode e-learning sebelum perkuliahan berjalan: buat baru otomatis untuk kelas ini, atau gunakan konten dari kelas sebelumnya.',
                   style: TextStyle(fontSize: 12),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 DropdownWidget<ElearningSetupMode>(
                   labelText: 'Mode Setup',
                   hintText: 'Pilih Mode Setup',
@@ -769,7 +774,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                   },
                 ),
                 if (canChooseSource) ...[
-                  const SizedBox(height: 12),
+                  Gap.h12,
                   DropdownWidget<int>(
                     labelText: 'Kelas Sumber',
                     hintText: 'Pilih Kelas Sumber',
@@ -788,7 +793,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                       });
                     },
                   ),
-                  const SizedBox(height: 8),
+                  Gap.h8,
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     value: cloneContentAsHidden,
@@ -805,12 +810,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                   'Gabung E-Learning',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 6),
+                Gap.h6,
                 const Text(
                   'Pilih kelas dengan mata kuliah yang sama untuk digabung ke kelas ini.',
                   style: TextStyle(fontSize: 12),
                 ),
-                const SizedBox(height: 8),
+                Gap.h8,
                 if (sourceCandidates.isEmpty)
                   const Text('Tidak ada kelas lain yang bisa digabungkan')
                 else
@@ -832,7 +837,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                       ),
                     ),
                   ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -967,7 +972,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     });
                   },
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 TextField(
                   controller: titleController,
                   decoration: const InputDecoration(
@@ -975,7 +980,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 DropdownWidget<MaterialType>(
                   labelText: 'Tipe Materi',
                   hintText: 'Pilih Tipe',
@@ -994,7 +999,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                   },
                 ),
                 if (showContent) ...[
-                  const SizedBox(height: 12),
+                  Gap.h12,
                   TextField(
                     controller: contentController,
                     maxLines: 3,
@@ -1005,7 +1010,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                   ),
                 ],
                 if (showFile) ...[
-                  const SizedBox(height: 12),
+                  Gap.h12,
                   TextField(
                     controller: fileUrlController,
                     decoration: const InputDecoration(
@@ -1014,7 +1019,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     ),
                   ),
                 ],
-                const SizedBox(height: 12),
+                Gap.h12,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -1119,7 +1124,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     });
                   },
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 TextField(
                   controller: titleController,
                   decoration: const InputDecoration(
@@ -1127,7 +1132,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 TextField(
                   controller: descriptionController,
                   maxLines: 3,
@@ -1136,7 +1141,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 OutlinedButton.icon(
                   onPressed: () async {
                     final pickedDate = await showDatePicker(
@@ -1176,7 +1181,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                         : _formatDateTime(selectedDeadline!),
                   ),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

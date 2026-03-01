@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 
@@ -49,7 +51,12 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
     final state = ref.watch(elearningLecturerControllerProvider);
 
     return ScaffoldWidget(
-      appBar: AppBarWidget(title: 'Penilaian: ${widget.assignmentTitle}'),
+      disableSingleChildScrollView: true,
+      appBar: AppBarWidget(
+        title: 'Penilaian: ${widget.assignmentTitle}',
+        leadIcon: Assets.icons.fill.arrowBack,
+        onPressedLeadIcon: () => context.pop(),
+      ),
       child: state is ElearningLecturerLoading
           ? const Center(child: CircularProgressIndicator())
           : _buildContent(state),
@@ -63,9 +70,9 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            Gap.h16,
             Text('Error: ${state.message}'),
-            const SizedBox(height: 16),
+            Gap.h16,
             ElevatedButton(
               onPressed: () {
                 ref
@@ -88,7 +95,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
-              const SizedBox(height: 16),
+              Gap.h16,
               const Text('Belum ada submission'),
             ],
           ),
@@ -161,7 +168,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    Gap.h4,
                     Text(
                       'Dikumpul: ${submission.submittedAt.toString().split('.')[0]}',
                       style: TextStyle(
@@ -174,8 +181,10 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
               ),
               if (isGraded)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green[100],
                     borderRadius: BorderRadius.circular(20),
@@ -191,9 +200,9 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          Gap.h12,
           const Divider(height: 1),
-          const SizedBox(height: 12),
+          Gap.h12,
 
           // Submission Content
           Text(
@@ -204,7 +213,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
               color: BaseColor.primaryText.withValues(alpha: 0.7),
             ),
           ),
-          const SizedBox(height: 8),
+          Gap.h8,
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -219,7 +228,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                     submission.textContent ?? '-',
                     style: const TextStyle(fontSize: 12),
                   ),
-                  const SizedBox(height: 8),
+                  Gap.h8,
                 ],
                 if (submission.fileUrl != null) ...[
                   Row(
@@ -245,7 +254,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
           ),
 
           if (submission.feedback != null) ...[
-            const SizedBox(height: 12),
+            Gap.h12,
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -264,7 +273,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                       color: Colors.blue[700],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  Gap.h8,
                   Text(
                     submission.feedback ?? '-',
                     style: const TextStyle(fontSize: 12),
@@ -274,7 +283,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
             ),
           ],
 
-          const SizedBox(height: 12),
+          Gap.h12,
 
           // Grade Form
           if (!isGraded)
@@ -289,7 +298,7 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                     color: BaseColor.primaryText,
                   ),
                 ),
-                const SizedBox(height: 8),
+                Gap.h8,
                 TextField(
                   controller: _gradeController,
                   decoration: InputDecoration(
@@ -298,11 +307,13 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                   ),
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 TextField(
                   controller: _feedbackController,
                   decoration: InputDecoration(
@@ -311,11 +322,13 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                   ),
                   maxLines: 3,
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -345,13 +358,15 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
     final feedback = _feedbackController.text.trim();
 
     if (grade.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nilai tidak boleh kosong')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Nilai tidak boleh kosong')));
       return;
     }
 
-    ref.read(elearningLecturerControllerProvider.notifier).gradeSubmission(
+    ref
+        .read(elearningLecturerControllerProvider.notifier)
+        .gradeSubmission(
           submissionId: submissionId,
           grade: grade,
           feedback: feedback,
@@ -360,9 +375,6 @@ class _GradingScreenState extends ConsumerState<GradingScreen> {
     _gradeController.clear();
     _feedbackController.clear();
 
-    showSuccessAlertDialogWidget(
-      context,
-      title: 'Penilaian berhasil disimpan',
-    );
+    showSuccessAlertDialogWidget(context, title: 'Penilaian berhasil disimpan');
   }
 }

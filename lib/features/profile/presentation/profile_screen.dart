@@ -266,7 +266,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Apakah Anda yakin ingin keluar?'),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

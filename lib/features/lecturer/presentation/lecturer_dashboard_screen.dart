@@ -88,7 +88,7 @@ class _LecturerDashboardScreenState
                 size: 64,
                 color: Colors.red.withValues(alpha: 0.5),
               ),
-              const SizedBox(height: 16),
+              Gap.h16,
               Text(
                 'Error: ${state.message}',
                 textAlign: TextAlign.center,
@@ -96,7 +96,7 @@ class _LecturerDashboardScreenState
                   color: BaseColor.primaryText.withValues(alpha: 0.7),
                 ),
               ),
-              const SizedBox(height: 16),
+              Gap.h16,
               ElevatedButton(
                 onPressed: () {
                   ref
@@ -201,7 +201,7 @@ class _LecturerDashboardScreenState
               ],
             ),
 
-            const SizedBox(height: 24),
+            Gap.h24,
 
             // Recent Activities
             const Text(
@@ -212,7 +212,7 @@ class _LecturerDashboardScreenState
                 color: BaseColor.primaryText,
               ),
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
 
             if (data.recentActivities.isEmpty)
               Container(
@@ -229,7 +229,7 @@ class _LecturerDashboardScreenState
                         size: 48,
                         color: Colors.grey.withValues(alpha: 0.5),
                       ),
-                      const SizedBox(height: 8),
+                      Gap.h8,
                       Text(
                         'Belum ada aktivitas',
                         style: TextStyle(

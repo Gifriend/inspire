@@ -61,7 +61,7 @@ class QuickStatsCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          Gap.h12,
           Text(
             value,
             style: TextStyle(
@@ -70,7 +70,7 @@ class QuickStatsCard extends StatelessWidget {
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          Gap.h4,
           Text(
             title,
             style: TextStyle(

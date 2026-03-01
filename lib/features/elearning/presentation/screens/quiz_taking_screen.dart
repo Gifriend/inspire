@@ -42,7 +42,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('Anda telah mengerjakan quiz ini.'),
-              const SizedBox(height: 12),
+              Gap.h12,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -151,7 +151,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
           Text(
             'Anda telah menjawab ${_answers.length} dari ${widget.quiz.questions.length} soal.\n\nApakah Anda yakin ingin mengirim jawaban?',
           ),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -219,14 +219,14 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
             onPressed: () => context.pop(),
           ),
         ),
-        body: const Center(
+        body: Center(
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.quiz_outlined, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
+                Gap.h16,
                 Text(
                   'Quiz ini belum memiliki soal.',
                   textAlign: TextAlign.center,
@@ -255,7 +255,7 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('Progres Anda akan hilang jika keluar sekarang.'),
-              const SizedBox(height: 12),
+              Gap.h12,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -327,12 +327,12 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
           ],
         ),
         body: quizState.maybeWhen(
-          submitting: () => const Center(
+          submitting: () => Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircularProgressIndicator(),
-                SizedBox(height: 16),
+                Gap.h16,
                 Text('Mengirim jawaban...'),
               ],
             ),
@@ -345,13 +345,13 @@ class _QuizTakingScreenState extends ConsumerState<QuizTakingScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.check_circle, size: 64, color: Colors.green),
-                  SizedBox(height: 16),
+                  Gap.h16,
                   Text(
                     'Jawaban berhasil dikirim!',
                     style: BaseTypography.titleLarge.toBold,
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 16),
+                  Gap.h16,
                   // Optionally display attempt details, e.g., score
                   // Text('Skor: ${attempt.score ?? 'N/A'}'),
                   ElevatedButton(

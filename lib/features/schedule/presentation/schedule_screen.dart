@@ -410,7 +410,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   ),
                 ),
                 if (hasEvents || isHoliday) ...[
-                  const SizedBox(height: 2),
+                  Gap.h4,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

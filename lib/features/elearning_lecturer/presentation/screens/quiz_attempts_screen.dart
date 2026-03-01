@@ -49,9 +49,9 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            Gap.h16,
             Text('Error: ${state.message}'),
-            const SizedBox(height: 16),
+            Gap.h16,
             ElevatedButton(
               onPressed: () {
                 ref
@@ -74,7 +74,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
-              const SizedBox(height: 16),
+              Gap.h16,
               const Text('Belum ada attempt'),
             ],
           ),
@@ -109,7 +109,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                 color: BaseColor.primaryText,
               ),
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             GridView.count(
               crossAxisCount: 3,
               shrinkWrap: true,
@@ -123,7 +123,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                 _buildStatCard('Tertinggi', highestScore.toString(), Colors.orange),
               ],
             ),
-            const SizedBox(height: 24),
+            Gap.h24,
 
             // Attempts List
             Text(
@@ -134,7 +134,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                 color: BaseColor.primaryText,
               ),
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -171,7 +171,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
               color: color,
             ),
           ),
-          const SizedBox(height: 8),
+          Gap.h8,
           Text(
             label,
             style: TextStyle(
@@ -243,7 +243,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    Gap.h4,
                     Text(
                       'Waktu Selesai: ${attempt.finishedAt?.toString().split('.')[0] ?? '-'}',
                       style: TextStyle(
@@ -274,7 +274,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          Gap.h12,
 
           // Progress Bar
           ClipRRect(
@@ -286,7 +286,7 @@ class _QuizAttemptsScreenState extends ConsumerState<QuizAttemptsScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(statusColor),
             ),
           ),
-          const SizedBox(height: 8),
+          Gap.h8,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

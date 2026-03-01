@@ -346,7 +346,7 @@ class _AddClassScreenState extends ConsumerState<AddClassScreen> {
           Text('SKS: ${kelas.mataKuliah?.sks ?? 0}'),
           Text('Kelas: ${kelas.nama}'),
           if (kelas.dosen != null) Text('Dosen: ${kelas.dosen!.name}'),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

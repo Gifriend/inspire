@@ -4,6 +4,8 @@ import 'package:inspire/core/models/announcement/announcement_model.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 
+import '../../../core/constants/constants.dart';
+
 class AnnouncementKoorprodiScreen extends ConsumerStatefulWidget {
   const AnnouncementKoorprodiScreen({super.key});
 
@@ -47,13 +49,13 @@ class _AnnouncementKoorprodiScreenState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.error_outline, color: Colors.red, size: 54),
-                const SizedBox(height: 12),
+                Gap.h12,
                 Text(
                   message,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.red),
                 ),
-                const SizedBox(height: 12),
+                Gap.h12,
                 ElevatedButton(
                   onPressed: () {
                     ref
@@ -77,7 +79,7 @@ class _AnnouncementKoorprodiScreenState
                     size: 64,
                     color: Colors.grey[300],
                   ),
-                  const SizedBox(height: 16),
+                  Gap.h16,
                   Text(
                     'Belum ada pengumuman',
                     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
@@ -193,13 +195,13 @@ class _AnnouncementKoorprodiScreenState
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            Gap.h8,
             if (announcement.dosen != null)
               Text(
                 'Oleh: ${announcement.dosen!.name}',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
-            const SizedBox(height: 12),
+            Gap.h12,
             Text(
               announcement.isi,
               style: TextStyle(
@@ -210,7 +212,7 @@ class _AnnouncementKoorprodiScreenState
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -267,7 +269,7 @@ class _AnnouncementKoorprodiScreenState
                 hintText: 'Masukkan judul pengumuman',
               ),
             ),
-            const SizedBox(height: 16),
+            Gap.h16,
             TextField(
               controller: contentController,
               decoration: const InputDecoration(
@@ -279,7 +281,7 @@ class _AnnouncementKoorprodiScreenState
               ),
               maxLines: 5,
             ),
-            const SizedBox(height: 12),
+            Gap.h12,
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -328,7 +330,7 @@ class _AnnouncementKoorprodiScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Apakah Anda yakin ingin menghapus pengumuman ini?'),
-          const SizedBox(height: 12),
+          Gap.h12,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
