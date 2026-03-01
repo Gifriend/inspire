@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:downloadsfolder/downloadsfolder.dart';
 
 import '../../../../core/assets/assets.dart';
 
@@ -75,11 +78,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.calendar_today,
-            color: BaseColor.primaryInspire,
-            size: 20,
-          ),
+          Icon(Icons.calendar_today, color: BaseColor.primaryInspire, size: 20),
           Gap.w12,
           Text(
             widget.semester,
@@ -139,10 +138,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
       children: [
         SizedBox(
           width: 120,
-          child: Text(
-            label,
-            style: BaseTypography.bodyMedium.toGrey,
-          ),
+          child: Text(label, style: BaseTypography.bodyMedium.toGrey),
         ),
         Text(': ', style: BaseTypography.bodyMedium.toGrey),
         Expanded(
@@ -186,13 +182,12 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
               Expanded(
                 child: _buildStatItem('Total SKS', stat.totalSks.toString()),
               ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white30,
-              ),
+              Container(width: 1, height: 40, color: Colors.white30),
               Expanded(
-                child: _buildStatItem('Total Bobot', stat.totalNilaiSks.toStringAsFixed(2)),
+                child: _buildStatItem(
+                  'Total Bobot',
+                  stat.totalNilaiSks.toStringAsFixed(2),
+                ),
               ),
             ],
           ),
@@ -204,11 +199,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
               Expanded(
                 child: _buildStatItem('IPS', stat.ips.toStringAsFixed(2)),
               ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white30,
-              ),
+              Container(width: 1, height: 40, color: Colors.white30),
               Expanded(
                 child: _buildStatItem('IPK', stat.ipk.toStringAsFixed(2)),
               ),
@@ -224,9 +215,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
       children: [
         Text(
           label,
-          style: BaseTypography.bodySmall.copyWith(
-            color: Colors.white70,
-          ),
+          style: BaseTypography.bodySmall.copyWith(color: Colors.white70),
         ),
         Gap.h4,
         Text(
@@ -321,10 +310,7 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
                       ),
                     ),
                     Gap.h4,
-                    Text(
-                      nilai.kodeMk,
-                      style: BaseTypography.bodySmall.toGrey,
-                    ),
+                    Text(nilai.kodeMk, style: BaseTypography.bodySmall.toGrey),
                   ],
                 ),
               ),
@@ -369,15 +355,10 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
   Widget _buildDetailItem(String label, String value) {
     return Row(
       children: [
-        Text(
-          '$label: ',
-          style: BaseTypography.bodySmall.toGrey,
-        ),
+        Text('$label: ', style: BaseTypography.bodySmall.toGrey),
         Text(
           value,
-          style: BaseTypography.bodySmall.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: BaseTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -415,7 +396,9 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white),
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
             : const Icon(Icons.print),
         label: Text(_isDownloading ? 'Mengunduh...' : 'Cetak KHS (PDF)'),
@@ -437,25 +420,90 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
       final bytes = await ref
           .read(khsControllerProvider(widget.semester).notifier)
           .downloadKhsPdf();
-      if (bytes.isEmpty) throw Exception('File PDF kosong');
-      final dir = await getApplicationDocumentsDirectory();
-      final safe = widget.semester.replaceAll(RegExp(r'[\/\s]'), '_');
-      final file = File('\${dir.path}/KHS_\$safe.pdf');
-      await file.writeAsBytes(bytes);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('PDF disimpan: \${file.path}'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+
+      // Validasi tambahan agar tidak menyimpan file error berupa JSON
+      if (bytes.isEmpty || bytes.length < 500) {
+        throw Exception('File PDF kosong atau data dari server tidak valid.');
       }
+
+      final safe = widget.semester.replaceAll(RegExp(r'[\/\s]'), '_');
+      final filename = 'KHS_$safe.pdf';
+
+      // Try native save on Android first (MediaStore / proper Downloads access)
+      if (Platform.isAndroid) {
+        try {
+          final channel = const MethodChannel('com.gifriend.inspire/file_saver');
+          debugPrint('Calling native save via MethodChannel, bytes length: ${bytes.length}');
+          final base64Str = base64Encode(bytes);
+          debugPrint('Base64 encoded length: ${base64Str.length}');
+
+          final res = await channel.invokeMethod<String>(
+            'saveFileToDownloads',
+            {'base64': base64Str, 'filename': filename},
+          );
+
+          if (res != null && res.isNotEmpty) {
+            debugPrint('Native save returned: $res');
+            final resFile = File(res);
+            if (resFile.existsSync()) {
+              debugPrint('File verified to exist at: $res');
+              if (mounted) {
+                ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+                  SnackBar(
+                    content: Text('✓ KHS berhasil disimpan di: $res'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 4),
+                  ),
+                );
+              }
+              return;
+            } else if (res.startsWith('content://')) {
+              debugPrint('Native returned content URI: $res');
+              if (mounted) {
+                ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+                  const SnackBar(
+                    content: Text('✓ KHS berhasil disimpan ke folder Downloads'),
+                    backgroundColor: Colors.green,
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+              }
+              return;
+            }
+          }
+        } catch (e) {
+          debugPrint('Native save error: $e');
+        }
+      }
+
+      // 1. Dapatkan path folder Download menggunakan downloadsfolder
+      Directory downloadsDirectory = await getDownloadDirectory();
+      // 2. Tentukan lokasi lengkap file
+      final String filePath = '${downloadsDirectory.path}/$filename';
+      final File file = File(filePath);
+
+      // 3. Tulis file langsung ke storage
+      await file.writeAsBytes(bytes);
+
+      if (file.existsSync()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+            SnackBar(
+              content: Text('✓ KHS berhasil disimpan di: $filePath'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
+      }
+
+      throw Exception('Gagal menyimpan file di $filePath');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context as BuildContext).showSnackBar(
           SnackBar(
-            content: Text('Gagal mengunduh PDF: \$e'),
+            content: Text('Gagal mengunduh: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -470,16 +518,9 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red,
-          ),
+          Icon(Icons.error_outline, size: 64, color: Colors.red),
           Gap.h16,
-          Text(
-            'Gagal memuat KHS',
-            style: BaseTypography.bodyLarge,
-          ),
+          Text('Gagal memuat KHS', style: BaseTypography.bodyLarge),
           Gap.h8,
           Text(
             message,
@@ -489,7 +530,9 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
           Gap.h16,
           ElevatedButton(
             onPressed: () {
-              ref.read(khsControllerProvider(widget.semester).notifier).loadKhs();
+              ref
+                  .read(khsControllerProvider(widget.semester).notifier)
+                  .loadKhs();
             },
             child: const Text('Coba Lagi'),
           ),

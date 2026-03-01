@@ -203,6 +203,45 @@ class DioClient {
       rethrow;
     }
   }
+
+  // Special method for downloading binary files (PDF, images, etc)
+  Future<List<int>> downloadBytes(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    try {
+      var response = await _dio.get<List<int>>(
+        uri,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        options: Options(responseType: ResponseType.bytes),
+        onReceiveProgress: onReceiveProgress,
+      );
+      
+      final data = response.data;
+      if (data == null) {
+        throw Exception('No data received from server');
+      }
+      
+      // Ensure we have List<int> (Uint8List is a subclass of List<int>)
+      if (data is List<int>) {
+        debugPrint('✓ Downloaded ${data.length} bytes');
+        return data;
+      } else if (data is List) {
+        final result = List<int>.from(data);
+        debugPrint('✓ Converted and downloaded ${result.length} bytes');
+        return result;
+      } else {
+        throw Exception('Unexpected response type: ${data.runtimeType}');
+      }
+    } on SocketException catch (e) {
+      throw SocketException(e.toString());
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final dioClientProvider = Provider<DioClient>((ref) {

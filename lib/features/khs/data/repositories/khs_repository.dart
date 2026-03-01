@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/endpoint/endpoint.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
@@ -22,7 +22,10 @@ class KhsRepository {
   // Get KHS by semester
   Future<KhsModel> getKhs(String semester) async {
     try {
-      final data = await _dioClient.get(Endpoint.khs(semester));
+      final encoded = Uri.encodeComponent(semester);
+      final url = Endpoint.khs(encoded);
+      debugPrint('KHS get URL: $url');
+      final data = await _dioClient.get(url);
       return KhsModel.fromJson(data);
     } catch (e) {
       rethrow;
@@ -32,11 +35,14 @@ class KhsRepository {
   // Download KHS as PDF bytes (with auth header via DioClient)
   Future<List<int>> downloadKhsPdf(String semester) async {
     try {
-      final bytes = await _dioClient.get<List<int>>(
-        Endpoint.khsDownload(semester),
-        options: Options(responseType: ResponseType.bytes),
-      );
-      return bytes ?? [];
+      final encoded = Uri.encodeComponent(semester);
+      final url = Endpoint.khsDownload(encoded);
+      debugPrint('KHS download URL: $url');
+      final bytes = await _dioClient.downloadBytes(url);
+      if (bytes.isEmpty) {
+        throw Exception('File PDF kosong');
+      }
+      return bytes;
     } catch (e) {
       rethrow;
     }

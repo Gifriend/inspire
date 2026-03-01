@@ -40,11 +40,13 @@ class TranscriptRepositoryImpl implements TranscriptRepository {
   @override
   Future<List<int>> downloadTranscriptPdf() async {
     try {
-      final bytes = await _dioClient.get<List<int>>(
+      final bytes = await _dioClient.downloadBytes(
         Endpoint.transcriptDownload,
-        options: Options(responseType: ResponseType.bytes),
       );
-      return bytes ?? [];
+      if (bytes.isEmpty) {
+        throw Exception('File PDF kosong');
+      }
+      return bytes;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         throw Exception('Unauthorized');
