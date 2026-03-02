@@ -179,11 +179,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return AddClassScreen(semester: semester);
         },
       ),
-      GoRoute(
-        path: '/khs',
-        name: AppRoute.khs,
-        builder: (context, state) => const KhsSemesterListScreen(),
-      ),
+      // GoRoute(
+      //   path: '/khs',
+      //   name: AppRoute.khs,
+      //   builder: (context, state) => const KhsSemesterListScreen(),
+      // ),
       GoRoute(
         path: '/khs/:semester',
         name: AppRoute.khsDetail,

@@ -226,17 +226,9 @@ class DioClient {
       }
       
       // Ensure we have List<int> (Uint8List is a subclass of List<int>)
-      if (data is List<int>) {
-        debugPrint('✓ Downloaded ${data.length} bytes');
-        return data;
-      } else if (data is List) {
-        final result = List<int>.from(data);
-        debugPrint('✓ Converted and downloaded ${result.length} bytes');
-        return result;
-      } else {
-        throw Exception('Unexpected response type: ${data.runtimeType}');
-      }
-    } on SocketException catch (e) {
+      debugPrint('Downloaded ${data.length} bytes');
+      return data;
+        } on SocketException catch (e) {
       throw SocketException(e.toString());
     } catch (e) {
       rethrow;

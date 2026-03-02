@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
+// import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 /// Utility wrapper around `permission_handler` to request permissions robustly.
@@ -24,7 +24,7 @@ class PermissionUtil {
   static Future<bool> requestStorageForDownload() async {
     try {
       if (!Platform.isAndroid) return true;
-      if (await _isAndroid10OrHigher()) return true;
+      // if (await _isAndroid10OrHigher()) return true;
 
       // test request legacy storage (applies to Android 10 and below)
       PermissionStatus status = await Permission.storage.request();
@@ -59,9 +59,9 @@ class PermissionUtil {
     }
   }
 
-  static Future<bool> _isAndroid10OrHigher() async {
-  // Use device_info_plus to check Android version, since permission_handler's API doesn't directly expose this.
-  final info = await DeviceInfoPlugin().androidInfo;
-  return info.version.sdkInt >= 29;
-}
+//   static Future<bool> _isAndroid10OrHigher() async {
+//   // Use device_info_plus to check Android version, since permission_handler's API doesn't directly expose this.
+//   final info = await DeviceInfoPlugin().androidInfo;
+//   return info.version.sdkInt >= 29;
+// }
 }

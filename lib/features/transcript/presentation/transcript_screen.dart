@@ -32,17 +32,32 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
   }
 
   Future<void> _handleDownloadPdf() async {
+    final hasPermission = await PermissionUtil.requestStorageForDownload();
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Izin penyimpanan diperlukan untuk mengunduh KHS.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
     setState(() => _isDownloading = true);
     try {
       debugPrint('Starting Transkrip PDF download');
-      
-      final bytes =
-          await ref.read(transcriptControllerProvider.notifier).downloadPdf();
-      
+
+      final bytes = await ref
+          .read(transcriptControllerProvider.notifier)
+          .downloadPdf();
+
       debugPrint('Received ${bytes.length} bytes from server');
-      
-      if (bytes.isEmpty) throw Exception('File PDF kosong - tidak ada data yang diterima');
-      
+
+      if (bytes.isEmpty) {
+        throw Exception('File PDF kosong - tidak ada data yang diterima');
+      }
+
       final filename = 'Transkrip_Nilai.pdf';
 
       if (Platform.isAndroid) {
@@ -51,10 +66,12 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
           final channel = const MethodChannel(
             'com.gifriend.inspire/file_saver',
           );
-          debugPrint('Calling native save via MethodChannel, bytes length: ${bytes.length}');
+          debugPrint(
+            'Calling native save via MethodChannel, bytes length: ${bytes.length}',
+          );
           final base64Str = base64Encode(bytes);
           debugPrint('Base64 encoded length: ${base64Str.length}');
-          
+
           final res = await channel.invokeMethod<String>(
             'saveFileToDownloads',
             {'base64': base64Str, 'filename': filename},
@@ -97,7 +114,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
 
       // Fallback: Try to save to public Downloads folder
       Directory? saveDir;
-      
+
       // First, try public Downloads
       try {
         final publicDownloads = Directory('/storage/emulated/0/Download');
@@ -116,7 +133,9 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
             );
             if (dirs != null && dirs.isNotEmpty) {
               saveDir = dirs.first;
-              debugPrint('Using getExternalStorageDirectories: ${saveDir.path}');
+              debugPrint(
+                'Using getExternalStorageDirectories: ${saveDir.path}',
+              );
             }
           }
         } catch (e) {
@@ -150,7 +169,9 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
       // Verify file was saved
       if (file.existsSync()) {
         final savedFileSize = file.lengthSync();
-        debugPrint('File successfully saved at: ${file.path} (size: $savedFileSize bytes)');
+        debugPrint(
+          'File successfully saved at: ${file.path} (size: $savedFileSize bytes)',
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -177,7 +198,6 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final transcriptState = ref.watch(transcriptControllerProvider);
@@ -195,7 +215,9 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   ),
                 )
               : IconButton(
@@ -259,10 +281,14 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
                   : const Icon(Icons.print),
-              label: Text(_isDownloading ? 'Mengunduh...' : 'Cetak Transkrip (PDF)'),
+              label: Text(
+                _isDownloading ? 'Mengunduh...' : 'Cetak Transkrip (PDF)',
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: BaseColor.primaryInspire,
                 foregroundColor: Colors.white,
@@ -283,7 +309,10 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
     final rows = <MapEntry<String, String>>[
       MapEntry('Nama', m.nama),
       if (m.tempatLahir != null)
-        MapEntry('Tempat / Tanggal Lahir', '${m.tempatLahir}, ${m.tanggalLahir ?? '-'}')
+        MapEntry(
+          'Tempat / Tanggal Lahir',
+          '${m.tempatLahir}, ${m.tanggalLahir ?? '-'}',
+        )
       else if (m.tanggalLahir != null)
         MapEntry('Tanggal Lahir', m.tanggalLahir!),
       MapEntry('NIM', m.nim),
@@ -349,13 +378,12 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
       ),
       child: Column(
         children: [
-          Text('Indeks Prestasi Kumulatif',
-              style: BaseTypography.titleMedium.toWhite),
-          Gap.h6,
           Text(
-            stat.ipk,
-            style: BaseTypography.headlineLarge.toBold.toWhite,
+            'Indeks Prestasi Kumulatif',
+            style: BaseTypography.titleMedium.toWhite,
           ),
+          Gap.h6,
+          Text(stat.ipk, style: BaseTypography.headlineLarge.toBold.toWhite),
           Gap.h4,
           Text(stat.predikat, style: BaseTypography.bodyLarge.toWhite),
           Gap.h16,
@@ -377,8 +405,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
       children: [
         Text(label, style: BaseTypography.bodySmall.toWhite),
         Gap.h4,
-        Text(value,
-            style: BaseTypography.titleLarge.toBold.toWhite),
+        Text(value, style: BaseTypography.titleLarge.toBold.toWhite),
       ],
     );
   }
@@ -428,20 +455,21 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
             ),
             child: Table(
               columnWidths: const {
-                0: FixedColumnWidth(28),  // No
-                1: FixedColumnWidth(68),  // Kode
-                2: FlexColumnWidth(),     // Nama MK
-                3: FixedColumnWidth(34),  // SKS
-                4: FixedColumnWidth(38),  // Nilai
-                5: FixedColumnWidth(42),  // Angka
-                6: FixedColumnWidth(50),  // Nil.SKS
+                0: FixedColumnWidth(28), // No
+                1: FixedColumnWidth(68), // Kode
+                2: FlexColumnWidth(), // Nama MK
+                3: FixedColumnWidth(34), // SKS
+                4: FixedColumnWidth(38), // Nilai
+                5: FixedColumnWidth(42), // Angka
+                6: FixedColumnWidth(50), // Nil.SKS
               },
               border: TableBorder.all(color: Colors.grey.shade300, width: 0.5),
               children: [
                 // Column header
                 TableRow(
-                  decoration:
-                      BoxDecoration(color: BaseColor.primaryInspire.withValues(alpha: 0.85)),
+                  decoration: BoxDecoration(
+                    color: BaseColor.primaryInspire.withValues(alpha: 0.85),
+                  ),
                   children: [
                     _tc('No', headerStyle, TextAlign.center),
                     _tc('Kode', headerStyle, TextAlign.center),
@@ -468,8 +496,16 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                       _tc(mk.nama, cellStyle, TextAlign.left),
                       _tc('${mk.sks}', cellStyle, TextAlign.center),
                       _tcGrade(mk.nilaiHuruf, gradeColor),
-                      _tc(mk.indeks.toStringAsFixed(2), cellStyle, TextAlign.center),
-                      _tc(mk.nilaiSks.toStringAsFixed(2), cellStyle, TextAlign.right),
+                      _tc(
+                        mk.indeks.toStringAsFixed(2),
+                        cellStyle,
+                        TextAlign.center,
+                      ),
+                      _tc(
+                        mk.nilaiSks.toStringAsFixed(2),
+                        cellStyle,
+                        TextAlign.right,
+                      ),
                     ],
                   );
                 }),
@@ -481,19 +517,28 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
                     _tc('', cellStyle, TextAlign.center),
                     _tc(
                       'Sub Total',
-                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                      const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
                       TextAlign.left,
                     ),
                     _tc(
                       '${sem.subTotal.sks}',
-                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                      const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
                       TextAlign.center,
                     ),
                     _tc('', cellStyle, TextAlign.center),
                     _tc('', cellStyle, TextAlign.center),
                     _tc(
                       sem.subTotal.nilaiSks.toStringAsFixed(2),
-                      const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                      const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
                       TextAlign.right,
                     ),
                   ],
@@ -537,13 +582,10 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
   Widget _buildSummaryRow(String label, String value) {
     return Row(
       children: [
-        Expanded(
-            child: Text(label, style: BaseTypography.bodySmall)),
+        Expanded(child: Text(label, style: BaseTypography.bodySmall)),
         Text(
           ': $value',
-          style: BaseTypography.bodySmall.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: BaseTypography.bodySmall.copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -585,21 +627,17 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Gagal memuat transkrip',
-              style: BaseTypography.titleMedium),
+          Text('Gagal memuat transkrip', style: BaseTypography.titleMedium),
           Gap.h8,
           Text(
             message,
-            style: BaseTypography.bodyMedium
-                .copyWith(color: BaseColor.red),
+            style: BaseTypography.bodyMedium.copyWith(color: BaseColor.red),
             textAlign: TextAlign.center,
           ),
           Gap.h16,
           ElevatedButton(
             onPressed: () {
-              ref
-                  .read(transcriptControllerProvider.notifier)
-                  .loadTranscript();
+              ref.read(transcriptControllerProvider.notifier).loadTranscript();
             },
             child: const Text('Coba Lagi'),
           ),

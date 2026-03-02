@@ -1,7 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
-import 'package:flutter/services.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,8 +7,6 @@ import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:downloadsfolder/downloadsfolder.dart';
 
 import '../../../../core/assets/assets.dart';
 
@@ -415,96 +410,66 @@ class _KhsDetailScreenState extends ConsumerState<KhsDetailScreen> {
   }
 
   Future<void> _handleDownload() async {
+    // 1. Minta Izin Dulu
+    final hasPermission = await PermissionUtil.requestStorageForDownload();
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Izin penyimpanan diperlukan untuk mengunduh KHS.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return; // Hentikan proses jika izin ditolak
+    }
+
     setState(() => _isDownloading = true);
     try {
       final bytes = await ref
           .read(khsControllerProvider(widget.semester).notifier)
           .downloadKhsPdf();
 
-      // Validasi tambahan agar tidak menyimpan file error berupa JSON
       if (bytes.isEmpty || bytes.length < 500) {
-        throw Exception('File PDF kosong atau data dari server tidak valid.');
+        throw Exception('File PDF kosong atau data tidak valid.');
       }
 
-      final safe = widget.semester.replaceAll(RegExp(r'[\/\s]'), '_');
-      final filename = 'KHS_$safe.pdf';
+      // 2. Bersihkan nama file & tambahkan timestamp agar Android 11+ tidak memblokir (Permission Denied)
+      final safe = widget.semester
+          .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')
+          .replaceAll(RegExp(r'_+'), '_');
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filename = 'KHS_${safe}_$timestamp.pdf';
 
-      // Try native save on Android first (MediaStore / proper Downloads access)
-      if (Platform.isAndroid) {
-        try {
-          final channel = const MethodChannel('com.gifriend.inspire/file_saver');
-          debugPrint('Calling native save via MethodChannel, bytes length: ${bytes.length}');
-          final base64Str = base64Encode(bytes);
-          debugPrint('Base64 encoded length: ${base64Str.length}');
-
-          final res = await channel.invokeMethod<String>(
-            'saveFileToDownloads',
-            {'base64': base64Str, 'filename': filename},
-          );
-
-          if (res != null && res.isNotEmpty) {
-            debugPrint('Native save returned: $res');
-            final resFile = File(res);
-            if (resFile.existsSync()) {
-              debugPrint('File verified to exist at: $res');
-              if (mounted) {
-                ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-                  SnackBar(
-                    content: Text('✓ KHS berhasil disimpan di: $res'),
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 4),
-                  ),
-                );
-              }
-              return;
-            } else if (res.startsWith('content://')) {
-              debugPrint('Native returned content URI: $res');
-              if (mounted) {
-                ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-                  const SnackBar(
-                    content: Text('✓ KHS berhasil disimpan ke folder Downloads'),
-                    backgroundColor: Colors.green,
-                    duration: Duration(seconds: 4),
-                  ),
-                );
-              }
-              return;
-            }
-          }
-        } catch (e) {
-          debugPrint('Native save error: $e');
-        }
+      // 3. Tentukan Target (Wajib Folder Download Publik)
+      final saveDir = Directory('/storage/emulated/0/Download');
+      if (!saveDir.existsSync()) {
+        saveDir.createSync(recursive: true);
       }
 
-      // 1. Dapatkan path folder Download menggunakan downloadsfolder
-      Directory downloadsDirectory = await getDownloadDirectory();
-      // 2. Tentukan lokasi lengkap file
-      final String filePath = '${downloadsDirectory.path}/$filename';
-      final File file = File(filePath);
+      final filePath = '${saveDir.path}/$filename';
+      final file = File(filePath);
 
-      // 3. Tulis file langsung ke storage
+      // 4. Tulis File
       await file.writeAsBytes(bytes);
 
-      if (file.existsSync()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-            SnackBar(
-              content: Text('✓ KHS berhasil disimpan di: $filePath'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        }
-        return;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('KHS BARU disimpan di: $filePath'),
+            backgroundColor: Colors
+                .blue, // Sengaja BIRU untuk memastikan kode ini yang jalan
+            duration: const Duration(seconds: 5),
+          ),
+        );
       }
-
-      throw Exception('Gagal menyimpan file di $filePath');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal mengunduh: $e'),
+            content: Text('ERROR KHS: $e'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
