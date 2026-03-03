@@ -97,3 +97,11 @@ export 'lecturer/presentation/widgets/widgets.dart';
 //nilai
 export 'nilai/presentation/controllers/nilai_controller.dart';
 export 'nilai/presentation/states/nilai_state.dart';
+//lecturer academic (PA KHS & Transkrip)
+export 'lecturer_academic/data/repositories/lecturer_academic_repository.dart';
+export 'lecturer_academic/domain/services/lecturer_academic_service.dart';
+export 'lecturer_academic/presentation/controllers/lecturer_academic_controller.dart';
+export 'lecturer_academic/presentation/states/lecturer_academic_state.dart';
+export 'lecturer_academic/presentation/screens/lecturer_pa_mahasiswa_list_screen.dart';
+export 'lecturer_academic/presentation/screens/lecturer_pa_khs_screen.dart';
+export 'lecturer_academic/presentation/screens/lecturer_pa_transkrip_screen.dart';

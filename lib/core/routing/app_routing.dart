@@ -71,6 +71,11 @@ class AppRoute {
   static const String gradingLecturer = 'grading-lecturer';
   static const String myClassesLecturer = 'my-classes-lecturer';
 
+  //Lecturer PA Academic
+  static const String lecturerPaMahasiswaList = 'lecturer-pa-mahasiswa-list';
+  static const String lecturerPaKhs = 'lecturer-pa-khs';
+  static const String lecturerPaTranskrip = 'lecturer-pa-transkrip';
+
   //Schedule
   static const String schedule = 'schedule';
 }
@@ -274,6 +279,35 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/my-classes-lecturer',
         name: AppRoute.myClassesLecturer,
         builder: (context, state) => const MyClassesLecturerScreen(),
+      ),
+      GoRoute(
+        path: '/lecturer-pa-mahasiswa',
+        name: AppRoute.lecturerPaMahasiswaList,
+        builder: (context, state) => const LecturerPaMahasiswaListScreen(),
+      ),
+      GoRoute(
+        path: '/lecturer-pa-khs/:mahasiswaId',
+        name: AppRoute.lecturerPaKhs,
+        builder: (context, state) {
+          final mahasiswaId = int.parse(state.pathParameters['mahasiswaId']!);
+          final nama = state.extra as String? ?? 'Mahasiswa';
+          return LecturerPaKhsScreen(
+            mahasiswaId: mahasiswaId,
+            namaMahasiswa: nama,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/lecturer-pa-transkrip/:mahasiswaId',
+        name: AppRoute.lecturerPaTranskrip,
+        builder: (context, state) {
+          final mahasiswaId = int.parse(state.pathParameters['mahasiswaId']!);
+          final nama = state.extra as String? ?? 'Mahasiswa';
+          return LecturerPaTranskripScreen(
+            mahasiswaId: mahasiswaId,
+            namaMahasiswa: nama,
+          );
+        },
       ),
       // GoRoute(
       //   path: '/login',

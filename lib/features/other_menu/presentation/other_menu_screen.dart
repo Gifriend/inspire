@@ -6,15 +6,28 @@ import 'package:inspire/core/widgets/appbar/appbar_widget.dart';
 import '../../../core/constants/constants.dart';
 import '../../../core/routing/app_routing.dart';
 import '../../../core/utils/extensions/extension.dart';
+import '../../profile/presentation/profile_controller.dart';
+import '../../profile/presentation/profile_state.dart';
 
 class OtherMenuScreen extends ConsumerWidget {
   const OtherMenuScreen({super.key});
 
+  bool _isLecturerRole(String role) {
+    final r = role.trim().toUpperCase();
+    return r == 'DOSEN' || r == 'KOORPRODI' || r == 'LECTURER';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profileState = ref.watch(profileControllerProvider);
+    final isLecturer = profileState.maybeWhen(
+      loaded: (user) => _isLecturerRole(user.role),
+      orElse: () => false,
+    );
+
     return Scaffold(
       appBar: AppBarWidget(title: 'Menu Lainnya'),
-      body:SafeArea(
+      body: SafeArea(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,7 +38,7 @@ class OtherMenuScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildMenuList(),
+                        _buildMenuList(context, isLecturer),
                       ],
                     ),
                   ),
@@ -37,71 +50,81 @@ class OtherMenuScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuList() {
+  Widget _buildMenuList(BuildContext context, bool isLecturer) {
+    if (isLecturer) {
+      return _buildLecturerMenuList(context);
+    }
+    return _buildStudentMenuList(context);
+  }
+
+  // ─── Mahasiswa menus ──────────────────────────────────────────────────────
+
+  Widget _buildStudentMenuList(BuildContext context) {
+    final items = [
+      _MenuItem(
+        icon: Icons.assignment,
+        title: 'Kartu Hasil Studi (KHS)',
+        subtitle: 'Lihat hasil studi per semester',
+        onTap: () => context.pushNamed(AppRoute.khs),
+      ),
+      _MenuItem(
+        icon: Icons.description,
+        title: 'Transkrip Nilai',
+        subtitle: 'Lihat transkrip nilai lengkap',
+        onTap: () => context.pushNamed(AppRoute.transcript),
+      ),
+      _MenuItem(
+        icon: Icons.calendar_month,
+        title: 'Jadwal Kuliah',
+        subtitle: 'Lihat jadwal perkuliahan',
+        onTap: () => context.pushNamed(AppRoute.schedule),
+      ),
+    ];
+    return _buildItemList(context, items);
+  }
+
+  // ─── Dosen menus ───────────────────────────────────────────────────────────
+
+  Widget _buildLecturerMenuList(BuildContext context) {
+    final items = [
+      _MenuItem(
+        icon: Icons.grade,
+        title: 'Input Nilai Mahasiswa',
+        subtitle: 'Berikan nilai untuk kelas yang Anda ampu',
+        onTap: () => context.pushNamed(AppRoute.myClassesLecturer),
+      ),
+      _MenuItem(
+        icon: Icons.people_alt,
+        title: 'Mahasiswa Bimbingan PA',
+        subtitle: 'Lihat daftar mahasiswa bimbingan akademik Anda',
+        onTap: () => context.pushNamed(AppRoute.lecturerPaMahasiswaList),
+      ),
+      _MenuItem(
+        icon: Icons.calendar_month,
+        title: 'Jadwal Mengajar',
+        subtitle: 'Lihat jadwal perkuliahan Anda',
+        onTap: () => context.pushNamed(AppRoute.schedule),
+      ),
+    ];
+    return _buildItemList(context, items);
+  }
+
+  Widget _buildItemList(BuildContext context, List<_MenuItem> items) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 6,
-      separatorBuilder: (context, index) => Gap.h12,
+      itemCount: items.length,
+      separatorBuilder: (_, __) => Gap.h12,
       itemBuilder: (context, index) {
-        return _buildMenuItemByIndex(context, index);
+        final item = items[index];
+        return _buildMenuCard(
+          icon: item.icon,
+          title: item.title,
+          subtitle: item.subtitle,
+          onTap: item.onTap,
+        );
       },
     );
-  }
-
-  Widget _buildMenuItemByIndex(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        return _buildMenuCard(
-          icon: Icons.assignment,
-          title: 'Kartu Hasil Studi (KHS)',
-          subtitle: 'Lihat hasil studi per semester',
-          onTap: () => context.pushNamed(AppRoute.khs),
-        );
-      case 1:
-        return _buildMenuCard(
-          icon: Icons.description,
-          title: 'Transkrip Nilai',
-          subtitle: 'Lihat transkrip nilai lengkap',
-          onTap: () => context.pushNamed(AppRoute.transcript),
-        );
-      case 2:
-        return _buildMenuCard(
-          icon: Icons.calendar_month,
-          title: 'Jadwal Kuliah',
-          subtitle: 'Lihat jadwal perkuliahan',
-          onTap: () => context.pushNamed(AppRoute.schedule),
-        );
-      // case 3:
-      //   return _buildMenuCard(
-      //     icon: Icons.money,
-      //     title: 'Keuangan',
-      //     subtitle: 'Info pembayaran dan tagihan',
-      //     onTap: () {
-      //       // TODO: Implement keuangan navigation
-      //     },
-      //   );
-      // case 4:
-      //   return _buildMenuCard(
-      //     icon: Icons.library_books,
-      //     title: 'Perpustakaan',
-      //     subtitle: 'Akses koleksi perpustakaan',
-      //     onTap: () {
-      //       // TODO: Implement perpustakaan navigation
-      //     },
-      //   );
-      // case 5:
-      //   return _buildMenuCard(
-      //     icon: Icons.help_outline,
-      //     title: 'Bantuan & Dukungan',
-      //     subtitle: 'Hubungi tim support',
-      //     onTap: () {
-      //       // TODO: Implement bantuan navigation
-      //     },
-      //   );
-      default:
-        return const SizedBox.shrink();
-    }
   }
 
   Widget _buildMenuCard({
@@ -170,4 +193,18 @@ class OtherMenuScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _MenuItem {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _MenuItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 }
