@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/models.dart';
+import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:jiffy/jiffy.dart';
 
 class DashboardHeader extends StatelessWidget {
@@ -17,7 +18,7 @@ class DashboardHeader extends StatelessWidget {
     final greeting = _getGreeting(now.hour);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.symmetric(horizontal: BaseSize.w20, vertical: BaseSize.h20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -27,9 +28,9 @@ class DashboardHeader extends StatelessWidget {
             BaseColor.primaryInspire.withValues(alpha: 0.8),
           ],
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(BaseSize.radiusLg),
+          bottomRight: Radius.circular(BaseSize.radiusLg),
         ),
       ),
       child: SafeArea(
@@ -40,7 +41,7 @@ class DashboardHeader extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  radius: 30,
+                  radius: BaseSize.radiusLg,
                   backgroundColor: Colors.white,
                   backgroundImage: user.photo != null && user.photo!.isNotEmpty
                       ? NetworkImage(user.photo!)
@@ -48,34 +49,23 @@ class DashboardHeader extends StatelessWidget {
                   child: user.photo == null || user.photo!.isEmpty
                       ? Text(
                           user.name[0].toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: BaseColor.primaryInspire,
-                          ),
+                          style: BaseTypography.headlineSmall.toBold
                         )
                       : null,
                 ),
-                const SizedBox(width: 16),
+                Gap.w16,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         greeting,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
+                        style: BaseTypography.bodyLarge.toWhite
                       ),
                       Gap.h4,
                       Text(
                         user.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: BaseTypography.titleLarge.toWhite.toBold,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -83,10 +73,14 @@ class DashboardHeader extends StatelessWidget {
                         Gap.h4,
                         Text(
                           'NIP: ${user.nip}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
+                          style: BaseTypography.bodySmall.toWhite,
+                        ),
+                      ],
+                      if (user.nim != null) ...[
+                        Gap.h4,
+                        Text(
+                          'NIM: ${user.nim}',
+                          style: BaseTypography.bodyLarge.toWhite,
                         ),
                       ],
                     ],
@@ -94,9 +88,9 @@ class DashboardHeader extends StatelessWidget {
                 ),
               ],
             ),
-            Gap.h16,
+            Gap.h12,
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              padding: EdgeInsets.symmetric(vertical: BaseSize.h8, horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
@@ -108,14 +102,10 @@ class DashboardHeader extends StatelessWidget {
                     color: Colors.white,
                     size: 16,
                   ),
-                  const SizedBox(width: 8),
+                  Gap.w8,
                   Text(
                     Jiffy.parse(now.toString()).format(pattern: 'EEEE, dd MMMM yyyy'),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: BaseTypography.bodyMedium.toWhite,
                   ),
                 ],
               ),

@@ -127,8 +127,6 @@ class _LecturerDashboardScreenState
                 color: BaseColor.primaryText,
               ),
             ),
-            Gap.h12,
-
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -178,73 +176,73 @@ class _LecturerDashboardScreenState
                     context.pushNamed(AppRoute.announcementLecturer);
                   },
                 ),
-                DashboardMenuCard(
-                  title: 'Penilaian',
-                  subtitle: 'Input dan kelola nilai',
-                  icon: Icons.grade,
-                  color: Colors.red,
-                  onTap: () {
-                    // Navigate to class list → pick class → grading detail
-                    context.pushNamed(AppRoute.myClassesLecturer);
-                  },
-                ),
-                DashboardMenuCard(
-                  title: 'Kelas Saya',
-                  subtitle: 'Lihat semua kelas yang diampu',
-                  icon: Icons.people_outline,
-                  color: Colors.teal,
-                  onTap: () {
-                    // Navigate to My Classes
-                    context.pushNamed(AppRoute.myClassesLecturer);
-                  },
-                ),
+                // DashboardMenuCard(
+                //   title: 'Penilaian',
+                //   subtitle: 'Input dan kelola nilai',
+                //   icon: Icons.grade,
+                //   color: Colors.red,
+                //   onTap: () {
+                //     // Navigate to class list → pick class → grading detail
+                //     context.pushNamed(AppRoute.myClassesLecturer);
+                //   },
+                // ),
+                // DashboardMenuCard(
+                //   title: 'Kelas Saya',
+                //   subtitle: 'Lihat semua kelas yang diampu',
+                //   icon: Icons.people_outline,
+                //   color: Colors.teal,
+                //   onTap: () {
+                //     // Navigate to My Classes
+                //     context.pushNamed(AppRoute.myClassesLecturer);
+                //   },
+                // ),
               ],
             ),
 
             Gap.h24,
 
             // Recent Activities
-            const Text(
-              'Aktivitas Terbaru',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: BaseColor.primaryText,
-              ),
-            ),
-            Gap.h12,
+            // const Text(
+            //   'Aktivitas Terbaru',
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.bold,
+            //     color: BaseColor.primaryText,
+            //   ),
+            // ),
+            // Gap.h12,
 
-            if (data.recentActivities.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.inbox,
-                        size: 48,
-                        color: Colors.grey.withValues(alpha: 0.5),
-                      ),
-                      Gap.h8,
-                      Text(
-                        'Belum ada aktivitas',
-                        style: TextStyle(
-                          color: BaseColor.primaryText.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              ...data.recentActivities.map(
-                (activity) => RecentActivityCard(activity: activity),
-              ),
-            Gap.h52,
+            // if (data.recentActivities.isEmpty)
+            //   Container(
+            //     padding: const EdgeInsets.all(24),
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //     child: Center(
+            //       child: Column(
+            //         children: [
+            //           Icon(
+            //             Icons.inbox,
+            //             size: 48,
+            //             color: Colors.grey.withValues(alpha: 0.5),
+            //           ),
+            //           Gap.h8,
+            //           Text(
+            //             'Belum ada aktivitas',
+            //             style: TextStyle(
+            //               color: BaseColor.primaryText.withValues(alpha: 0.5),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   )
+            // else
+            //   ...data.recentActivities.map(
+            //     (activity) => RecentActivityCard(activity: activity),
+            //   ),
+            // Gap.h52,
           ],
         ),
       );

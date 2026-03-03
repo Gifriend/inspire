@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:jiffy/jiffy.dart';
 import 'core/config/app_config.dart';
 import 'core/constants/constants.dart';
 import 'core/data_sources/data_sources.dart';
@@ -12,6 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
+  await Jiffy.setLocale('id');
 
   await hiveInit();
   runApp(const ProviderScope(child: MyApp()));
