@@ -76,6 +76,13 @@ class AppRoute {
   static const String lecturerPaKhs = 'lecturer-pa-khs';
   static const String lecturerPaTranskrip = 'lecturer-pa-transkrip';
 
+  // Google Classroom
+  static const String classroomStudent = 'classroom-student';
+  static const String classroomLecturer = 'classroom-lecturer';
+  static const String classroomCourseWork = 'classroom-course-work';
+  static const String classroomCourseWorkLecturer = 'classroom-course-work-lecturer';
+  static const String classroomStudents = 'classroom-students';
+
   //Schedule
   static const String schedule = 'schedule';
 }
@@ -306,6 +313,56 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return LecturerPaTranskripScreen(
             mahasiswaId: mahasiswaId,
             namaMahasiswa: nama,
+          );
+        },
+      ),
+      // ─── Google Classroom ──────────────────────────────────────────────
+      GoRoute(
+        path: '/classroom-student',
+        name: AppRoute.classroomStudent,
+        builder: (context, state) => const ClassroomCoursesScreen(),
+      ),
+      GoRoute(
+        path: '/classroom-course-work/:courseId',
+        name: AppRoute.classroomCourseWork,
+        builder: (context, state) {
+          final courseId = state.pathParameters['courseId']!;
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ClassroomCourseWorkScreen(
+            courseId: courseId,
+            courseName: extra['courseName'] as String? ?? 'Kelas',
+            accessToken: extra['accessToken'] as String? ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/classroom-lecturer',
+        name: AppRoute.classroomLecturer,
+        builder: (context, state) => const ClassroomLecturerCoursesScreen(),
+      ),
+      GoRoute(
+        path: '/classroom-course-work-lecturer/:courseId',
+        name: AppRoute.classroomCourseWorkLecturer,
+        builder: (context, state) {
+          final courseId = state.pathParameters['courseId']!;
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ClassroomCourseWorkLecturerScreen(
+            courseId: courseId,
+            courseName: extra['courseName'] as String? ?? 'Kelas',
+            accessToken: extra['accessToken'] as String? ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/classroom-students/:courseId',
+        name: AppRoute.classroomStudents,
+        builder: (context, state) {
+          final courseId = state.pathParameters['courseId']!;
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ClassroomStudentsScreen(
+            courseId: courseId,
+            courseName: extra['courseName'] as String? ?? 'Kelas',
+            accessToken: extra['accessToken'] as String? ?? '',
           );
         },
       ),

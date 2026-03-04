@@ -105,3 +105,12 @@ export 'lecturer_academic/presentation/states/lecturer_academic_state.dart';
 export 'lecturer_academic/presentation/screens/lecturer_pa_mahasiswa_list_screen.dart';
 export 'lecturer_academic/presentation/screens/lecturer_pa_khs_screen.dart';
 export 'lecturer_academic/presentation/screens/lecturer_pa_transkrip_screen.dart';
+// Google Classroom
+export 'classroom/data/classroom_repository.dart';
+export 'classroom/presentation/states/classroom_states.dart';
+export 'classroom/presentation/controllers/classroom_controllers.dart';
+export 'classroom/presentation/screens/student/classroom_courses_screen.dart';
+export 'classroom/presentation/screens/student/classroom_course_work_screen.dart';
+export 'classroom/presentation/screens/lecturer/classroom_lecturer_courses_screen.dart';
+export 'classroom/presentation/screens/lecturer/classroom_course_work_lecturer_screen.dart';
+export 'classroom/presentation/screens/lecturer/classroom_students_screen.dart';

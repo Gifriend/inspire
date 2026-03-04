@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,11 +8,20 @@ import 'core/config/app_config.dart';
 import 'core/constants/constants.dart';
 import 'core/data_sources/data_sources.dart';
 import 'core/routing/app_routing.dart';
+import 'core/services/firebase_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
+
+  try {
+    await Firebase.initializeApp();
+    await FirebaseNotificationService.instance.initialize();
+  } catch (e) {
+    debugPrint('[Firebase] Init failed: $e');
+  }
+
   await Jiffy.setLocale('id');
 
   await hiveInit();

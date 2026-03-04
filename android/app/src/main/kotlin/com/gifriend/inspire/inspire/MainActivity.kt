@@ -1,4 +1,4 @@
-package com.gifriend.inspire.inspire
+package com.gifriend.inspire
 
 import io.flutter.embedding.android.FlutterActivity
 

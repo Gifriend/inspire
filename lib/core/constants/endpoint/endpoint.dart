@@ -90,6 +90,14 @@ class Endpoint {
     static String academicPaTranskrip(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/transkrip';
     static String academicPaTranskripDownload(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/transkrip/download';
     static String academicPaRingkasan(int mahasiswaId) => '$academicPaBase/mahasiswa/$mahasiswaId/ringkasan';
+  // Google Classroom endpoints (proxied via backend)
+  static String classroom = _baseUrl(path: "/api/classroom");
+  static String classroomCourses = '$classroom/courses';
+  static String classroomCourseWork(String courseId) =>
+      '$classroom/courses/$courseId/course-work';
+  static String classroomStudents(String courseId) =>
+      '$classroom/courses/$courseId/students';
+
   // Class selection endpoint (you may need to add this to backend)
   static String availableClasses = _baseUrl(
     path: "/kelas-perkuliahan/available",

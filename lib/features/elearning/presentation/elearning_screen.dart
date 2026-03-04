@@ -60,6 +60,11 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
             onTap: () {},
           ),
           Gap.h12,
+          // Google Classroom Card
+          _GoogleClassroomCard(
+            onTap: () => context.pushNamed(AppRoute.classroomStudent),
+          ),
+          Gap.h12,
           Text('Daftar Course Anda', style: BaseTypography.titleLarge.toBold),
           Gap.h24,
           Expanded(
@@ -266,6 +271,77 @@ class _ElearningScreenState extends ConsumerState<ElearningScreen> {
             style: TextStyle(fontSize: 12, color: BaseColor.grey[500]),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── GOOGLE CLASSROOM CARD ──────────────────────────────────────────────
+
+class _GoogleClassroomCard extends StatelessWidget {
+  final VoidCallback onTap;
+  const _GoogleClassroomCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(BaseSize.w16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1A73E8), Color(0xFF0D47A1)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1A73E8).withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.school, color: Colors.white, size: 28),
+            ),
+            Gap.w16,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Google Classroom',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Gap.h4,
+                  Text(
+                    'Lihat kelas, tugas, dan materi',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios,
+                color: Colors.white, size: 16),
+          ],
+        ),
       ),
     );
   }
