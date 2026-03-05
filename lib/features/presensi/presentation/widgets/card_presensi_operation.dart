@@ -24,7 +24,7 @@ class CardPresensiOperation extends StatelessWidget {
           horizontal: BaseSize.w12,
         ),
         decoration: BoxDecoration(
-          color: BaseColor.white,
+          color: BaseColor.cardBackground2,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
           border: Border.all(color: BaseColor.grey.withValues(alpha: 0.5)),
           boxShadow: [
