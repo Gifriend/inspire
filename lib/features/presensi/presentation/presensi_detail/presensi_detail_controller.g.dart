@@ -7,7 +7,7 @@ part of 'presensi_detail_controller.dart';
 // **************************************************************************
 
 String _$presensiDetailControllerHash() =>
-    r'638a908a059d00478ea558668f10d9ee642252e3';
+    r'4435ccd5f15e2131f6a8c880f58bede2de7880e5';
 
 /// Copied from Dart SDK
 class _SystemHash {

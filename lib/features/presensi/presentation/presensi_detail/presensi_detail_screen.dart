@@ -82,6 +82,17 @@ class PresensiDetailScreen extends ConsumerWidget {
       presensiDetailControllerProvider(type).notifier,
     );
 
+    ref.listen(presensiDetailControllerProvider(type), (previous, next) {
+      final message = next.successMessage;
+      if (message == null || message.isEmpty) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      controller.clearFeedback();
+      context.pop();
+    });
+
     return ScaffoldWidget(
       disablePadding: true,
       disableSingleChildScrollView: true,
@@ -120,8 +131,17 @@ class PresensiDetailScreen extends ConsumerWidget {
                     style: BaseTypography.titleMedium.toBold,
                   ),
                   Gap.h24,
+                  // InputWidget.text(
+                  //   borderColor: BaseColor.black,
+                  //   hint: 'Masukkan Session ID',
+                  //   textInputType: TextInputType.number,
+                  //   onChanged: controller.updateSessionId,
+                  //   errorText: state.errorSessionId,
+                  // ),
+                  Gap.h12,
                   InputWidget.text(
                     borderColor: BaseColor.black,
+                    hint: 'Masukkan Kode Presensi',
                     onChanged: controller.updatePresensi,
                     errorText: state.errorPresensi,
                   ),

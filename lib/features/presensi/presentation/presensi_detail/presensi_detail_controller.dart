@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/models/models.dart';
+import 'package:inspire/features/presensi/domain/services/presensi_service.dart';
 import 'package:inspire/features/presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -11,11 +14,23 @@ class PresensiDetailController extends _$PresensiDetailController {
     return PresensiDetailState(type: presensiType);
   }
 
-  void updatePresensi(String value) {
+  void updateSessionId(String value) {
+    final trimmed = value.trim();
     state = state.copyWith(
-      presensi: value,
+      sessionId: trimmed,
+      errorSessionId: null,
+      successMessage: null,
+      isFormValid: trimmed.isNotEmpty && (state.presensi?.trim().isNotEmpty ?? false),
+    );
+  }
+
+  void updatePresensi(String value) {
+    final trimmed = value.trim();
+    state = state.copyWith(
+      presensi: trimmed,
       errorPresensi: null,
-      isFormValid: value.isNotEmpty,
+      successMessage: null,
+      isFormValid: trimmed.isNotEmpty && (state.sessionId?.trim().isNotEmpty ?? false),
     );
   }
 
@@ -27,81 +42,93 @@ class PresensiDetailController extends _$PresensiDetailController {
     state = state.copyWith(errorPresensi: error, loading: false);
   }
 
-  // Fungsi submit untuk UAS
-  Future<void> submitPresensiUAS() async {
-    if (state.presensi?.isEmpty ?? true) {
-      _setError('Kode presensi UAS tidak boleh kosong');
-      return;
+  void clearFeedback() {
+    state = state.copyWith(successMessage: null, errorPresensi: null);
+  }
+
+  Future<void> _submitPresensi(String errorLabel) async {
+    // final sessionIdText = state.sessionId?.trim() ?? '';
+    final token = state.presensi?.trim() ?? '';
+
+    // String? errorSessionId;
+    String? errorPresensi;
+
+    // final parsedSessionId = int.tryParse(sessionIdText);
+    // if (sessionIdText.isEmpty) {
+    //   errorSessionId = 'Session ID tidak boleh kosong';
+    // } else if (parsedSessionId == null) {
+    //   errorSessionId = 'Session ID harus berupa angka';
+    // }
+
+    if (token.isEmpty) {
+      errorPresensi = '$errorLabel tidak boleh kosong';
     }
+
+    // if (errorSessionId != null || errorPresensi != null) {
+    //   state = state.copyWith(
+    //     errorSessionId: errorSessionId,
+    //     errorPresensi: errorPresensi,
+    //   );
+    //   return;
+    // }
 
     _setLoading(true);
 
     try {
-      // TODO: Implementasi API call untuk presensi UAS
-      // await ref.read(presensiRepositoryProvider).submitPresensiUAS(state.presensi!);
+      final request = SubmitPresensiRequestModel(
+        // sessionId: parsedSessionId!,
+        token: token,
+      );
 
-      // Simulasi delay
-      await Future.delayed(Duration(seconds: 2));
+      await ref.read(presensiServiceProvider).submitPresensi(request);
 
-      // Handle success
-      // Navigator.pop(context);
-      // ScaffoldMessenger.of(context).showSnackBar(...);
+      state = state.copyWith(
+        loading: false,
+        errorSessionId: null,
+        errorPresensi: null,
+        successMessage: 'Presensi berhasil dikirim.',
+      );
     } catch (e) {
-      _setError('Gagal mengirim presensi UAS: ${e.toString()}');
+      final message = _extractErrorMessage(e);
+      _setError(message);
     } finally {
       _setLoading(false);
     }
+  }
+
+  String _extractErrorMessage(Object error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message;
+        }
+        if (message is List && message.isNotEmpty) {
+          return message.join(', ');
+        }
+      }
+
+      if (error.message != null && error.message!.trim().isNotEmpty) {
+        return error.message!;
+      }
+    }
+
+    return error.toString().replaceAll('Exception: ', '');
+  }
+
+  // Fungsi submit untuk UAS
+  Future<void> submitPresensiUAS() async {
+    await _submitPresensi('Kode presensi UAS');
   }
 
   // Fungsi submit untuk Kelas
   Future<void> submitPresensiKelas() async {
-    if (state.presensi?.isEmpty ?? true) {
-      _setError('Kode presensi kelas tidak boleh kosong');
-      return;
-    }
-
-    _setLoading(true);
-
-    try {
-      // TODO: Implementasi API call untuk presensi Kelas
-      // await ref.read(presensiRepositoryProvider).submitPresensiKelas(state.presensi!);
-
-      // Simulasi delay
-      await Future.delayed(Duration(seconds: 2));
-
-      // Handle success
-      // Navigator.pop(context);
-      // ScaffoldMessenger.of(context).showSnackBar(...);
-    } catch (e) {
-      _setError('Gagal mengirim presensi kelas: ${e.toString()}');
-    } finally {
-      _setLoading(false);
-    }
+    await _submitPresensi('Kode presensi kelas');
   }
 
   // Fungsi submit untuk Event
   Future<void> submitPresensiEvent() async {
-    if (state.presensi?.isEmpty ?? true) {
-      _setError('Kode presensi event tidak boleh kosong');
-      return;
-    }
-
-    _setLoading(true);
-
-    try {
-      // TODO: Implementasi API call untuk presensi Event
-      // await ref.read(presensiRepositoryProvider).submitPresensiEvent(state.presensi!);
-
-      // Simulasi delay
-      await Future.delayed(Duration(seconds: 2));
-
-      // Handle success
-      // Navigator.pop(context);
-      // ScaffoldMessenger.of(context).showSnackBar(...);
-    } catch (e) {
-      _setError('Gagal mengirim presensi event: ${e.toString()}');
-    } finally {
-      _setLoading(false);
-    }
+    await _submitPresensi('Kode presensi event');
   }
 }

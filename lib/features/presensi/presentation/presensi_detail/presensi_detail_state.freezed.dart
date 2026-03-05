@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PresensiDetailState {
 
- PresensiType get type; String? get presensi; String? get errorPresensi; bool? get loading; bool get isFormValid;
+ PresensiType get type; String? get sessionId; String? get presensi; String? get errorSessionId; String? get errorPresensi; String? get successMessage; bool? get loading; bool get isFormValid;
 /// Create a copy of PresensiDetailState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $PresensiDetailStateCopyWith<PresensiDetailState> get copyWith => _$PresensiDeta
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PresensiDetailState&&(identical(other.type, type) || other.type == type)&&(identical(other.presensi, presensi) || other.presensi == presensi)&&(identical(other.errorPresensi, errorPresensi) || other.errorPresensi == errorPresensi)&&(identical(other.loading, loading) || other.loading == loading)&&(identical(other.isFormValid, isFormValid) || other.isFormValid == isFormValid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PresensiDetailState&&(identical(other.type, type) || other.type == type)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.presensi, presensi) || other.presensi == presensi)&&(identical(other.errorSessionId, errorSessionId) || other.errorSessionId == errorSessionId)&&(identical(other.errorPresensi, errorPresensi) || other.errorPresensi == errorPresensi)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.loading, loading) || other.loading == loading)&&(identical(other.isFormValid, isFormValid) || other.isFormValid == isFormValid));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,type,presensi,errorPresensi,loading,isFormValid);
+int get hashCode => Object.hash(runtimeType,type,sessionId,presensi,errorSessionId,errorPresensi,successMessage,loading,isFormValid);
 
 @override
 String toString() {
-  return 'PresensiDetailState(type: $type, presensi: $presensi, errorPresensi: $errorPresensi, loading: $loading, isFormValid: $isFormValid)';
+  return 'PresensiDetailState(type: $type, sessionId: $sessionId, presensi: $presensi, errorSessionId: $errorSessionId, errorPresensi: $errorPresensi, successMessage: $successMessage, loading: $loading, isFormValid: $isFormValid)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $PresensiDetailStateCopyWith<$Res>  {
   factory $PresensiDetailStateCopyWith(PresensiDetailState value, $Res Function(PresensiDetailState) _then) = _$PresensiDetailStateCopyWithImpl;
 @useResult
 $Res call({
- PresensiType type, String? presensi, String? errorPresensi, bool? loading, bool isFormValid
+ PresensiType type, String? sessionId, String? presensi, String? errorSessionId, String? errorPresensi, String? successMessage, bool? loading, bool isFormValid
 });
 
 
@@ -62,11 +62,14 @@ class _$PresensiDetailStateCopyWithImpl<$Res>
 
 /// Create a copy of PresensiDetailState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? presensi = freezed,Object? errorPresensi = freezed,Object? loading = freezed,Object? isFormValid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? sessionId = freezed,Object? presensi = freezed,Object? errorSessionId = freezed,Object? errorPresensi = freezed,Object? successMessage = freezed,Object? loading = freezed,Object? isFormValid = null,}) {
   return _then(_self.copyWith(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as PresensiType,presensi: freezed == presensi ? _self.presensi : presensi // ignore: cast_nullable_to_non_nullable
+as PresensiType,sessionId: freezed == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
+as String?,presensi: freezed == presensi ? _self.presensi : presensi // ignore: cast_nullable_to_non_nullable
+as String?,errorSessionId: freezed == errorSessionId ? _self.errorSessionId : errorSessionId // ignore: cast_nullable_to_non_nullable
 as String?,errorPresensi: freezed == errorPresensi ? _self.errorPresensi : errorPresensi // ignore: cast_nullable_to_non_nullable
+as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
 as String?,loading: freezed == loading ? _self.loading : loading // ignore: cast_nullable_to_non_nullable
 as bool?,isFormValid: null == isFormValid ? _self.isFormValid : isFormValid // ignore: cast_nullable_to_non_nullable
 as bool,
@@ -154,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PresensiType type,  String? presensi,  String? errorPresensi,  bool? loading,  bool isFormValid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PresensiType type,  String? sessionId,  String? presensi,  String? errorSessionId,  String? errorPresensi,  String? successMessage,  bool? loading,  bool isFormValid)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PresensiDetailState() when $default != null:
-return $default(_that.type,_that.presensi,_that.errorPresensi,_that.loading,_that.isFormValid);case _:
+return $default(_that.type,_that.sessionId,_that.presensi,_that.errorSessionId,_that.errorPresensi,_that.successMessage,_that.loading,_that.isFormValid);case _:
   return orElse();
 
 }
@@ -175,10 +178,10 @@ return $default(_that.type,_that.presensi,_that.errorPresensi,_that.loading,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PresensiType type,  String? presensi,  String? errorPresensi,  bool? loading,  bool isFormValid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PresensiType type,  String? sessionId,  String? presensi,  String? errorSessionId,  String? errorPresensi,  String? successMessage,  bool? loading,  bool isFormValid)  $default,) {final _that = this;
 switch (_that) {
 case _PresensiDetailState():
-return $default(_that.type,_that.presensi,_that.errorPresensi,_that.loading,_that.isFormValid);case _:
+return $default(_that.type,_that.sessionId,_that.presensi,_that.errorSessionId,_that.errorPresensi,_that.successMessage,_that.loading,_that.isFormValid);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +198,10 @@ return $default(_that.type,_that.presensi,_that.errorPresensi,_that.loading,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PresensiType type,  String? presensi,  String? errorPresensi,  bool? loading,  bool isFormValid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PresensiType type,  String? sessionId,  String? presensi,  String? errorSessionId,  String? errorPresensi,  String? successMessage,  bool? loading,  bool isFormValid)?  $default,) {final _that = this;
 switch (_that) {
 case _PresensiDetailState() when $default != null:
-return $default(_that.type,_that.presensi,_that.errorPresensi,_that.loading,_that.isFormValid);case _:
+return $default(_that.type,_that.sessionId,_that.presensi,_that.errorSessionId,_that.errorPresensi,_that.successMessage,_that.loading,_that.isFormValid);case _:
   return null;
 
 }
@@ -210,12 +213,15 @@ return $default(_that.type,_that.presensi,_that.errorPresensi,_that.loading,_tha
 
 
 class _PresensiDetailState implements PresensiDetailState {
-  const _PresensiDetailState({required this.type, this.presensi, this.errorPresensi, this.loading, this.isFormValid = false});
+  const _PresensiDetailState({required this.type, this.sessionId, this.presensi, this.errorSessionId, this.errorPresensi, this.successMessage, this.loading, this.isFormValid = false});
   
 
 @override final  PresensiType type;
+@override final  String? sessionId;
 @override final  String? presensi;
+@override final  String? errorSessionId;
 @override final  String? errorPresensi;
+@override final  String? successMessage;
 @override final  bool? loading;
 @override@JsonKey() final  bool isFormValid;
 
@@ -229,16 +235,16 @@ _$PresensiDetailStateCopyWith<_PresensiDetailState> get copyWith => __$PresensiD
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PresensiDetailState&&(identical(other.type, type) || other.type == type)&&(identical(other.presensi, presensi) || other.presensi == presensi)&&(identical(other.errorPresensi, errorPresensi) || other.errorPresensi == errorPresensi)&&(identical(other.loading, loading) || other.loading == loading)&&(identical(other.isFormValid, isFormValid) || other.isFormValid == isFormValid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PresensiDetailState&&(identical(other.type, type) || other.type == type)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.presensi, presensi) || other.presensi == presensi)&&(identical(other.errorSessionId, errorSessionId) || other.errorSessionId == errorSessionId)&&(identical(other.errorPresensi, errorPresensi) || other.errorPresensi == errorPresensi)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.loading, loading) || other.loading == loading)&&(identical(other.isFormValid, isFormValid) || other.isFormValid == isFormValid));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,type,presensi,errorPresensi,loading,isFormValid);
+int get hashCode => Object.hash(runtimeType,type,sessionId,presensi,errorSessionId,errorPresensi,successMessage,loading,isFormValid);
 
 @override
 String toString() {
-  return 'PresensiDetailState(type: $type, presensi: $presensi, errorPresensi: $errorPresensi, loading: $loading, isFormValid: $isFormValid)';
+  return 'PresensiDetailState(type: $type, sessionId: $sessionId, presensi: $presensi, errorSessionId: $errorSessionId, errorPresensi: $errorPresensi, successMessage: $successMessage, loading: $loading, isFormValid: $isFormValid)';
 }
 
 
@@ -249,7 +255,7 @@ abstract mixin class _$PresensiDetailStateCopyWith<$Res> implements $PresensiDet
   factory _$PresensiDetailStateCopyWith(_PresensiDetailState value, $Res Function(_PresensiDetailState) _then) = __$PresensiDetailStateCopyWithImpl;
 @override @useResult
 $Res call({
- PresensiType type, String? presensi, String? errorPresensi, bool? loading, bool isFormValid
+ PresensiType type, String? sessionId, String? presensi, String? errorSessionId, String? errorPresensi, String? successMessage, bool? loading, bool isFormValid
 });
 
 
@@ -266,11 +272,14 @@ class __$PresensiDetailStateCopyWithImpl<$Res>
 
 /// Create a copy of PresensiDetailState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? presensi = freezed,Object? errorPresensi = freezed,Object? loading = freezed,Object? isFormValid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? sessionId = freezed,Object? presensi = freezed,Object? errorSessionId = freezed,Object? errorPresensi = freezed,Object? successMessage = freezed,Object? loading = freezed,Object? isFormValid = null,}) {
   return _then(_PresensiDetailState(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as PresensiType,presensi: freezed == presensi ? _self.presensi : presensi // ignore: cast_nullable_to_non_nullable
+as PresensiType,sessionId: freezed == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
+as String?,presensi: freezed == presensi ? _self.presensi : presensi // ignore: cast_nullable_to_non_nullable
+as String?,errorSessionId: freezed == errorSessionId ? _self.errorSessionId : errorSessionId // ignore: cast_nullable_to_non_nullable
 as String?,errorPresensi: freezed == errorPresensi ? _self.errorPresensi : errorPresensi // ignore: cast_nullable_to_non_nullable
+as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
 as String?,loading: freezed == loading ? _self.loading : loading // ignore: cast_nullable_to_non_nullable
 as bool?,isFormValid: null == isFormValid ? _self.isFormValid : isFormValid // ignore: cast_nullable_to_non_nullable
 as bool,

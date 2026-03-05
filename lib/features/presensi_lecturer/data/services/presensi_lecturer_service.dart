@@ -105,7 +105,7 @@ class PresensiLecturerServiceImpl implements PresensiLecturerService {
     final token = response?['token']?.toString();
 
     if (id == null || token == null || token.isEmpty) {
-      throw Exception('Session ID atau token presensi tidak ditemukan');
+      throw Exception('Kode presensi tidak ditemukan');
     }
 
     return (id: id, token: token);

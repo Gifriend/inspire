@@ -115,4 +115,8 @@ class Endpoint {
   static String nilaiByKelas(int kelasId) => '$nilaiBase/kelas/$kelasId';
   static String nilaiInput = '$nilaiBase/input';
   static String nilaiInputBatch = '$nilaiBase/input/batch';
+
+    // Presensi endpoints
+    static String presensi = _baseUrl(path: "/presensi");
+    static String presensiSubmit = '$presensi/submit';
 }
