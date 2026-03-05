@@ -51,15 +51,15 @@ class _ClassroomCoursesScreenState
         leadIcon: Assets.icons.fill.arrowBack,
         leadIconColor: BaseColor.white,
         onPressedLeadIcon: () => context.pop(),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: BaseColor.white),
-            tooltip: 'Logout Google',
-            onPressed: () async {
-              await ref.read(classroomAuthControllerProvider.notifier).signOut();
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.logout, color: BaseColor.white),
+        //     tooltip: 'Logout Google',
+        //     onPressed: () async {
+        //       await ref.read(classroomAuthControllerProvider.notifier).signOut();
+        //     },
+        //   ),
+        // ],
       ),
       disableSingleChildScrollView: true,
       child: Column(

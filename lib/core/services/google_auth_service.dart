@@ -7,12 +7,12 @@ enum ClassroomRole { student, lecturer }
 
 class GoogleAuthService {
   final GoogleSignIn _googleSignIn;
+  final String _serverClientId;
 
   GoogleAuthService({ClassroomRole role = ClassroomRole.student})
-      : _googleSignIn = GoogleSignIn(
-          serverClientId:
-          dotenv.env['GOOGLE_WEB_CLIENT_ID'] ??
-              '.apps.googleusercontent.com',
+      : _serverClientId = (dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '').trim(),
+        _googleSignIn = GoogleSignIn(
+          serverClientId: (dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '').trim(),
           scopes: role == ClassroomRole.lecturer
               ? <String>[
                   'email',
@@ -28,7 +28,7 @@ class GoogleAuthService {
                   'https://www.googleapis.com/auth/classroom.rosters.readonly',
                 ],
         ) {
-    debugPrint('[GoogleAuth] serverClientId = ${dotenv.env['GOOGLE_WEB_CLIENT_ID']}');
+    debugPrint('[GoogleAuth] serverClientId = $_serverClientId');
     debugPrint('[GoogleAuth] role = $role');
   }
 
@@ -37,6 +37,18 @@ class GoogleAuthService {
   Future<String?> signInWithGoogle() async {
     try {
       debugPrint('[GoogleAuth] Memulai signIn...');
+      if (_serverClientId.isEmpty) {
+        throw Exception('GOOGLE_WEB_CLIENT_ID belum diatur di .env');
+      }
+
+      await _googleSignIn.signOut();
+
+      try {
+        await _googleSignIn.disconnect();
+      } catch (e) {
+        debugPrint('[GoogleAuth] disconnect gagal, lanjut signIn: $e');
+      }
+
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
 
       if (account == null) {
@@ -48,7 +60,14 @@ class GoogleAuthService {
       debugPrint('[GoogleAuth] ID: ${account.id}');
 
       final GoogleSignInAuthentication auth = await account.authentication;
-      debugPrint('[GoogleAuth] AccessToken: ${auth.accessToken != null ? "OK (${auth.accessToken!.substring(0, 20)}...)" : "NULL"}');
+      final accessToken = auth.accessToken;
+      final accessTokenPreview =
+          accessToken != null && accessToken.length > 20
+              ? '${accessToken.substring(0, 20)}...'
+              : accessToken;
+      debugPrint(
+        '[GoogleAuth] AccessToken: ${accessTokenPreview != null ? "OK ($accessTokenPreview)" : "NULL"}',
+      );
       debugPrint('[GoogleAuth] IdToken: ${auth.idToken != null ? "OK" : "NULL"}');
 
       return auth.accessToken;
@@ -79,7 +98,12 @@ class GoogleAuthService {
 
   /// Logout dan membatalkan akses (disconnect).
   Future<void> signOut() async {
-    await _googleSignIn.disconnect();
+    await _googleSignIn.signOut();
+    try {
+      await _googleSignIn.disconnect();
+    } catch (e) {
+      debugPrint('[GoogleAuth] disconnect saat signOut gagal: $e');
+    }
   }
 }
 
