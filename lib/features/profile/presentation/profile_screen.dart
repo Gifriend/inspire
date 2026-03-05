@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inspire/core/services/google_auth_service.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
@@ -76,7 +77,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 height: size,
                 width: size,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   Assets.icons.app.user.path,
                   height: size,
                   width: size,
@@ -104,7 +105,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           horizontal: BaseSize.w8,
         ),
         decoration: BoxDecoration(
-          color: BaseColor.cardBackground1,
+          color: BaseColor.cardBackground2,
           borderRadius: BorderRadius.circular(BaseSize.radiusMd),
         ),
         child: Column(
@@ -210,11 +211,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 decoration: BoxDecoration(
                   color: BaseColor.white,
                   borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  border: Border.all(color: BaseColor.grey.withValues(alpha: 0.5)),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.grey.withValues(alpha: 0.25),
+                      color: BaseColor.grey.withValues(alpha: 0.5),
                       blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -259,9 +261,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 decoration: BoxDecoration(
                   color: BaseColor.white,
                   borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  border: Border.all(color: BaseColor.grey.withValues(alpha: 0.5)),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.grey.withValues(alpha: 0.2),
+                      color: BaseColor.grey.withValues(alpha: 0.5),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -292,9 +295,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 decoration: BoxDecoration(
                   color: BaseColor.white,
                   borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  border: Border.all(color: BaseColor.grey.withValues(alpha: 0.5)),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.grey.withValues(alpha: 0.2),
+                      color: BaseColor.grey.withValues(alpha: 0.5),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -321,9 +325,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 decoration: BoxDecoration(
                   color: BaseColor.white,
                   borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+                  border: Border.all(color: BaseColor.grey.withValues(alpha: 0.5)),
                   boxShadow: [
                     BoxShadow(
-                      color: BaseColor.grey.withValues(alpha: 0.2),
+                      color: BaseColor.grey.withValues(alpha: 0.5),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -385,7 +390,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
     if (confirmed == true && context.mounted) {
       try {
+        await _logoutClassroomOAuth();
         await ref.read(loginServiceProvider).logout();
+
+        ref.invalidate(classroomAuthControllerProvider);
+        ref.invalidate(classroomAuthLecturerControllerProvider);
+
         ref.read(profileControllerProvider.notifier).clearCache();
         if (context.mounted) {
           context.go('/login');
@@ -399,6 +409,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           );
         }
       }
+    }
+  }
+
+  Future<void> _logoutClassroomOAuth() async {
+    final studentGoogleAuth = ref.read(googleAuthServiceProvider);
+    final lecturerGoogleAuth = ref.read(googleAuthLecturerServiceProvider);
+
+    try {
+      await studentGoogleAuth.signOut();
+    } catch (e) {
+      debugPrint('[ProfileLogout] Student Google signOut gagal: $e');
+    }
+
+    try {
+      await lecturerGoogleAuth.signOut();
+    } catch (e) {
+      debugPrint('[ProfileLogout] Lecturer Google signOut gagal: $e');
     }
   }
 }
