@@ -22,6 +22,7 @@ migrate_working_dir/
 *.g.dart
 *.freezed.dart
 *.gen.dart
+*.mocks.dart
 
 #environment
 .env*
@@ -52,10 +53,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-google-services.json
-
+#related to documentation
 *.md
 
+#related to firebase
+google-services.json
 android/build/*
-
 firebase.json
