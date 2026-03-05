@@ -4,6 +4,8 @@ import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/features/presentation.dart';
 
+import '../../../core/widgets/widgets.dart';
+
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -25,22 +27,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final splashState = ref.watch(splashControllerProvider);
 
     return SafeArea(
-      child: Scaffold(
+      child: ScaffoldWidget(
+        disableSingleChildScrollView: true,
+        disablePadding: true,
         backgroundColor: BaseColor.primaryInspire,
-        body: Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset(Assets.icons.app.logoInspire.path),
-              Gap.h20,
               splashState.maybeWhen(
-                loading: () => const CircularProgressIndicator(color: Colors.white),
-                error: (message) => Text(
-                  'Error: $message',
-                  style: const TextStyle(color: Colors.red),
-                ),
-                orElse: () => const SizedBox.shrink(),
+                loading: () => Image.asset(Assets.icons.app.logoInspire.path),
+                // error: Image.asset(Assets.icons.app.logoInspire.path),
+                orElse: () => Image.asset(Assets.icons.app.logoInspire.path),
               ),
             ],
           ),

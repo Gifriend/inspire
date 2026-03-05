@@ -9,5 +9,6 @@ abstract class SplashState with _$SplashState {
   const factory SplashState.loading() = _Loading;
   const factory SplashState.authenticated() = _Authenticated;
   const factory SplashState.unauthenticated() = _Unauthenticated;
+  const factory SplashState.offline() = _Offline;
   const factory SplashState.error(String message) = _Error;
 }

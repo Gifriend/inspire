@@ -19,10 +19,10 @@ class SplashController extends _$SplashController {
 
   Future<void> init(BuildContext context) async {
     state = const SplashState.loading();
-    try {
-      // Short delay for splash effect
-      await Future.delayed(const Duration(seconds: 2));
+    final minDisplay = const Duration(milliseconds: 800);
+    final start = DateTime.now();
 
+    try {
       final hiveService = ref.watch(hiveServiceProvider);
       await hiveService.ensureInitialized();
       final loginService = ref.watch(loginServiceProvider);
@@ -33,39 +33,61 @@ class SplashController extends _$SplashController {
 
       if (!hasAccessToken && !hasRefreshToken) {
         state = const SplashState.unauthenticated();
-        if (context.mounted) {
-          context.goNamed(AppRoute.login);
-        }
+        final elapsed = DateTime.now().difference(start);
+        if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+        if (context.mounted) context.goNamed(AppRoute.login);
         return;
       }
 
       if (hasRefreshToken) {
         try {
-          await loginService.refreshToken();
+          // Try refreshing but don't block too long; if network is poor, we'll fallback to offline.
+          await loginService.refreshToken().timeout(const Duration(seconds: 3));
           state = const SplashState.authenticated();
-          if (context.mounted) {
-            context.goNamed(AppRoute.home);
-          }
+          final elapsed = DateTime.now().difference(start);
+          if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+          if (context.mounted) context.goNamed(AppRoute.home);
           return;
         } catch (e) {
-          state = SplashState.error(e.toString());
-          if (context.mounted) {
-            context.goNamed(AppRoute.login);
+          // Refresh failed (network/token). If we have local auth stored, allow offline mode.
+          if (auth != null) {
+            state = const SplashState.offline();
+            final elapsed = DateTime.now().difference(start);
+            if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+            if (context.mounted) context.goNamed(AppRoute.home);
+            return;
           }
+
+          // No usable local auth -> go to login
+          state = SplashState.error(e.toString());
+          final elapsed = DateTime.now().difference(start);
+          if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+          if (context.mounted) context.goNamed(AppRoute.login);
           return;
         }
       }
 
-      state = const SplashState.authenticated();
-      if (context.mounted) {
-        context.goNamed(AppRoute.home);
-      }
+      // Has only access token (no refresh). Allow offline access using cached data.
+      state = const SplashState.offline();
+      final elapsed = DateTime.now().difference(start);
+      if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+      if (context.mounted) context.goNamed(AppRoute.home);
     } catch (e) {
-      state = SplashState.error(e.toString());
-      // Fallback to login on error
-      if (context.mounted) {
-        context.goNamed(AppRoute.login);
+      // Unexpected error: fallback to login unless there's cached auth
+      final hiveService = ref.watch(hiveServiceProvider);
+      final auth = await hiveService.getAuth();
+      if (auth != null) {
+        state = const SplashState.offline();
+        final elapsed = DateTime.now().difference(start);
+        if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+        if (context.mounted) context.goNamed(AppRoute.home);
+        return;
       }
+
+      state = SplashState.error(e.toString());
+      final elapsed = DateTime.now().difference(start);
+      if (elapsed < minDisplay) await Future.delayed(minDisplay - elapsed);
+      if (context.mounted) context.goNamed(AppRoute.login);
     }
   }
 }

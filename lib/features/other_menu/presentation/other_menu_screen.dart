@@ -114,7 +114,7 @@ class OtherMenuScreen extends ConsumerWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (_, __) => Gap.h12,
+      separatorBuilder: (_, _) => Gap.h12,
       itemBuilder: (context, index) {
         final item = items[index];
         return _buildMenuCard(

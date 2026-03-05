@@ -1,8 +1,5 @@
 import 'dart:io';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/core/assets/assets.dart';
@@ -32,18 +29,20 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
   }
 
   Future<void> _handleDownloadPdf() async {
+    // follow simpler KHS flow: request permission, then save to public Downloads
     final hasPermission = await PermissionUtil.requestStorageForDownload();
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Izin penyimpanan diperlukan untuk mengunduh KHS.'),
+            content: Text('Izin penyimpanan diperlukan untuk mengunduh Transkrip.'),
             backgroundColor: Colors.red,
           ),
         );
       }
       return;
     }
+
     setState(() => _isDownloading = true);
     try {
       debugPrint('Starting Transkrip PDF download');
@@ -54,135 +53,65 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
 
       debugPrint('Received ${bytes.length} bytes from server');
 
-      if (bytes.isEmpty) {
-        throw Exception('File PDF kosong - tidak ada data yang diterima');
+      if (bytes.isEmpty || bytes.length < 500) {
+        throw Exception('File PDF kosong atau data tidak valid');
       }
 
-      final filename = 'Transkrip_Nilai.pdf';
+      // build safe filename with timestamp (like KHS)
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filename = 'Transkrip_Nilai_$timestamp.pdf';
 
       if (Platform.isAndroid) {
-        try {
-          // Execute method to MainActivity
-          final channel = const MethodChannel(
-            'com.gifriend.inspire/file_saver',
-          );
-          debugPrint(
-            'Calling native save via MethodChannel, bytes length: ${bytes.length}',
-          );
-          final base64Str = base64Encode(bytes);
-          debugPrint('Base64 encoded length: ${base64Str.length}');
-
-          final res = await channel.invokeMethod<String>(
-            'saveFileToDownloads',
-            {'base64': base64Str, 'filename': filename},
-          );
-
-          if (res != null && res.isNotEmpty) {
-            debugPrint('Native save returned: $res');
-            // Verify file exists
-            final resFile = File(res);
-            if (resFile.existsSync()) {
-              debugPrint('File verified to exist at: $res');
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('File disimpan: $res'),
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 5),
-                  ),
-                );
-              }
-              return;
-            } else if (res.startsWith('content://')) {
-              debugPrint(' Native returned content URI: $res');
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(' File disimpan ke folder Downloads'),
-                    backgroundColor: Colors.green,
-                    duration: Duration(seconds: 5),
-                  ),
-                );
-              }
-              return;
-            }
-          }
-        } catch (e) {
-          debugPrint('Native save error: $e');
+        // save directly to public Download folder (consistent with KHS)
+        final saveDir = Directory('/storage/emulated/0/Download');
+        if (!saveDir.existsSync()) {
+          saveDir.createSync(recursive: true);
         }
-      }
+        final file = File('${saveDir.path}/$filename');
+        await file.writeAsBytes(bytes);
 
-      // Fallback: Try to save to public Downloads folder
-      Directory? saveDir;
-
-      // First, try public Downloads
-      try {
-        final publicDownloads = Directory('/storage/emulated/0/Download');
-        if (publicDownloads.existsSync()) {
-          saveDir = publicDownloads;
-          debugPrint('Using public Downloads: ${publicDownloads.path}');
-        }
-      } catch (_) {}
-
-      // If not available, try getExternalStorageDirectories
-      if (saveDir == null) {
-        try {
-          if (Platform.isAndroid) {
-            final dirs = await getExternalStorageDirectories(
-              type: StorageDirectory.downloads,
+        if (file.existsSync()) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Transkrip disimpan: ${file.path}'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 5),
+              ),
             );
-            if (dirs != null && dirs.isNotEmpty) {
-              saveDir = dirs.first;
-              debugPrint(
-                'Using getExternalStorageDirectories: ${saveDir.path}',
-              );
-            }
           }
-        } catch (e) {
-          debugPrint('getExternalStorageDirectories failed: $e');
+          return;
         }
+        // if writing directly failed, fallthrough to other strategies below
       }
 
-      // For desktop platforms, try getDownloadsDirectory
-      if (saveDir == null) {
-        try {
-          final downloads = await getDownloadsDirectory();
-          if (downloads != null) {
-            saveDir = downloads;
-            debugPrint('Using getDownloadsDirectory: ${downloads.path}');
-          }
-        } catch (e) {
-          debugPrint('getDownloadsDirectory failed: $e');
-        }
+      // non-Android or fallback: try getDownloadsDirectory
+      Directory? saveDir;
+      try {
+        final downloads = await getDownloadsDirectory();
+        if (downloads != null) saveDir = downloads;
+      } catch (e) {
+        debugPrint('getDownloadsDirectory failed: $e');
       }
 
-      // Fallback to application documents (private, no permission needed)
-      if (saveDir == null) {
-        saveDir = await getApplicationDocumentsDirectory();
-        debugPrint('Fallback to app documents: ${saveDir.path}');
-      }
+      // fallback to app documents
+      if (saveDir == null) saveDir = await getApplicationDocumentsDirectory();
 
       final file = File('${saveDir.path}/$filename');
-      debugPrint('Saving file to: ${file.path}');
       await file.writeAsBytes(bytes);
 
-      // Verify file was saved
       if (file.existsSync()) {
-        final savedFileSize = file.lengthSync();
-        debugPrint(
-          'File successfully saved at: ${file.path} (size: $savedFileSize bytes)',
-        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('File disimpan: ${file.path}'),
+              content: Text('Transkrip disimpan: ${file.path}'),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 5),
             ),
           );
         }
       } else {
-        throw Exception('File not saved or not accessible at ${file.path}');
+        throw Exception('File tidak dapat disimpan di ${file.path}');
       }
     } catch (e) {
       if (mounted) {
@@ -263,8 +192,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
           ),
           Gap.h12,
           ...transcript.bySemester
-              .map((sem) => _buildSemesterSection(sem))
-              .toList(),
+              .map((sem) => _buildSemesterSection(sem)),
 
           Gap.h8,
           // Grand summary rows

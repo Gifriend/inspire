@@ -114,8 +114,7 @@ class _LecturerPaTranskripScreenState
           Gap.h16,
           // Semester sections
           ...data.bySemester
-              .map((sem) => _buildSemesterSection(sem))
-              .toList(),
+              .map((sem) => _buildSemesterSection(sem)),
           Gap.h16,
           _buildDownloadButton(data.mahasiswa.nim),
           Gap.h32,
