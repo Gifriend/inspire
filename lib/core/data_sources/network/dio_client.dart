@@ -46,10 +46,10 @@ class DioClient {
               options.headers['Authorization'] = 'Bearer ${auth.accessToken}';
             }
 
-            if (options.data != null &&
-                (options.data is Map || options.data is List)) {
-              options.data = json.encode(options.data);
-            }
+            // Leave body encoding to Dio. Removing manual json.encode to avoid
+            // double-encoding (sending a JSON string instead of JSON object).
+            // If callers need special handling (e.g., multipart), they should
+            // provide the appropriate `Options` or data format.
             handler.next(options);
           },
         ),

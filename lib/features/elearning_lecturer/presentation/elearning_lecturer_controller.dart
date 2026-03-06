@@ -191,7 +191,9 @@ class ElearningLecturerController
       // Reload data after creation
       // state = const ElearningLecturerLoading();
     } catch (e) {
-      state = ElearningLecturerError(e.toString());
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -210,7 +212,9 @@ class ElearningLecturerController
       );
       state = const AssignmentCreated();
     } catch (e) {
-      state = ElearningLecturerError(e.toString());
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -239,7 +243,9 @@ class ElearningLecturerController
       );
       state = const QuizCreated();
     } catch (e) {
-      state = ElearningLecturerError(e.toString());
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 

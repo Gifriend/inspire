@@ -25,27 +25,33 @@ Future<T?> showDialogCustomWidget<T>({
       ),
     ),
     builder: (context) => Padding(
-      padding: EdgeInsets.symmetric(horizontal: BaseSize.w12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Gap.h24,
-          ScreenTitleWidget.bottomSheet(
-            title: title,
-            trailIcon: Assets.icons.line.times,
-            trailIconColor: BaseColor.primaryText,
-            onPressedTrailIcon: () {
-              if (onPopBottomSheet != null) {
-                onPopBottomSheet();
-              }
-              context.pop();
-            },
-          ),
-          Gap.h16,
-          content,
-          Gap.h48,
-        ],
+      padding: EdgeInsets.only(
+        left: BaseSize.w12,
+        right: BaseSize.w12,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Gap.h24,
+            ScreenTitleWidget.bottomSheet(
+              title: title,
+              trailIcon: Assets.icons.line.times,
+              trailIconColor: BaseColor.primaryText,
+              onPressedTrailIcon: () {
+                if (onPopBottomSheet != null) {
+                  onPopBottomSheet();
+                }
+                context.pop();
+              },
+            ),
+            Gap.h16,
+            content,
+            Gap.h48,
+          ],
+        ),
       ),
     ),
   );

@@ -320,8 +320,10 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
         data: {
           'title': title,
           'type': type,
-          'content': content,
-          'fileUrl': fileUrl,
+          // Only include optional fields when they have a value to avoid
+          // NestJS ValidationPipe rejecting explicit null properties.
+          if (content != null) 'content': content,
+          if (fileUrl != null) 'fileUrl': fileUrl,
           'sessionId': sessionId,
         },
       );
@@ -385,8 +387,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
           'startTime': startTime.toIso8601String(),
           'endTime': endTime.toIso8601String(),
           'gradingMethod': gradingMethod,
-          'hideGrades': hideGrades,
-          'hideUntilDeadline': hideUntilDeadline,
+          // Note: hideGrades / hideUntilDeadline are not in the backend DTO;
+          // omit them to avoid a 400 from ValidationPipe.
           'sessionId': sessionId,
           'questions': questions,
         },
