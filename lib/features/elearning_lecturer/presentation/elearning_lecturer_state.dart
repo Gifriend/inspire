@@ -96,3 +96,13 @@ class UnmergeClassSaved extends ElearningLecturerState {
 class VisibilityUpdated extends ElearningLecturerState {
   const VisibilityUpdated();
 }
+
+class ParticipationLoaded extends ElearningLecturerState {
+  final ParticipationData data;
+  const ParticipationLoaded(this.data);
+}
+
+class RankingLoaded extends ElearningLecturerState {
+  final RankingData data;
+  const RankingLoaded(this.data);
+}

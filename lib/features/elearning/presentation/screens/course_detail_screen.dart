@@ -59,6 +59,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
         leadIcon: Assets.icons.fill.arrowBack,
         onPressedLeadIcon: () => context.pop(),
       ),
+      bottomNavigationBar: _buildBottomNav(context),
       child: courseState.when(
         initial: () => const SizedBox.shrink(),
         // Implementasi Skeleton Loading
@@ -106,6 +107,54 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBottomNav(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w16,
+        vertical: BaseSize.h8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: ButtonWidget.outlined(
+              text: 'Peserta Kelas',
+              onTap: () => context.pushNamed(
+                AppRoute.studentParticipants,
+                pathParameters: {
+                  'kelasId': widget.kelasId,
+                },
+                queryParameters: {'courseName': widget.courseName},
+              ),
+            ),
+          ),
+          Gap.w12,
+          Expanded(
+            child: ButtonWidget.primary(
+              text: 'Nilai Saya',
+              onTap: () => context.pushNamed(
+                AppRoute.studentGrades,
+                pathParameters: {
+                  'kelasId': widget.kelasId,
+                },
+                queryParameters: {'courseName': widget.courseName},
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -24,6 +24,12 @@ export 'elearning/presentation/screens/assignment_detail_screen.dart';
 export 'elearning/presentation/screens/material_detail_screen.dart';
 export 'elearning/presentation/screens/quiz_detail_screen.dart';
 export 'elearning/presentation/screens/quiz_taking_screen.dart';
+export 'elearning/presentation/screens/student_participants_screen.dart';
+export 'elearning/presentation/screens/student_grades_screen.dart';
+export 'elearning/presentation/controllers/student_participants_controller.dart';
+export 'elearning/presentation/controllers/student_grades_controller.dart';
+export 'elearning/presentation/states/student_participants_state.dart';
+export 'elearning/presentation/states/student_grades_state.dart';
 //E-Learning Lecturer
 export 'elearning_lecturer/presentation/elearning_lecturer_controller.dart';
 export 'elearning_lecturer/presentation/elearning_lecturer_screen.dart';
@@ -32,6 +38,8 @@ export 'elearning_lecturer/presentation/screens/course_management_screen.dart';
 export 'elearning_lecturer/presentation/screens/create_quiz_screen.dart';
 export 'elearning_lecturer/presentation/screens/quiz_attempts_screen.dart';
 export 'elearning_lecturer/presentation/screens/grading_screen.dart';
+export 'elearning_lecturer/presentation/screens/participation_screen.dart';
+export 'elearning_lecturer/presentation/screens/ranking_screen.dart';
 //home
 export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';

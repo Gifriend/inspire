@@ -40,6 +40,8 @@ abstract class ElearningLecturerService {
     required String description,
     required DateTime deadline,
     required String sessionId,
+    String kategori,
+    double bobot,
   });
 
   Future<QuizModel> createQuiz({
@@ -52,7 +54,12 @@ abstract class ElearningLecturerService {
     bool hideUntilDeadline = false,
     required String sessionId,
     required List<Map<String, dynamic>> questions,
+    String kategori,
+    double bobot,
   });
+
+  Future<ParticipationData> getParticipation(int kelasId);
+  Future<RankingData> getRanking(int kelasId);
 
   Future<void> gradeSubmission({
     required String submissionId,
@@ -344,6 +351,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
     required String description,
     required DateTime deadline,
     required String sessionId,
+    String kategori = 'TUGAS',
+    double bobot = 0.0,
   }) async {
     try {
       final response = await _dioClient.post<Map<String, dynamic>>(
@@ -353,6 +362,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
           'description': description,
           'deadline': deadline.toIso8601String(),
           'sessionId': sessionId,
+          'kategori': kategori,
+          'bobot': bobot,
         },
       );
 
@@ -377,6 +388,8 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
     bool hideUntilDeadline = false,
     required String sessionId,
     required List<Map<String, dynamic>> questions,
+    String kategori = 'KUIS',
+    double bobot = 0.0,
   }) async {
     try {
       final response = await _dioClient.post<Map<String, dynamic>>(
@@ -387,10 +400,10 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
           'startTime': startTime.toIso8601String(),
           'endTime': endTime.toIso8601String(),
           'gradingMethod': gradingMethod,
-          // Note: hideGrades / hideUntilDeadline are not in the backend DTO;
-          // omit them to avoid a 400 from ValidationPipe.
           'sessionId': sessionId,
           'questions': questions,
+          'kategori': kategori,
+          'bobot': bobot,
         },
       );
 
@@ -401,6 +414,32 @@ class ElearningLecturerServiceImpl implements ElearningLecturerService {
       return QuizModel.fromJson(response);
     } catch (e) {
       throw Exception('Error creating quiz: $e');
+    }
+  }
+
+  @override
+  Future<ParticipationData> getParticipation(int kelasId) async {
+    try {
+      final response = await _dioClient.get<Map<String, dynamic>>(
+        '/elearning/kelas/$kelasId/participation',
+      );
+      if (response == null) throw Exception('Failed to load participation data');
+      return ParticipationData.fromJson(response);
+    } catch (e) {
+      throw Exception('Error loading participation: $e');
+    }
+  }
+
+  @override
+  Future<RankingData> getRanking(int kelasId) async {
+    try {
+      final response = await _dioClient.get<Map<String, dynamic>>(
+        '/elearning/kelas/$kelasId/ranking',
+      );
+      if (response == null) throw Exception('Failed to load ranking data');
+      return RankingData.fromJson(response);
+    } catch (e) {
+      throw Exception('Error loading ranking: $e');
     }
   }
 

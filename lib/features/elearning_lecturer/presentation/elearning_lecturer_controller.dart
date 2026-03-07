@@ -202,6 +202,8 @@ class ElearningLecturerController
     required String description,
     required DateTime deadline,
     required String sessionId,
+    String kategori = 'TUGAS',
+    double bobot = 0.0,
   }) async {
     try {
       await _service.createAssignment(
@@ -209,6 +211,8 @@ class ElearningLecturerController
         description: description,
         deadline: deadline,
         sessionId: sessionId,
+        kategori: kategori,
+        bobot: bobot,
       );
       state = const AssignmentCreated();
     } catch (e) {
@@ -228,6 +232,8 @@ class ElearningLecturerController
     bool hideUntilDeadline = false,
     required String sessionId,
     required List<Map<String, dynamic>> questions,
+    String kategori = 'KUIS',
+    double bobot = 0.0,
   }) async {
     try {
       await _service.createQuiz(
@@ -240,6 +246,8 @@ class ElearningLecturerController
         hideUntilDeadline: hideUntilDeadline,
         sessionId: sessionId,
         questions: questions,
+        kategori: kategori,
+        bobot: bobot,
       );
       state = const QuizCreated();
     } catch (e) {
@@ -283,6 +291,30 @@ class ElearningLecturerController
       state = QuizAttemptsLoaded(attempts);
     } catch (e) {
       state = ElearningLecturerError(e.toString());
+    }
+  }
+
+  Future<void> loadParticipation(int kelasId) async {
+    state = const ElearningLecturerLoading();
+    try {
+      final data = await _service.getParticipation(kelasId);
+      state = ParticipationLoaded(data);
+    } catch (e) {
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  Future<void> loadRanking(int kelasId) async {
+    state = const ElearningLecturerLoading();
+    try {
+      final data = await _service.getRanking(kelasId);
+      state = RankingLoaded(data);
+    } catch (e) {
+      state = ElearningLecturerError(
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 

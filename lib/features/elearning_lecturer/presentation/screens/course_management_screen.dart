@@ -147,6 +147,11 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             ),
           const Divider(height: 1),
           Expanded(child: _buildBody(state, loaded, hasStarted)),
+          if (loaded != null && hasStarted)
+            _AnalyticsBar(
+              kelasId: widget.kelasId,
+              courseName: widget.courseName,
+            ),
         ],
       ),
     );
@@ -1189,14 +1194,17 @@ class _AssignmentFormContent extends ConsumerStatefulWidget {
 class _AssignmentFormContentState extends ConsumerState<_AssignmentFormContent> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _descCtrl;
+  late final TextEditingController _bobotCtrl;
   late String _sessionId;
   DateTime? _deadline;
+  String _kategori = 'TUGAS';
 
   @override
   void initState() {
     super.initState();
     _titleCtrl = TextEditingController();
     _descCtrl = TextEditingController();
+    _bobotCtrl = TextEditingController(text: '0');
     _sessionId = widget.sessions.first.id;
   }
 
@@ -1204,6 +1212,7 @@ class _AssignmentFormContentState extends ConsumerState<_AssignmentFormContent> 
   void dispose() {
     _titleCtrl.dispose();
     _descCtrl.dispose();
+    _bobotCtrl.dispose();
     super.dispose();
   }
 
@@ -1230,10 +1239,13 @@ class _AssignmentFormContentState extends ConsumerState<_AssignmentFormContent> 
   void _submit() {
     final title = _titleCtrl.text.trim();
     final desc = _descCtrl.text.trim();
+    final bobotText = _bobotCtrl.text.trim();
 
     if (title.isEmpty) { _snack('Judul tugas wajib diisi'); return; }
     if (desc.isEmpty) { _snack('Deskripsi tugas wajib diisi'); return; }
     if (_deadline == null) { _snack('Deadline wajib dipilih'); return; }
+    final bobot = double.tryParse(bobotText) ?? 0.0;
+    if (bobot < 0 || bobot > 100) { _snack('Bobot harus antara 0-100'); return; }
 
     context.pop();
     ref.read(elearningLecturerControllerProvider.notifier).createAssignment(
@@ -1241,6 +1253,8 @@ class _AssignmentFormContentState extends ConsumerState<_AssignmentFormContent> 
           description: desc,
           deadline: _deadline!,
           sessionId: _sessionId,
+          kategori: _kategori,
+          bobot: bobot,
         );
   }
 
@@ -1270,6 +1284,26 @@ class _AssignmentFormContentState extends ConsumerState<_AssignmentFormContent> 
             decoration: const InputDecoration(
               labelText: 'Deskripsi',
               border: OutlineInputBorder(),
+            ),
+          ),
+          Gap.h12,
+          DropdownWidget<String>(
+            labelText: 'Kategori',
+            hintText: 'Pilih Kategori',
+            value: _kategori,
+            items: const ['TUGAS', 'UTS', 'UAS', 'PARTISIPASI'],
+            itemLabelBuilder: (k) => k,
+            onChanged: (v) { if (v != null) setState(() => _kategori = v); },
+          ),
+          Gap.h12,
+          TextField(
+            controller: _bobotCtrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(
+              labelText: 'Bobot (%)',
+              hintText: 'misal: 30',
+              border: OutlineInputBorder(),
+              suffixText: '%',
             ),
           ),
           Gap.h12,
@@ -1316,6 +1350,55 @@ class _SessionDropdown extends StatelessWidget {
         return 'Minggu ${s.weekNumber}: ${s.title}';
       },
       onChanged: (v) { if (v != null) onChanged(v); },
+    );
+  }
+}
+
+/// Bottom bar with Partisipasi and Ranking navigation buttons.
+class _AnalyticsBar extends StatelessWidget {
+  final int kelasId;
+  final String courseName;
+
+  const _AnalyticsBar({required this.kelasId, required this.courseName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ParticipationScreen(
+                    kelasId: kelasId,
+                    courseName: courseName,
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.people_outline),
+              label: const Text('Partisipasi'),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => RankingScreen(
+                    kelasId: kelasId,
+                    courseName: courseName,
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.leaderboard),
+              label: const Text('Ranking'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

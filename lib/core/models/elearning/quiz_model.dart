@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:inspire/core/models/elearning/assignment_model.dart'
+    show TaskKategori;
 
 part 'quiz_model.freezed.dart';
 part 'quiz_model.g.dart';
@@ -32,6 +34,8 @@ abstract class QuizModel with _$QuizModel {
     required DateTime endTime,
     required QuizGradingMethod gradingMethod,
     @Default(false) bool isHidden,
+    @Default(TaskKategori.kuis) TaskKategori kategori,
+    @Default(0.0) double bobot,
     required String sessionId,
     required DateTime createdAt,
     @Default([]) List<QuizQuestionModel> questions,

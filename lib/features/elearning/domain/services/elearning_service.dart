@@ -7,6 +7,8 @@ import 'package:inspire/core/models/elearning/material_model.dart';
 import 'package:inspire/core/models/elearning/course_detail_model.dart';
 import 'package:inspire/core/models/elearning/elearning_class_config_model.dart';
 import 'package:inspire/core/models/elearning/elearning_setup_models.dart';
+import 'package:inspire/core/models/elearning/student_participants_model.dart';
+import 'package:inspire/core/models/elearning/student_grades_model.dart';
 import 'package:inspire/features/elearning/data/repositories/elearning_repository.dart';
 
 import '../../../../core/data_sources/network/dio_client.dart';
@@ -95,6 +97,26 @@ class ElearningService {
   Future<CourseDetailModel> getCourseDetail(int kelasId) async {
     try {
       return await _repository.getCourseDetail(kelasId);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // ─── Student — Participants & Grades ────────────────────────────────────────────────
+
+  /// Daftar peserta (participants) yang terdaftar di suatu kelas (untuk mahasiswa).
+  Future<StudentParticipantsData> getStudentParticipants(int kelasId) async {
+    try {
+      return await _repository.getStudentParticipants(kelasId);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Nilai & ranking mahasiswa sendiri dalam suatu kelas.
+  Future<StudentGradesData> getStudentGrades(int kelasId) async {
+    try {
+      return await _repository.getStudentGrades(kelasId);
     } catch (e) {
       rethrow;
     }

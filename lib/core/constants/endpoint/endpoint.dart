@@ -44,6 +44,10 @@ class Endpoint {
   static String quizSubmit = '$elearning/quiz/submit';
   static String quizDetail(String id) => '$elearning/quiz/$id';
   static String materialDetail(String id) => '$elearning/material/$id';
+  static String studentParticipants(int kelasId) =>
+      '$elearning/kelas/$kelasId/participants';
+  static String studentGrades(int kelasId) =>
+      '$elearning/kelas/$kelasId/my-grades';
 
   // E-learning — Lecturer endpoints
   static String lecturerCourses = '$elearning/lecturer/courses';

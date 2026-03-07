@@ -31,6 +31,8 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
   DateTime? _startTime;
   DateTime? _endTime;
   String _gradingMethod = 'LATEST';
+  String _kategori = 'KUIS';
+  final _bobotController = TextEditingController();
   bool _hideGrades = false;
   bool _hideUntilDeadline = false;
 
@@ -40,6 +42,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
   void dispose() {
     _titleController.dispose();
     _durationController.dispose();
+    _bobotController.dispose();
     for (var q in _questions) {
       q.dispose();
     }
@@ -131,6 +134,7 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
     }
 
     final questionsData = _questions.map((q) => q.toJson()).toList();
+    final bobot = double.tryParse(_bobotController.text.trim()) ?? 0.0;
 
     try {
       await ref.read(elearningLecturerControllerProvider.notifier).createQuiz(
@@ -143,6 +147,8 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
             hideUntilDeadline: _hideUntilDeadline,
             sessionId: _selectedSessionId!,
             questions: questionsData,
+            kategori: _kategori,
+            bobot: bobot,
           );
 
       if (mounted) {
@@ -282,6 +288,29 @@ class _CreateQuizScreenState extends ConsumerState<CreateQuizScreen> {
                   _gradingMethod = value;
                 });
               },
+            ),
+            Gap.h16,
+            DropdownWidget<String>(
+              labelText: 'Kategori Kuis',
+              hintText: 'Pilih Kategori',
+              value: _kategori,
+              items: const ['KUIS', 'UTS', 'UAS'],
+              itemLabelBuilder: (k) => k,
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() => _kategori = value);
+              },
+            ),
+            Gap.h16,
+            TextFormField(
+              controller: _bobotController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Bobot (%)',
+                hintText: 'misal: 30',
+                border: OutlineInputBorder(),
+                suffixText: '%',
+              ),
             ),
             Gap.h16,
             const Text(

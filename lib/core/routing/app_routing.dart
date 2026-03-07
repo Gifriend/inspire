@@ -39,6 +39,8 @@ class AppRoute {
   static const String eLearning = 'elearning';
   static const String eLearningSearch = 'elearning-search';
   static const String courseDetail = 'course-detail';
+  static const String studentParticipants = 'student-participants';
+  static const String studentGrades = 'student-grades';
   static const String materialDetail = 'material-detail';
   static const String assignmentDetail = 'assignment-detail';
   static const String quizDetail = 'quiz-detail';
@@ -128,6 +130,24 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final kelasId = state.pathParameters['kelasId'] ?? '0';
           final courseName = state.uri.queryParameters['courseName'] ?? 'Course';
           return CourseDetailScreen(kelasId: kelasId, courseName: courseName);
+        },
+      ),
+      GoRoute(
+        path: '/course/:kelasId/participants',
+        name: AppRoute.studentParticipants,
+        builder: (context, state) {
+          final kelasId = int.parse(state.pathParameters['kelasId'] ?? '0');
+          final courseName = state.uri.queryParameters['courseName'] ?? '';
+          return StudentParticipantsScreen(kelasId: kelasId, namaKelas: courseName);
+        },
+      ),
+      GoRoute(
+        path: '/course/:kelasId/my-grades',
+        name: AppRoute.studentGrades,
+        builder: (context, state) {
+          final kelasId = int.parse(state.pathParameters['kelasId'] ?? '0');
+          final courseName = state.uri.queryParameters['courseName'] ?? '';
+          return StudentGradesScreen(kelasId: kelasId, namaKelas: courseName);
         },
       ),
       GoRoute(

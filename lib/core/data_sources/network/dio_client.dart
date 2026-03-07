@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
-
 import '../data_sources.dart';
 
 class DioClient {

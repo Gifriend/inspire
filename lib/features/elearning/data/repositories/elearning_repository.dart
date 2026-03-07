@@ -7,6 +7,8 @@ import 'package:inspire/core/models/elearning/material_model.dart';
 import 'package:inspire/core/models/elearning/course_detail_model.dart';
 import 'package:inspire/core/models/elearning/elearning_class_config_model.dart';
 import 'package:inspire/core/models/elearning/elearning_setup_models.dart';
+import 'package:inspire/core/models/elearning/student_participants_model.dart';
+import 'package:inspire/core/models/elearning/student_grades_model.dart';
 import '../../../../core/data_sources/network/dio_client.dart';
 
 class ElearningRepository {
@@ -135,6 +137,34 @@ class ElearningRepository {
       );
 
       return CourseDetailModel.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // ─── Student — Participants & Grades ────────────────────────────────────────────────
+
+  /// Daftar peserta (participants) yang terdaftar di suatu kelas.
+  Future<StudentParticipantsData> getStudentParticipants(int kelasId) async {
+    try {
+      final data = await _dioClient.get(
+        Endpoint.studentParticipants(kelasId),
+      );
+
+      return StudentParticipantsData.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Nilai & ranking mahasiswa sendiri dalam suatu kelas.
+  Future<StudentGradesData> getStudentGrades(int kelasId) async {
+    try {
+      final data = await _dioClient.get(
+        Endpoint.studentGrades(kelasId),
+      );
+
+      return StudentGradesData.fromJson(data);
     } catch (e) {
       rethrow;
     }
