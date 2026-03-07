@@ -377,29 +377,29 @@ class ButtonWidget extends StatelessWidget {
         return EdgeInsets.all(BaseSize.w8);
       } else {
         return EdgeInsets.symmetric(
-          horizontal: BaseSize.w24,
+          horizontal: BaseSize.w12,
           vertical: BaseSize.h8,
         );
       }
     } else if (buttonSize == ButtonSize.medium) {
       if (_isIconOnly) {
-        return EdgeInsets.all(BaseSize.w12);
+        return EdgeInsets.all(BaseSize.w8);
       } else {
         return EdgeInsets.symmetric(
-          horizontal: BaseSize.w24,
+          horizontal: BaseSize.w12,
           vertical: BaseSize.h12,
         );
       }
     } else {
       if (_isIconOnly) {
         return EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h16,
+          horizontal: BaseSize.w12,
+          vertical: BaseSize.h12,
         );
       } else {
         return EdgeInsets.symmetric(
-          horizontal: BaseSize.w16,
-          vertical: BaseSize.h16,
+          horizontal: BaseSize.w12,
+          vertical: BaseSize.h12,
         );
       }
     }

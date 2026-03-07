@@ -636,7 +636,7 @@ class _QuizCard extends ConsumerWidget {
                       isHidden: !quiz.isHidden,
                     ),
               ),
-              const SizedBox(width: 8),
+              Gap.w8,
               ButtonWidget.outlined(
                 buttonSize: ButtonSize.small,
                 onTap: () => Navigator.of(context).push(
@@ -647,8 +647,8 @@ class _QuizCard extends ConsumerWidget {
                     ),
                   ),
                 ),
-                icon: Assets.icons.fill.checkBadge.svg(),
-                text: 'Lihat Nilai Quiz',
+                icon: Assets.icons.fill.checkBadge.svg(width: BaseSize.customWidth(10.0), height: BaseSize.customHeight(10.0)),
+                text: 'Lihat Nilai',
                 isShrink: true,
               ),
             ],
