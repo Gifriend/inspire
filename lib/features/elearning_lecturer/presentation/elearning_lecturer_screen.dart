@@ -19,6 +19,11 @@ class ElearningLecturerScreen extends ConsumerStatefulWidget {
 class _ElearningLecturerScreenState
     extends ConsumerState<ElearningLecturerScreen>
     with AutomaticKeepAliveClientMixin {
+  // Cache the last-loaded courses so the UI doesn't go blank
+  // while the provider reloads after returning from the detail screen.
+  List<dynamic> _cachedCourses = const [];
+  bool _initialLoadDone = false;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -37,6 +42,12 @@ class _ElearningLecturerScreenState
     super.build(context);
     final state = ref.watch(elearningLecturerControllerProvider);
     final profileState = ref.watch(profileControllerProvider);
+
+    // Keep the local cache up-to-date whenever courses are freshly loaded.
+    if (state is CourseListLoaded) {
+      _cachedCourses = state.courses;
+      _initialLoadDone = true;
+    }
 
     return ScaffoldWidget(
       appBar: AppBarWidget(
@@ -102,13 +113,21 @@ class _ElearningLecturerScreenState
   }
 
   Widget _buildContent(ElearningLecturerState state) {
-    if (state is ElearningLecturerLoading) {
+    // Show spinner only on the very first load (no cached data yet).
+    if (state is ElearningLecturerLoading && !_initialLoadDone) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(32.0),
           child: CircularProgressIndicator(),
         ),
       );
+    }
+
+    // If we already have cached courses, show them immediately even if the
+    // provider is still loading or switched to a different state (e.g.
+    // CourseDetailLoaded while the background reload is in progress).
+    if (_initialLoadDone && state is! CourseListLoaded && state is! ElearningLecturerError) {
+      return _buildCourseGrid(_cachedCourses);
     }
 
     if (state is ElearningLecturerError) {
@@ -138,64 +157,79 @@ class _ElearningLecturerScreenState
     }
 
     if (state is CourseListLoaded) {
-      if (state.courses.isEmpty) {
-        return Center(
-          child: Padding(
-            padding: EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.school_outlined, size: 64, color: Colors.grey),
-                Gap.h16,
-                Text(
-                  'Anda belum mengampu kelas',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: state.courses.length,
-        itemBuilder: (context, index) {
-          final course = state.courses[index];
-          return _CourseCard(course: course);
-        },
-      );
+      return _buildCourseGrid(state.courses);
     }
 
     return const SizedBox.shrink();
+  }
+
+  Widget _buildCourseGrid(List<dynamic> courses) {
+    if (courses.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.school_outlined, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                'Anda belum mengampu kelas',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.85,
+      ),
+      itemCount: courses.length,
+      itemBuilder: (context, index) {
+        final course = courses[index];
+        return _CourseCard(
+          course: course,
+          onTap: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => CourseManagementScreen(
+                  kelasId: course.id as int,
+                  courseName:
+                      (course.mataKuliah?.name ?? course.nama) as String,
+                ),
+              ),
+            );
+            // Restore the course list state after returning from detail
+            if (context.mounted) {
+              ref
+                  .read(elearningLecturerControllerProvider.notifier)
+                  .loadLecturerCourses();
+            }
+          },
+        );
+      },
+    );
   }
 }
 
 class _CourseCard extends StatelessWidget {
   final dynamic course;
+  final VoidCallback onTap;
 
-  const _CourseCard({required this.course});
+  const _CourseCard({required this.course, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => CourseManagementScreen(
-              kelasId: course.id as int,
-              courseName: (course.mataKuliah?.name ?? course.nama) as String,
-            ),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
