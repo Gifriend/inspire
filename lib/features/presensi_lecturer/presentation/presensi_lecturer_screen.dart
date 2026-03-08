@@ -4,7 +4,6 @@ import 'package:inspire/core/models/models.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/utils/extensions/text_style_extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-
 import 'presensi_lecturer_controller.dart';
 import 'presensi_lecturer_state.dart';
 
@@ -61,7 +60,6 @@ class _PresensiLecturerScreenState
               _GeneratedCodeCard(code: state.generatedCode!),
               Gap.h16,
             ],
-
             // Sub-menu for lecturer actions
             TabBar(
               labelColor: BaseColor.primaryInspire,
@@ -142,14 +140,21 @@ class _FilterCard extends ConsumerWidget {
           Gap.h8,
           DropdownWidget<int>(
             hintText: 'Pilih pertemuan',
-            items: List.generate(16, (index) => index + 1),
+            // Items: 1..16 and -1 represents Ujian Akhir Semester
+            items: [...List.generate(16, (index) => index + 1), -1],
             value: state.selectedMeetingNumber,
-            itemLabelBuilder: (item) => 'Pertemuan $item',
+            itemLabelBuilder: (item) => item == -1 ? 'Ujian Akhir Semester' : 'Pertemuan $item',
             onChanged: (value) {
               if (value != null) controller.selectMeetingNumber(value);
             },
           ),
           Gap.h12,
+
+          // If UAS option selected, show Ujian Akhir Semester label
+          if (state.selectedMeetingNumber == -1) ...[
+            Text('Ujian Akhir Semester', style: BaseTypography.titleMedium.toBold),
+            Gap.h12,
+          ],
 
           // Generate button only shows if session doesn't exist
           if (!hasSession && state.selectedCourse != null) ...[
@@ -248,12 +253,12 @@ class _FilterCard extends ConsumerWidget {
             Gap.h16,
             ButtonWidget.primary(
               color: BaseColor.primaryInspire,
-              text: state.isGeneratingCode
+                text: state.isGeneratingCode
                   ? 'Memproses...'
-                  : 'Generate Kode Presensi',
-              onTap: state.isGeneratingCode || state.isLoadingStudents
+                  : (state.selectedMeetingNumber == -1 ? 'Generate Kode UAS' : 'Generate Kode Presensi'),
+                onTap: state.isGeneratingCode || state.isLoadingStudents
                   ? null
-                  : controller.generateMeetingCode,
+                  : (state.selectedMeetingNumber == -1 ? controller.generateUasCode : controller.generateMeetingCode),
             ),
           ],
         ],

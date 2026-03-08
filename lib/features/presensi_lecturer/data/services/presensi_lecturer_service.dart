@@ -14,6 +14,7 @@ abstract class PresensiLecturerService {
   Future<({int id, String token})> generateSession({
     required int kelasPerkuliahanId,
     required String title,
+    String type = 'KELAS',
     String? deadlineDate, // Format: YYYY-MM-DD
     String? deadlineTime, // Format: HH:mm
   });
@@ -81,12 +82,13 @@ class PresensiLecturerServiceImpl implements PresensiLecturerService {
   Future<({int id, String token})> generateSession({
     required int kelasPerkuliahanId,
     required String title,
+    String type = 'KELAS',
     String? deadlineDate, // Format: YYYY-MM-DD
     String? deadlineTime, // Format: HH:mm
   }) async {
     final data = <String, dynamic>{
       'title': title,
-      'type': 'KELAS',
+      'type': type,
       'kelasPerkuliahanId': kelasPerkuliahanId,
     };
 

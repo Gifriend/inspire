@@ -23,4 +23,14 @@ class PresensiService {
       rethrow;
     }
   }
+
+  Future<PresensiSessionModel> createSession(
+    CreatePresensiRequestModel request,
+  ) async {
+    try {
+      return await _repository.createSession(request);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

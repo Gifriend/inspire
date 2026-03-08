@@ -14,5 +14,6 @@ abstract class PresensiDetailState with _$PresensiDetailState {
     String? successMessage,
     bool? loading,
     @Default(false) bool isFormValid,
+    
   }) = _PresensiDetailState;
 }

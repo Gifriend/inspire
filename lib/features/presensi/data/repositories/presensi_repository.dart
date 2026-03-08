@@ -25,4 +25,23 @@ class PresensiRepository {
       rethrow;
     }
   }
+
+  Future<PresensiSessionModel> createSession(
+    CreatePresensiRequestModel request,
+  ) async {
+    try {
+      final data = await _dioClient.post(
+        Endpoint.presensiCreateSession,
+        data: request.toJson(),
+      );
+
+      if (data is! Map<String, dynamic>) {
+        throw Exception('Invalid response format');
+      }
+
+      return PresensiSessionModel.fromJson(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

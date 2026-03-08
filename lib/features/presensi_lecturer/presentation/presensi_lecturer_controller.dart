@@ -222,6 +222,68 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     }
   }
 
+  /// Generate UAS session (single per class). Uses service with type 'UAS'.
+  Future<void> generateUasCode() async {
+    final course = state.selectedCourse;
+    if (course == null) return;
+
+    if ((state.selectedDeadlineDate != null &&
+            state.selectedDeadlineTime == null) ||
+        (state.selectedDeadlineDate == null &&
+            state.selectedDeadlineTime != null)) {
+      state = state.copyWith(
+        errorMessage:
+            'Tanggal dan Jam deadline harus diisi keduanya, atau kosongkan sama sekali.',
+      );
+      return;
+    }
+
+    state = state.copyWith(isGeneratingCode: true, clearErrorMessage: true);
+
+    try {
+      final sessionTitle = 'UAS - ${course.mataKuliah?.name ?? course.nama}';
+
+      String? formattedDate;
+      String? formattedTime;
+
+      if (state.selectedDeadlineDate != null &&
+          state.selectedDeadlineTime != null) {
+        final d = state.selectedDeadlineDate!;
+        final t = state.selectedDeadlineTime!;
+
+        formattedDate =
+            '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+        formattedTime =
+            '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+      }
+
+      final result = await _service.generateSession(
+        kelasPerkuliahanId: course.id,
+        title: sessionTitle,
+        type: 'UAS',
+        deadlineDate: formattedDate,
+        deadlineTime: formattedTime,
+      );
+
+      final updatedSessions = await _service.getCourseSessions(course.id);
+
+      state = state.copyWith(
+        isGeneratingCode: false,
+        sessions: updatedSessions,
+        generatedCode: result.token,
+        currentSessionId: result.id,
+        clearDeadlineDate: true,
+        clearDeadlineTime: true,
+        infoMessage: 'Kode UAS berhasil dibuat: ${result.token}',
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isGeneratingCode: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
   Future<void> markManualAttendance(StudentInfoModel student) async {
     final sessionId = state.currentSessionId;
     if (sessionId == null) return;

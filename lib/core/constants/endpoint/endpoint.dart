@@ -123,4 +123,5 @@ class Endpoint {
     // Presensi endpoints
     static String presensi = _baseUrl(path: "/presensi");
     static String presensiSubmit = '$presensi/submit';
+    static String presensiCreateSession = '$presensi/session';
 }

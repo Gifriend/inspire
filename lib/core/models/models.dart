@@ -28,6 +28,7 @@ export 'elearning/course_detail_model.dart';
 export 'presensi/presensi_record.dart';
 export 'presensi/presensi_session_model.dart';
 export 'presensi/submit_presensi_request_model.dart';
+export 'presensi/create_presensi_request_model.dart';
 export 'schedule/schedule_model.dart';
 export 'nilai/nilai_model.dart';
 export 'holiday/holiday_model.dart';
