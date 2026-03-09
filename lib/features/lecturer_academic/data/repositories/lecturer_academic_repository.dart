@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inspire/core/constants/endpoint/endpoint.dart';
+import 'package:inspire/core/config/endpoint.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
 import 'package:inspire/core/models/academic/mahasiswa_bimbingan_model.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';

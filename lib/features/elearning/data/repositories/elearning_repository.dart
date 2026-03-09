@@ -1,4 +1,4 @@
-import 'package:inspire/core/constants/endpoint/endpoint.dart';
+import 'package:inspire/core/config/endpoint.dart';
 import 'package:inspire/core/models/elearning/session_model.dart';
 import 'package:inspire/core/models/elearning/assignment_model.dart';
 import 'package:inspire/core/models/elearning/quiz_model.dart';

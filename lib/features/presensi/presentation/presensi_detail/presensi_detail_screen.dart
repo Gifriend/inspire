@@ -82,15 +82,6 @@ class PresensiDetailScreen extends ConsumerWidget {
       presensiDetailControllerProvider(type).notifier,
     );
 
-    final profileState = ref.watch(profileControllerProvider);
-    final isLecturer = profileState.maybeWhen(
-      loaded: (user) {
-        final r = user.role.trim().toUpperCase();
-        return r == 'DOSEN' || r == 'LECTURER' || r == 'KOORPRODI';
-      },
-      orElse: () => false,
-    );
-
     ref.listen(presensiDetailControllerProvider(type), (previous, next) {
       final message = next.successMessage;
       if (message == null || message.isEmpty) return;

@@ -1,4 +1,4 @@
-import 'package:inspire/core/constants/endpoint/endpoint.dart';
+import 'package:inspire/core/config/endpoint.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
 import 'package:inspire/core/models/models.dart';
 

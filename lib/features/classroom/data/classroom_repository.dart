@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inspire/core/constants/endpoint/endpoint.dart';
+import 'package:inspire/core/config/endpoint.dart';
 import 'package:inspire/core/models/classroom/classroom_models.dart';
 
 /// Repository yang memanggil backend /api/classroom/...
