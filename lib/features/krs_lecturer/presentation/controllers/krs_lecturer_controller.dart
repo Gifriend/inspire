@@ -85,10 +85,14 @@ class KrsLecturerActionController
     state = const KrsLecturerActionState.loading();
     try {
       await _service.approveKrs(krsId, catatan: catatan);
-      state = const KrsLecturerActionState.success('KRS berhasil disetujui');
+      if (mounted) {
+        state = const KrsLecturerActionState.success('KRS berhasil disetujui');
+      }
       return true;
     } catch (e) {
-      state = KrsLecturerActionState.error(e.toString());
+      if (mounted) {
+        state = KrsLecturerActionState.error(e.toString());
+      }
       return false;
     }
   }
@@ -97,10 +101,14 @@ class KrsLecturerActionController
     state = const KrsLecturerActionState.loading();
     try {
       await _service.rejectKrs(krsId, catatan: catatan);
-      state = const KrsLecturerActionState.success('KRS berhasil ditolak');
+      if (mounted) {
+        state = const KrsLecturerActionState.success('KRS berhasil ditolak');
+      }
       return true;
     } catch (e) {
-      state = KrsLecturerActionState.error(e.toString());
+      if (mounted) {
+        state = KrsLecturerActionState.error(e.toString());
+      }
       return false;
     }
   }
@@ -109,11 +117,15 @@ class KrsLecturerActionController
     state = const KrsLecturerActionState.loading();
     try {
       await _service.cancelKrs(krsId, catatan: catatan);
-      state = const KrsLecturerActionState.success(
-          'Persetujuan KRS berhasil dibatalkan');
+      if (mounted) {
+        state = const KrsLecturerActionState.success(
+            'Persetujuan KRS berhasil dibatalkan');
+      }
       return true;
     } catch (e) {
-      state = KrsLecturerActionState.error(e.toString());
+      if (mounted) {
+        state = KrsLecturerActionState.error(e.toString());
+      }
       return false;
     }
   }
