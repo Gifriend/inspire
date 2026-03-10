@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
+import '../../lecturer/presentations/widgets/widgets.dart';
 import 'widgets/widgets.dart';
 
 // MAIN SCREEN

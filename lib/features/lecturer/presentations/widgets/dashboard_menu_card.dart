@@ -31,7 +31,7 @@ class DashboardMenuCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(horizontal: BaseSize.w12, vertical: BaseSize.h12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -50,7 +50,7 @@ class DashboardMenuCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(BaseSize.w12),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -63,9 +63,9 @@ class DashboardMenuCard extends StatelessWidget {
                   ),
                   if (badgeCount != null && badgeCount! > 0)
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: BaseSize.w8,
+                        vertical: BaseSize.h4,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.red,
@@ -82,7 +82,7 @@ class DashboardMenuCard extends StatelessWidget {
                     ),
                 ],
               ),
-              Gap.h16,
+              Gap.h8,
               Text(
                 title,
                 style: BaseTypography.titleMedium.toBold

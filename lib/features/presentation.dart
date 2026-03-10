@@ -96,12 +96,11 @@ export 'schedule/presentation/schedule_screen.dart';
 export 'schedule/presentation/schedule_state.dart';
 export 'schedule/data/repositories/holiday_repository.dart';
 //lecturer dashboard
-export 'lecturer/presentation/lecturer_dashboard_controller.dart';
-export 'lecturer/presentation/lecturer_dashboard_screen.dart';
-export 'lecturer/presentation/lecturer_dashboard_state.dart';
-export 'lecturer/presentation/grading_lecturer_screen.dart';
-export 'lecturer/presentation/my_classes_lecturer_screen.dart';
-export 'lecturer/presentation/widgets/widgets.dart';
+export 'lecturer/presentations/lecturer_dashboard_controller.dart';
+export 'lecturer/presentations/lecturer_dashboard_screen.dart';
+export 'lecturer/presentations/lecturer_dashboard_state.dart';
+export 'lecturer/presentations/grading/grading_lecturer_screen.dart';
+export 'lecturer/presentations/my_classes/my_classes_lecturer_screen.dart';
 //nilai
 export 'nilai/presentation/controllers/nilai_controller.dart';
 export 'nilai/presentation/states/nilai_state.dart';

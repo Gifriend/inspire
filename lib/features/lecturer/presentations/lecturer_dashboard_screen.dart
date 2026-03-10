@@ -147,13 +147,12 @@ class _LecturerDashboardScreenState
                   },
                 ),
                 DashboardMenuCard(
-                  title: 'Presensi',
-                  subtitle: 'Kelola presensi mahasiswa',
-                  icon: Icons.how_to_reg,
+                  title: 'Classroom',
+                  subtitle: 'Kelas, tugas, dan mahasiswa',
+                  icon: Icons.class_,
                   color: Colors.green,
                   onTap: () {
-                    // Navigate to Presensi Lecturer
-                    context.pushNamed(AppRoute.presensiLecturer);
+                    context.pushNamed(AppRoute.classroomLecturer);
                   },
                 ),
                 DashboardMenuCard(

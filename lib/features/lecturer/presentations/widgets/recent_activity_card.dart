@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inspire/core/constants/constants.dart';
-import 'package:inspire/features/lecturer/presentation/lecturer_dashboard_state.dart';
+import 'package:inspire/features/lecturer/presentations/lecturer_dashboard_state.dart';
 import 'package:jiffy/jiffy.dart';
 
 class RecentActivityCard extends StatelessWidget {
