@@ -95,7 +95,7 @@ class _TranscriptScreenState extends ConsumerState<TranscriptScreen> {
       }
 
       // fallback to app documents
-      if (saveDir == null) saveDir = await getApplicationDocumentsDirectory();
+      saveDir ??= await getApplicationDocumentsDirectory();
 
       final file = File('${saveDir.path}/$filename');
       await file.writeAsBytes(bytes);

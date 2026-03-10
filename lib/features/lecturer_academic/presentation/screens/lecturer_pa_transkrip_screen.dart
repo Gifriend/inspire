@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/core/constants/constants.dart';
@@ -398,8 +396,7 @@ class _DownloadTranskripButtonState
   bool _loading = false;
 
   Future<void> _download() async {
-    final hasPermission =
-        await PermissionUtil.requestStorageForDownload();
+    final hasPermission = await PermissionUtil.requestStorageForDownload();
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -422,21 +419,23 @@ class _DownloadTranskripButtonState
           'Transkrip_${widget.nim}_${DateTime.now().millisecondsSinceEpoch}.pdf';
 
       if (Platform.isAndroid) {
-        final channel = const MethodChannel(
-            'com.gifriend.inspire/file_saver');
-        final base64Str = base64Encode(bytes);
-        final res = await channel.invokeMethod<String>(
-          'saveFileToDownloads',
-          {'base64': base64Str, 'filename': filename},
-        );
-        if (mounted && res != null && res.isNotEmpty) {
+        // Simpan langsung ke folder Download publik agar tidak tergantung MethodChannel.
+        final saveDir = Directory('/storage/emulated/0/Download');
+        if (!saveDir.existsSync()) {
+          saveDir.createSync(recursive: true);
+        }
+        final file = File('${saveDir.path}/$filename');
+        await file.writeAsBytes(bytes);
+
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Transkrip disimpan: $res'),
+              content: Text('Transkrip disimpan: ${file.path}'),
               backgroundColor: Colors.green,
             ),
           );
         }
+        return;
       } else {
         final dir = await getApplicationDocumentsDirectory();
         final file = File('${dir.path}/$filename');

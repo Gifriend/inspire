@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
@@ -75,6 +76,6 @@ class LoginRepositoryImpl implements LoginRepository {
 }
 
 @riverpod
-LoginRepository loginRepository(LoginRepositoryRef ref) {
+LoginRepository loginRepository(Ref ref) {
   return LoginRepositoryImpl(ref.watch(dioClientProvider));
 }
