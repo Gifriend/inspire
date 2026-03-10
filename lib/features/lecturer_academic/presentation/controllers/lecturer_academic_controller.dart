@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/lecturer_academic/domain/services/lecturer_academic_service.dart';
 import 'package:inspire/features/lecturer_academic/presentation/states/lecturer_academic_state.dart';
+
+const _requestTimeout = Duration(seconds: 20);
 
 // ─── Mahasiswa Bimbingan Controller ─────────────────────────────────────────
 
@@ -12,11 +16,14 @@ class MahasiswaBimbinganController
       : super(const MahasiswaBimbinganInitial());
 
   Future<void> load() async {
+    if (!mounted) return;
     state = const MahasiswaBimbinganLoading();
     try {
       final data = await _service.getMahasiswaBimbingan();
+      if (!mounted) return;
       state = MahasiswaBimbinganLoaded(data);
     } catch (e) {
+      if (!mounted) return;
       state = MahasiswaBimbinganError(e.toString());
     }
   }
@@ -41,11 +48,25 @@ class PaSemesterListController
       : super(const PaSemesterListInitial());
 
   Future<void> load() async {
+    if (!mounted) return;
     state = const PaSemesterListLoading();
     try {
-      final data = await _service.getSemestersByPA(mahasiswaId);
+      final data = await _service
+          .getSemestersByPA(mahasiswaId)
+          .timeout(_requestTimeout);
+      if (!mounted) return;
+      if (data.isEmpty) {
+        state = const PaSemesterListError('Semester belum tersedia');
+        return;
+      }
       state = PaSemesterListLoaded(data);
+    } on TimeoutException {
+      if (!mounted) return;
+      state = const PaSemesterListError(
+        'Permintaan semester timeout. Silakan coba lagi.',
+      );
     } catch (e) {
+      if (!mounted) return;
       state = PaSemesterListError(e.toString());
     }
   }
@@ -70,11 +91,21 @@ class PaKhsController extends StateNotifier<PaKhsState> {
       : super(const PaKhsInitial());
 
   Future<void> load() async {
+    if (!mounted) return;
     state = const PaKhsLoading();
     try {
-      final data = await _service.getKhsByPA(mahasiswaId, semester);
+      final data = await _service
+          .getKhsByPA(mahasiswaId, semester)
+          .timeout(_requestTimeout);
+      if (!mounted) return;
       state = PaKhsLoaded(data);
+    } on TimeoutException {
+      if (!mounted) return;
+      state = const PaKhsError(
+        'Permintaan KHS timeout. Silakan coba lagi.',
+      );
     } catch (e) {
+      if (!mounted) return;
       state = PaKhsError(e.toString());
     }
   }
@@ -102,11 +133,14 @@ class PaTranskripController extends StateNotifier<PaTranskripState> {
       : super(const PaTranskripInitial());
 
   Future<void> load() async {
+    if (!mounted) return;
     state = const PaTranskripLoading();
     try {
       final data = await _service.getTranskripByPA(mahasiswaId);
+      if (!mounted) return;
       state = PaTranskripLoaded(data);
     } catch (e) {
+      if (!mounted) return;
       state = PaTranskripError(e.toString());
     }
   }

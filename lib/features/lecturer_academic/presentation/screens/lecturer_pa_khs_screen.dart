@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/core/constants/constants.dart';
@@ -76,6 +74,16 @@ class _LecturerPaKhsScreenState extends ConsumerState<LecturerPaKhsScreen> {
     List<String> semesters = [];
     if (state is PaSemesterListLoaded) semesters = state.semesters;
 
+    if (state is PaSemesterListLoaded &&
+        _selectedSemester == null &&
+        semesters.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _selectedSemester != null) return;
+        final firstSemester = semesters.first;
+        setState(() => _selectedSemester = firstSemester);
+      });
+    }
+
     return Container(
       margin: EdgeInsets.all(BaseSize.w16),
       padding: EdgeInsets.all(BaseSize.w16),
@@ -101,9 +109,24 @@ class _LecturerPaKhsScreenState extends ConsumerState<LecturerPaKhsScreen> {
               state is PaSemesterListInitial)
             const LinearProgressIndicator()
           else if (state is PaSemesterListError)
-            Text('Gagal memuat semester',
-                style: BaseTypography.bodySmall
-                    .copyWith(color: Colors.red))
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Gagal memuat semester',
+                    style:
+                        BaseTypography.bodySmall.copyWith(color: Colors.red),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => ref
+                      .read(paSemesterListControllerProvider(widget.mahasiswaId)
+                          .notifier)
+                      .load(),
+                  child: const Text('Coba Lagi'),
+                ),
+              ],
+            )
           else
             DropdownButtonFormField<String>(
               value: _selectedSemester,
@@ -125,12 +148,6 @@ class _LecturerPaKhsScreenState extends ConsumerState<LecturerPaKhsScreen> {
               onChanged: (val) {
                 if (val == null) return;
                 setState(() => _selectedSemester = val);
-                ref
-                    .read(paKhsControllerProvider((
-                      mahasiswaId: widget.mahasiswaId,
-                      semester: val,
-                    )).notifier)
-                    .load();
               },
             ),
         ],
@@ -155,13 +172,46 @@ class _LecturerPaKhsScreenState extends ConsumerState<LecturerPaKhsScreen> {
       semester: _selectedSemester!,
     )));
 
+    if (khsState is PaKhsInitial) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _selectedSemester == null) return;
+        ref
+            .read(paKhsControllerProvider((
+              mahasiswaId: widget.mahasiswaId,
+              semester: _selectedSemester!,
+            )).notifier)
+            .load();
+      });
+    }
+
     if (khsState is PaKhsLoading || khsState is PaKhsInitial) {
       return const Center(child: CircularProgressIndicator());
     }
     if (khsState is PaKhsError) {
       return Center(
-        child: Text(khsState.message,
-            style: BaseTypography.bodySmall.copyWith(color: Colors.red)),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: BaseSize.w24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                khsState.message,
+                style: BaseTypography.bodySmall.copyWith(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+              Gap.h8,
+              TextButton(
+                onPressed: () => ref
+                    .read(paKhsControllerProvider((
+                      mahasiswaId: widget.mahasiswaId,
+                      semester: _selectedSemester!,
+                    )).notifier)
+                    .load(),
+                child: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
       );
     }
     if (khsState is PaKhsLoaded) {
@@ -425,25 +475,13 @@ class _DownloadKhsButtonState extends ConsumerState<_DownloadKhsButton> {
           'KHS_${widget.nim}_${safeSem}_${DateTime.now().millisecondsSinceEpoch}.pdf';
 
       if (Platform.isAndroid) {
-        final channel = const MethodChannel(
-            'com.gifriend.inspire/file_saver');
-        final base64Str = base64Encode(bytes);
-        final res = await channel.invokeMethod<String>(
-          'saveFileToDownloads',
-          {'base64': base64Str, 'filename': filename},
-        );
-        if (mounted && res != null && res.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('KHS disimpan: $res'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        final saveDir = Directory('/storage/emulated/0/Download');
+        if (!saveDir.existsSync()) {
+          saveDir.createSync(recursive: true);
         }
-      } else {
-        final dir = await getApplicationDocumentsDirectory();
-        final file = File('${dir.path}/$filename');
+        final file = File('${saveDir.path}/$filename');
         await file.writeAsBytes(bytes);
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -452,6 +490,19 @@ class _DownloadKhsButtonState extends ConsumerState<_DownloadKhsButton> {
             ),
           );
         }
+        return;
+      }
+
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$filename');
+      await file.writeAsBytes(bytes);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('KHS disimpan: ${file.path}'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
