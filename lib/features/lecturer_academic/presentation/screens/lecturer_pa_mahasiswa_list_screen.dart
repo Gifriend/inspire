@@ -34,17 +34,16 @@ class _LecturerPaMahasiswaListScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(mahasiswaBimbinganControllerProvider);
 
-    return Scaffold(
+    return ScaffoldWidget(
       backgroundColor: BaseColor.neutral[10],
+      disableSingleChildScrollView: true,
       appBar: AppBarWidget(
         title: 'Mahasiswa Bimbingan',
         leadIcon: Assets.icons.fill.arrowBack,
         leadIconColor: BaseColor.white,
         onPressedLeadIcon: () => context.pop(),
       ),
-      body: SafeArea(
-        child: _buildBody(state),
-      ),
+      child: _buildBody(state),
     );
   }
 
@@ -95,7 +94,8 @@ class _LecturerPaMahasiswaListScreenState
             child: Text(
               message,
               style: BaseTypography.bodySmall.copyWith(
-                  color: Colors.grey.shade500),
+                color: Colors.grey.shade500,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -104,9 +104,12 @@ class _LecturerPaMahasiswaListScreenState
             onPressed: () =>
                 ref.read(mahasiswaBimbinganControllerProvider.notifier).load(),
             style: ElevatedButton.styleFrom(
-                backgroundColor: BaseColor.primaryInspire),
-            child:
-                const Text('Coba Lagi', style: TextStyle(color: Colors.white)),
+              backgroundColor: BaseColor.primaryInspire,
+            ),
+            child: const Text(
+              'Coba Lagi',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -120,11 +123,12 @@ class _LecturerPaMahasiswaListScreenState
           ref.read(mahasiswaBimbinganControllerProvider.notifier).load(),
       child: ListView.separated(
         padding: EdgeInsets.symmetric(
-            horizontal: BaseSize.w16, vertical: BaseSize.customWidth(12)),
+          horizontal: BaseSize.w16,
+          vertical: BaseSize.customWidth(12),
+        ),
         itemCount: list.length,
         separatorBuilder: (_, _) => Gap.h12,
-        itemBuilder: (context, index) =>
-            _MahasiswaCard(mahasiswa: list[index]),
+        itemBuilder: (context, index) => _MahasiswaCard(mahasiswa: list[index]),
       ),
     );
   }
@@ -158,8 +162,9 @@ class _MahasiswaCard extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor:
-                    BaseColor.primaryInspire.withValues(alpha: 0.15),
+                backgroundColor: BaseColor.primaryInspire.withValues(
+                  alpha: 0.15,
+                ),
                 radius: 22,
                 child: Text(
                   mahasiswa.nama.isNotEmpty
@@ -178,27 +183,23 @@ class _MahasiswaCard extends StatelessWidget {
                   children: [
                     Text(
                       mahasiswa.nama,
-                      style: BaseTypography.bodyLarge
-                          .copyWith(fontWeight: FontWeight.w600),
+                      style: BaseTypography.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      mahasiswa.nim,
-                      style: BaseTypography.bodySmall.toGrey,
-                    ),
+                    Text(mahasiswa.nim, style: BaseTypography.bodySmall.toGrey),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: mahasiswa.status == 'AKTIF'
                       ? Colors.green.shade50
                       : Colors.orange.shade50,
-                  borderRadius:
-                      BorderRadius.circular(BaseSize.radiusSm),
+                  borderRadius: BorderRadius.circular(BaseSize.radiusSm),
                 ),
                 child: Text(
                   mahasiswa.status,
@@ -221,8 +222,9 @@ class _MahasiswaCard extends StatelessWidget {
               _StatChip(label: 'IPK', value: mahasiswa.ipk.toStringAsFixed(2)),
               Gap.w12,
               _StatChip(
-                  label: 'SKS Lulus',
-                  value: mahasiswa.totalSksLulus.toString()),
+                label: 'SKS Lulus',
+                value: mahasiswa.totalSksLulus.toString(),
+              ),
               Gap.w12,
               _StatChip(label: 'Angkatan', value: mahasiswa.angkatan),
             ],
@@ -246,9 +248,7 @@ class _MahasiswaCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => context.pushNamed(
                     AppRoute.lecturerPaKhs,
-                    pathParameters: {
-                      'mahasiswaId': mahasiswa.id.toString()
-                    },
+                    pathParameters: {'mahasiswaId': mahasiswa.id.toString()},
                     extra: mahasiswa.nama,
                   ),
                   icon: const Icon(Icons.assignment, size: 16),
@@ -265,9 +265,7 @@ class _MahasiswaCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => context.pushNamed(
                     AppRoute.lecturerPaTranskrip,
-                    pathParameters: {
-                      'mahasiswaId': mahasiswa.id.toString()
-                    },
+                    pathParameters: {'mahasiswaId': mahasiswa.id.toString()},
                     extra: mahasiswa.nama,
                   ),
                   icon: const Icon(Icons.description, size: 16),
@@ -304,12 +302,18 @@ class _StatChip extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: BaseTypography.labelSmall
-                  .copyWith(color: Colors.grey.shade500)),
-          Text(value,
-              style: BaseTypography.bodySmall
-                  .copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: BaseTypography.labelSmall.copyWith(
+              color: Colors.grey.shade500,
+            ),
+          ),
+          Text(
+            value,
+            style: BaseTypography.bodySmall.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
