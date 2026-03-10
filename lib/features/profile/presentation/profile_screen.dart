@@ -5,7 +5,7 @@ import 'package:inspire/core/services/google_auth_service.dart';
 import 'package:inspire/core/utils/utils.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
-import 'package:inspire/features/login/domain/services/login_service.dart';
+import 'package:inspire/core/services/login_service.dart';
 
 import '../../../core/assets/assets.dart';
 import '../../../core/constants/constants.dart';

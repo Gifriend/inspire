@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:inspire/core/routing/routing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inspire/features/presentation.dart';
-import 'package:inspire/features/login/domain/services/login_service.dart';
+import 'package:inspire/core/services/login_service.dart';
 
 import '../../../core/data_sources/data_sources.dart';
 

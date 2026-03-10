@@ -45,9 +45,9 @@ export 'home/presentation/home_controller.dart';
 export 'home/presentation/home_screen.dart';
 export 'home/presentation/home_state.dart';
 // login
-export 'login/presentation/login_controller.dart';
-export 'login/presentation/login_screen.dart';
-export 'login/presentation/login_state.dart';
+export 'login/presentations/login_controller.dart';
+export 'login/presentations/login_screen.dart';
+export 'login/presentations/login_state.dart';
 //presensi
 export 'presensi/presentation/presensi_controller.dart';
 export 'presensi/presentation/presensi_detail/presensi_detail_controller.dart';

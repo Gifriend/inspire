@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/core/models/models.dart';
+
+part 'login_repository.g.dart';
 
 abstract class LoginRepository {
   Future<AuthData> login({required String identifier, required String password, String? fcmToken});
@@ -72,6 +74,7 @@ class LoginRepositoryImpl implements LoginRepository {
   }
 }
 
-final loginRepositoryProvider = Provider<LoginRepository>((ref) {
+@riverpod
+LoginRepository loginRepository(LoginRepositoryRef ref) {
   return LoginRepositoryImpl(ref.watch(dioClientProvider));
-});
+}

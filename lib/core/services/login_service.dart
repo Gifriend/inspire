@@ -1,9 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/features/login/data/repositories/login_repository.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'login_service.g.dart';
 
 abstract class LoginService {
-  Future<void> login({required String identifier, required String password, String? fcmToken});
+  Future<void> login({
+    required String identifier,
+    required String password,
+    String? fcmToken,
+  });
   Future<void> logout();
   Future<void> refreshToken();
 }
@@ -63,9 +70,10 @@ class LoginServiceImpl implements LoginService {
   }
 }
 
-final loginServiceProvider = Provider<LoginService>((ref) {
+@riverpod
+LoginService loginService(Ref ref) {
   return LoginServiceImpl(
     ref.watch(loginRepositoryProvider),
     ref.watch(hiveServiceProvider),
   );
-});
+}

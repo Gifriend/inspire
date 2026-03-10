@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
-import 'package:inspire/features/login/domain/services/login_service.dart';
-import 'package:inspire/features/login/presentation/login_state.dart';
+import 'package:inspire/core/services/login_service.dart';
+import 'package:inspire/features/login/presentations/login_state.dart';
 
 final loginControllerProvider =
     StateNotifierProvider.autoDispose<LoginController, LoginState>(

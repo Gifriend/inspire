@@ -5,8 +5,8 @@ import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/routing/routing.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:inspire/features/login/presentation/login_controller.dart';
-import 'package:inspire/features/login/presentation/login_state.dart';
+import 'package:inspire/features/login/presentations/login_controller.dart';
+import 'package:inspire/features/login/presentations/login_state.dart';
 import 'package:inspire/features/profile/presentation/profile_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
