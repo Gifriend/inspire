@@ -49,12 +49,12 @@ export 'login/presentations/login_controller.dart';
 export 'login/presentations/login_screen.dart';
 export 'login/presentations/login_state.dart';
 //presensi
-export 'presensi/presentation/presensi_controller.dart';
-export 'presensi/presentation/presensi_detail/presensi_detail_controller.dart';
-export 'presensi/presentation/presensi_detail/presensi_detail_screen.dart';
-export 'presensi/presentation/presensi_detail/presensi_detail_state.dart';
-export 'presensi/presentation/presensi_screen.dart';
-export 'presensi/presentation/presensi_state.dart';
+export 'presensi/presentations/controllers/presensi_controller.dart';
+export 'presensi/presentations/controllers/presensi_detail_controller.dart';
+export 'presensi/presentations/screens/presensi_detail_screen.dart';
+export 'presensi/presentations/states/presensi_detail_state.dart';
+export 'presensi/presentations/screens/presensi_screen.dart';
+export 'presensi/presentations/states/presensi_state.dart';
 //presensi lecturer
 export 'presensi_lecturer/presentation/presensi_lecturer_controller.dart';
 export 'presensi_lecturer/presentation/presensi_lecturer_screen.dart';

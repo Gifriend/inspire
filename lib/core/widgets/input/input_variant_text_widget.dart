@@ -18,6 +18,7 @@ class InputVariantTextWidget extends StatefulWidget {
     this.initialValue,
     this.leadIcon,
     this.obscureText = false, // Tambahan parameter untuk obscure text
+    this.textAlign = TextAlign.start,
   });
 
   final String? initialValue;
@@ -31,6 +32,7 @@ class InputVariantTextWidget extends StatefulWidget {
   final Color? borderColor;
   final String? errorText;
   final bool obscureText; // Property untuk obscure text
+  final TextAlign textAlign;
 
   @override
   State<InputVariantTextWidget> createState() => _InputVariantTextWidgetState();
@@ -79,6 +81,7 @@ class _InputVariantTextWidgetState extends State<InputVariantTextWidget> {
       keyboardType: widget.textInputType,
       initialValue: widget.initialValue,
       obscureText: _obscureText,
+      textAlign: widget.textAlign,
       decoration: InputDecoration(
         hintText: widget.hint,
         border: InputBorder.none,

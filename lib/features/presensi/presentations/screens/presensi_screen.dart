@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/widgets/widgets.dart';
-import 'package:inspire/features/presensi/presentation/widgets/widgets.dart';
+import 'package:inspire/features/presensi/presentations/widgets/widgets.dart';
 import 'package:inspire/features/presentation.dart';
 
 class PresensiScreen extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/models/models.dart';
-import 'package:inspire/features/presensi/domain/services/presensi_service.dart';
-import 'package:inspire/features/presentation.dart';
+import 'package:inspire/core/services/presensi_service.dart';
+import 'package:inspire/features/presensi/presentations/states/presensi_detail_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'presensi_detail_controller.g.dart';
@@ -47,43 +47,29 @@ class PresensiDetailController extends _$PresensiDetailController {
   }
 
   Future<void> _submitPresensi(String errorLabel) async {
-    // final sessionIdText = state.sessionId?.trim() ?? '';
     final token = state.presensi?.trim() ?? '';
 
-    // String? errorSessionId;
-    String? errorPresensi;
-
-    // final parsedSessionId = int.tryParse(sessionIdText);
-    // if (sessionIdText.isEmpty) {
-    //   errorSessionId = 'Session ID tidak boleh kosong';
-    // } else if (parsedSessionId == null) {
-    //   errorSessionId = 'Session ID harus berupa angka';
-    // }
-
     if (token.isEmpty) {
-      errorPresensi = '$errorLabel tidak boleh kosong';
+      state = state.copyWith(errorPresensi: '$errorLabel tidak boleh kosong');
+      return;
     }
 
-    // if (errorSessionId != null || errorPresensi != null) {
-    //   state = state.copyWith(
-    //     errorSessionId: errorSessionId,
-    //     errorPresensi: errorPresensi,
-    //   );
-    //   return;
-    // }
+    state = state.copyWith(
+      errorSessionId: null,
+      errorPresensi: null,
+      successMessage: null,
+    );
 
     _setLoading(true);
 
     try {
       final request = SubmitPresensiRequestModel(
-        // sessionId: parsedSessionId!,
         token: token,
       );
 
       await ref.read(presensiServiceProvider).submitPresensi(request);
 
       state = state.copyWith(
-        loading: false,
         errorSessionId: null,
         errorPresensi: null,
         successMessage: 'Presensi berhasil dikirim.',
