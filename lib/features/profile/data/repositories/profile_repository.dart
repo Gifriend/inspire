@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
 import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/user/user_model.dart';
 

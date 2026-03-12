@@ -10,7 +10,6 @@ import 'package:inspire/core/models/elearning/elearning_setup_models.dart';
 import 'package:inspire/core/models/elearning/student_participants_model.dart';
 import 'package:inspire/core/models/elearning/student_grades_model.dart';
 import 'package:inspire/core/data_sources/network/network.dart';
-import '../../../../core/data_sources/network/dio_client.dart';
 
 class ElearningRepository {
   final DioClient _dioClient;
@@ -20,32 +19,38 @@ class ElearningRepository {
   // Get student's enrolled courses
   Future<List<CourseListModel>> getStudentCourses() async {
     try {
-      final data = await _dioClient.get(Endpoint.studentCourses);
-      
-      if (data is List) {
-        return data.map((json) => CourseListModel.fromJson(json)).toList();
-      } else {
-        throw Exception('Invalid response format');
-      }
+      final response = await _dioClient.get<dynamic>(
+        Endpoint.studentCourses,
+      );
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<CourseListModel>>(
+        response,
+        dataParser: (data) => (data as List)
+            .map((json) => CourseListModel.fromJson(json as Map<String, dynamic>))
+            .toList(),
+        defaultMessage: 'Gagal memuat daftar mata kuliah',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar mata kuliah');
     }
   }
 
   // Get course content (all sessions with materials, assignments, quizzes)
   Future<List<SessionModel>> getCourseContent(int kelasId) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.courseContent(kelasId),
       );
-
-      if (data is List) {
-        return data.map((json) => SessionModel.fromJson(json)).toList();
-      } else {
-        throw Exception('Invalid response format');
-      }
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<SessionModel>>(
+        response,
+        dataParser: (data) => (data as List)
+            .map((json) => SessionModel.fromJson(json as Map<String, dynamic>))
+            .toList(),
+        defaultMessage: 'Gagal memuat konten mata kuliah',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat konten mata kuliah');
     }
   }
 
@@ -56,7 +61,7 @@ class ElearningRepository {
     String? textContent,
   }) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.assignmentSubmit,
         data: {
           'assignmentId': assignmentId,
@@ -64,10 +69,15 @@ class ElearningRepository {
           'textContent': textContent,
         },
       );
-
-      return SubmissionModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Respons kosong');
+      return ApiEnvelope.fromDynamic<SubmissionModel>(
+        response,
+        dataParser: (data) =>
+            SubmissionModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal mengirim tugas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal mengirim tugas');
     }
   }
 
@@ -77,69 +87,94 @@ class ElearningRepository {
     required List<QuizAnswerModel> answers,
   }) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.quizSubmit,
         data: {
           'quizId': quizId,
           'answers': answers.map((a) => a.toJson()).toList(),
         },
       );
-
-      return QuizAttemptModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Respons kosong');
+      return ApiEnvelope.fromDynamic<QuizAttemptModel>(
+        response,
+        dataParser: (data) =>
+            QuizAttemptModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal mengirim jawaban kuis',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal mengirim jawaban kuis');
     }
   }
 
   // Get assignment detail with submission status
   Future<AssignmentModel> getAssignmentDetail(String id) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.assignmentDetail(id),
       );
-
-      return AssignmentModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Data tugas kosong');
+      return ApiEnvelope.fromDynamic<AssignmentModel>(
+        response,
+        dataParser: (data) =>
+            AssignmentModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat detail tugas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat detail tugas');
     }
   }
 
   // Get quiz detail with questions & attempts
   Future<QuizModel> getQuizDetail(String id) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.quizDetail(id),
       );
-
-      return QuizModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Data kuis kosong');
+      return ApiEnvelope.fromDynamic<QuizModel>(
+        response,
+        dataParser: (data) =>
+            QuizModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat detail kuis',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat detail kuis');
     }
   }
 
   // Get material detail
   Future<MaterialModel> getMaterialDetail(String id) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.materialDetail(id),
       );
-
-      return MaterialModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Data materi kosong');
+      return ApiEnvelope.fromDynamic<MaterialModel>(
+        response,
+        dataParser: (data) =>
+            MaterialModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat detail materi',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat detail materi');
     }
   }
 
   // Get course detail with complete information
   Future<CourseDetailModel> getCourseDetail(int kelasId) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.courseDetail(kelasId),
       );
-
-      return CourseDetailModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Data kelas kosong');
+      return ApiEnvelope.fromDynamic<CourseDetailModel>(
+        response,
+        dataParser: (data) =>
+            CourseDetailModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat detail kelas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat detail kelas');
     }
   }
 
@@ -148,26 +183,36 @@ class ElearningRepository {
   /// Daftar peserta (participants) yang terdaftar di suatu kelas.
   Future<StudentParticipantsData> getStudentParticipants(int kelasId) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.studentParticipants(kelasId),
       );
-
-      return StudentParticipantsData.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Data peserta kosong');
+      return ApiEnvelope.fromDynamic<StudentParticipantsData>(
+        response,
+        dataParser: (data) =>
+            StudentParticipantsData.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat daftar peserta',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar peserta');
     }
   }
 
   /// Nilai & ranking mahasiswa sendiri dalam suatu kelas.
   Future<StudentGradesData> getStudentGrades(int kelasId) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.studentGrades(kelasId),
       );
-
-      return StudentGradesData.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Data nilai kosong');
+      return ApiEnvelope.fromDynamic<StudentGradesData>(
+        response,
+        dataParser: (data) =>
+            StudentGradesData.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat nilai',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat nilai');
     }
   }
 
@@ -176,15 +221,19 @@ class ElearningRepository {
   /// Semua kelas yang diampu dosen yang sedang login.
   Future<List<LecturerCourseModel>> getLecturerCourses() async {
     try {
-      final data = await _dioClient.get(Endpoint.lecturerCourses);
-      if (data is List) {
-        return data
-            .map((json) => LecturerCourseModel.fromJson(json))
-            .toList();
-      }
-      throw Exception('Invalid response format');
+      final response = await _dioClient.get<dynamic>(
+        Endpoint.lecturerCourses,
+      );
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<LecturerCourseModel>>(
+        response,
+        dataParser: (data) => (data as List)
+            .map((json) => LecturerCourseModel.fromJson(json as Map<String, dynamic>))
+            .toList(),
+        defaultMessage: 'Gagal memuat daftar kelas dosen',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar kelas dosen');
     }
   }
 
@@ -195,16 +244,20 @@ class ElearningRepository {
     String assignmentId,
   ) async {
     try {
-      final data =
-          await _dioClient.get(Endpoint.assignmentSubmissions(assignmentId));
-      if (data is List) {
-        return data
-            .map((json) => SubmissionWithStudentModel.fromJson(json))
-            .toList();
-      }
-      throw Exception('Invalid response format');
+      final response = await _dioClient.get<dynamic>(
+        Endpoint.assignmentSubmissions(assignmentId),
+      );
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<SubmissionWithStudentModel>>(
+        response,
+        dataParser: (data) => (data as List)
+            .map((json) =>
+                SubmissionWithStudentModel.fromJson(json as Map<String, dynamic>))
+            .toList(),
+        defaultMessage: 'Gagal memuat daftar submission',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar submission');
     }
   }
 
@@ -214,13 +267,19 @@ class ElearningRepository {
     GradeSubmissionRequest request,
   ) async {
     try {
-      final data = await _dioClient.patch(
+      final response = await _dioClient.patch<dynamic>(
         Endpoint.submissionGrade(submissionId),
         data: request.toJson(),
       );
-      return SubmissionModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Respons kosong');
+      return ApiEnvelope.fromDynamic<SubmissionModel>(
+        response,
+        dataParser: (data) =>
+            SubmissionModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memberi nilai',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memberi nilai');
     }
   }
 
@@ -229,26 +288,38 @@ class ElearningRepository {
     String quizId,
   ) async {
     try {
-      final data = await _dioClient.get(Endpoint.quizAttempts(quizId));
-      if (data is List) {
-        return data
-            .map((json) => QuizAttemptWithStudentModel.fromJson(json))
-            .toList();
-      }
-      throw Exception('Invalid response format');
+      final response = await _dioClient.get<dynamic>(
+        Endpoint.quizAttempts(quizId),
+      );
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<QuizAttemptWithStudentModel>>(
+        response,
+        dataParser: (data) => (data as List)
+            .map((json) =>
+                QuizAttemptWithStudentModel.fromJson(json as Map<String, dynamic>))
+            .toList(),
+        defaultMessage: 'Gagal memuat percobaan kuis',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat percobaan kuis');
     }
   }
 
   /// Detail satu submission (tanpa filter dosen).
   Future<SubmissionModel> getSubmissionDetail(String submissionId) async {
     try {
-      final data =
-          await _dioClient.get(Endpoint.submissionDetail(submissionId));
-      return SubmissionModel.fromJson(data);
+      final response = await _dioClient.get<dynamic>(
+        Endpoint.submissionDetail(submissionId),
+      );
+      if (response == null) throw const ApiException(message: 'Data submission kosong');
+      return ApiEnvelope.fromDynamic<SubmissionModel>(
+        response,
+        dataParser: (data) =>
+            SubmissionModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat detail submission',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat detail submission');
     }
   }
 
@@ -257,11 +328,22 @@ class ElearningRepository {
   /// Konfigurasi e-learning tersimpan untuk sebuah kelas.
   Future<ElearningClassConfigModel?> getClassSetup(int kelasId) async {
     try {
-      final data = await _dioClient.get(Endpoint.elearningClassSetup(kelasId));
-      if (data == null) return null;
-      return ElearningClassConfigModel.fromJson(data);
+      final response = await _dioClient.get<dynamic>(
+        Endpoint.elearningClassSetup(kelasId),
+      );
+      if (response == null) return null;
+      return ApiEnvelope.fromDynamic<ElearningClassConfigModel?>(
+        response,
+        dataParser: (data) {
+          if (data == null) return null;
+          if (data is List && data.isEmpty) return null;
+          return ElearningClassConfigModel.fromJson(
+              ApiEnvelope.parseSingleMap(data));
+        },
+        defaultMessage: 'Gagal memuat konfigurasi e-learning',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat konfigurasi e-learning');
     }
   }
 
@@ -270,13 +352,19 @@ class ElearningRepository {
     SetupElearningClassRequest request,
   ) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.elearningSetupClass,
         data: request.toJson(),
       );
-      return SetupElearningResultModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Respons kosong');
+      return ApiEnvelope.fromDynamic<SetupElearningResultModel>(
+        response,
+        dataParser: (data) =>
+            SetupElearningResultModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal menyimpan setup e-learning',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal menyimpan setup e-learning');
     }
   }
 
@@ -285,37 +373,49 @@ class ElearningRepository {
     MergeElearningClassesRequest request,
   ) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.elearningSetupMerge,
         data: request.toJson(),
       );
-      return MergeElearningResultModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Respons kosong');
+      return ApiEnvelope.fromDynamic<MergeElearningResultModel>(
+        response,
+        dataParser: (data) =>
+            MergeElearningResultModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal menggabungkan kelas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal menggabungkan kelas');
     }
   }
 
   /// Pisahkan sebuah kelas dari gabungan e-learning.
   Future<ElearningClassConfigModel> unmergeClass(int kelasId) async {
     try {
-      final data = await _dioClient.patch(
+      final response = await _dioClient.patch<dynamic>(
         Endpoint.elearningSetupUnmerge(kelasId),
       );
-      return ElearningClassConfigModel.fromJson(data);
+      if (response == null) throw const ApiException(message: 'Respons kosong');
+      return ApiEnvelope.fromDynamic<ElearningClassConfigModel>(
+        response,
+        dataParser: (data) =>
+            ElearningClassConfigModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memisahkan kelas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memisahkan kelas');
     }
   }
 
   /// Ubah visibilitas item (materi / tugas / kuis) per item.
   Future<void> toggleVisibility(ToggleVisibilityRequest request) async {
     try {
-      await _dioClient.patch(
+      await _dioClient.patch<dynamic>(
         Endpoint.elearningSetupVisibility,
         data: request.toJson(),
       );
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal mengubah visibilitas');
     }
   }
 }

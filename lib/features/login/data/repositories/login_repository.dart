@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/core/models/models.dart';
-import 'package:inspire/core/data_sources/network/network.dart';
 
 part 'login_repository.g.dart';
 
