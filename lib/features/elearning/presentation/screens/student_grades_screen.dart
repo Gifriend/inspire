@@ -84,7 +84,7 @@ class _StudentGradesScreenState extends ConsumerState<StudentGradesScreen>
 
               // Tab Content
               SizedBox(
-                height: MediaQuery.of(context).size.height - 320,
+                height: MediaQuery.of(context).size.height - 420,
                 child: TabBarView(
                   controller: _tabController,
                   children: [
