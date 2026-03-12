@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 enum ClassroomRole { student, lecturer }
@@ -41,14 +42,6 @@ class GoogleAuthService {
         throw Exception('GOOGLE_WEB_CLIENT_ID belum diatur di .env');
       }
 
-      await _googleSignIn.signOut();
-
-      try {
-        await _googleSignIn.disconnect();
-      } catch (e) {
-        debugPrint('[GoogleAuth] disconnect gagal, lanjut signIn: $e');
-      }
-
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
 
       if (account == null) {
@@ -71,6 +64,20 @@ class GoogleAuthService {
       debugPrint('[GoogleAuth] IdToken: ${auth.idToken != null ? "OK" : "NULL"}');
 
       return auth.accessToken;
+    } on PlatformException catch (e, stack) {
+      debugPrint('[GoogleAuth] ❌ PlatformException signIn: $e');
+      debugPrint('[GoogleAuth] ❌ Stacktrace: $stack');
+
+      final code = e.code.toLowerCase();
+      if (code.contains('sign_in_failed') || code == '10') {
+        throw Exception(
+          'Login Google gagal karena konfigurasi OAuth Android belum valid (SHA-1/SHA-256 atau Android OAuth Client). '
+          'Pastikan packageName com.gifriend.inspire + fingerprint debug/release sudah didaftarkan di Firebase Console, '
+          'lalu download ulang google-services.json.',
+        );
+      }
+
+      throw Exception('Gagal login menggunakan Google: ${e.message ?? e.code}');
     } catch (e, stack) {
       debugPrint('[GoogleAuth] ❌ ERROR signIn: $e');
       debugPrint('[GoogleAuth] ❌ Error type: ${e.runtimeType}');
