@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/transcript/transcript_model.dart';
 
 abstract class TranscriptRepository {
@@ -21,19 +20,15 @@ class TranscriptRepositoryImpl implements TranscriptRepository {
         Endpoint.transcript,
       );
       if (response == null) {
-        throw DioException(
-          requestOptions: RequestOptions(path: Endpoint.transcript),
-          error: 'Response is null',
-        );
+        throw const ApiException(message: 'Data transkrip kosong');
       }
-      return TranscriptModel.fromJson(response);
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      return ApiEnvelope.fromDynamic<TranscriptModel>(
+        response,
+        dataParser: (data) => TranscriptModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat transkrip',
+      ).data;
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat transkrip');
     }
   }
 
@@ -47,13 +42,8 @@ class TranscriptRepositoryImpl implements TranscriptRepository {
         throw Exception('File PDF kosong');
       }
       return bytes;
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }

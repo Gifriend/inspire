@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/config/endpoint.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/academic/mahasiswa_bimbingan_model.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/models/transcript/transcript_model.dart';
@@ -14,32 +13,46 @@ class LecturerAcademicRepository {
   // GET /academic/pa/mahasiswa — daftar mahasiswa bimbingan
   Future<List<MahasiswaBimbinganModel>> getMahasiswaBimbingan() async {
     try {
-      final data = await _dioClient.get<List<dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.academicPaMahasiswa,
       );
-      if (data == null) return [];
-      return data
-          .map((e) => MahasiswaBimbinganModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat daftar mahasiswa bimbingan');
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<MahasiswaBimbinganModel>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data
+                .map((e) => MahasiswaBimbinganModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat daftar mahasiswa bimbingan',
+      ).data;
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar mahasiswa bimbingan');
     }
   }
 
   // GET /academic/pa/mahasiswa/:id/semesters
   Future<List<String>> getSemestersByPA(int mahasiswaId) async {
     try {
-      final data = await _dioClient.get<List<dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.academicPaStudentSemesters(mahasiswaId),
       );
-      if (data == null) return [];
-      return List<String>.from(data);
-    } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat daftar semester');
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<String>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data.map((item) => item.toString()).toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat daftar semester',
+      ).data;
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar semester');
     }
   }
 
@@ -47,15 +60,19 @@ class LecturerAcademicRepository {
   Future<KhsModel> getKhsByPA(int mahasiswaId, String semester) async {
     try {
       final encoded = Uri.encodeComponent(semester);
-      final data = await _dioClient.get<Map<String, dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.academicPaKhs(mahasiswaId, encoded),
       );
-      if (data == null) throw Exception('Data KHS kosong');
-      return KhsModel.fromJson(data);
-    } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat KHS');
+      if (response == null) {
+        throw const ApiException(message: 'Data KHS kosong');
+      }
+      return ApiEnvelope.fromDynamic<KhsModel>(
+        response,
+        dataParser: (data) => KhsModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat KHS',
+      ).data;
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat KHS');
     }
   }
 
@@ -68,25 +85,27 @@ class LecturerAcademicRepository {
       );
       if (bytes.isEmpty) throw Exception('File PDF kosong');
       return bytes;
-    } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal mengunduh KHS PDF');
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
   // GET /academic/pa/mahasiswa/:id/transkrip
   Future<TranscriptModel> getTranskripByPA(int mahasiswaId) async {
     try {
-      final data = await _dioClient.get<Map<String, dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.academicPaTranskrip(mahasiswaId),
       );
-      if (data == null) throw Exception('Data transkrip kosong');
-      return TranscriptModel.fromJson(data);
-    } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal memuat transkrip');
+      if (response == null) {
+        throw const ApiException(message: 'Data transkrip kosong');
+      }
+      return ApiEnvelope.fromDynamic<TranscriptModel>(
+        response,
+        dataParser: (data) => TranscriptModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat transkrip',
+      ).data;
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat transkrip');
     }
   }
 
@@ -98,10 +117,8 @@ class LecturerAcademicRepository {
       );
       if (bytes.isEmpty) throw Exception('File PDF kosong');
       return bytes;
-    } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'Gagal mengunduh transkrip PDF');
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }

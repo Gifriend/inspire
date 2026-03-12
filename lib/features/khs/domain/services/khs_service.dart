@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/features/khs/data/repositories/khs_repository.dart';
 
@@ -12,7 +13,7 @@ class KhsService {
     try {
       return await _repository.getSemesters();
     } catch (e) {
-      throw Exception('Gagal memuat daftar semester: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar semester');
     }
   }
 
@@ -21,7 +22,7 @@ class KhsService {
     try {
       return await _repository.getKhs(semester);
     } catch (e) {
-      throw Exception('Gagal memuat KHS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat KHS');
     }
   }
 
@@ -30,7 +31,7 @@ class KhsService {
     try {
       return await _repository.downloadKhsPdf(semester);
     } catch (e) {
-      throw Exception('Gagal mengunduh KHS: ${e.toString()}');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }

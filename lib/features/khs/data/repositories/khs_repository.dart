@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/config/endpoint.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 
 class KhsRepository {
@@ -12,10 +12,26 @@ class KhsRepository {
   // Get list of semesters
   Future<List<String>> getSemesters() async {
     try {
-      final data = await _dioClient.get(Endpoint.khsSemesters);
-      return List<String>.from(data);
+      final response = await _dioClient.get<Map<String, dynamic>>(
+        Endpoint.khsSemesters,
+      );
+
+      if (response == null) {
+        return [];
+      }
+
+      return ApiEnvelope.fromDynamic<List<String>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data.map((item) => item.toString()).toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat daftar semester',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar semester');
     }
   }
 
@@ -25,10 +41,19 @@ class KhsRepository {
       final encoded = Uri.encodeComponent(semester);
       final url = Endpoint.khs(encoded);
       debugPrint('KHS get URL: $url');
-      final data = await _dioClient.get(url);
-      return KhsModel.fromJson(data);
+      final response = await _dioClient.get<Map<String, dynamic>>(url);
+
+      if (response == null) {
+        throw const ApiException(message: 'Data KHS kosong');
+      }
+
+      return ApiEnvelope.fromDynamic<KhsModel>(
+        response,
+        dataParser: (data) => KhsModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat KHS',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat KHS');
     }
   }
 
@@ -44,7 +69,7 @@ class KhsRepository {
       }
       return bytes;
     } catch (e) {
-      rethrow;
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }

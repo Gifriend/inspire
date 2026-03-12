@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/academic/mahasiswa_bimbingan_model.dart';
 import 'package:inspire/core/models/khs/khs_model.dart';
 import 'package:inspire/core/models/transcript/transcript_model.dart';
@@ -13,7 +14,7 @@ class LecturerAcademicService {
     try {
       return await _repository.getMahasiswaBimbingan();
     } catch (e) {
-      throw Exception('Gagal memuat daftar mahasiswa bimbingan: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar mahasiswa bimbingan');
     }
   }
 
@@ -21,7 +22,7 @@ class LecturerAcademicService {
     try {
       return await _repository.getSemestersByPA(mahasiswaId);
     } catch (e) {
-      throw Exception('Gagal memuat semester: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat semester');
     }
   }
 
@@ -29,7 +30,7 @@ class LecturerAcademicService {
     try {
       return await _repository.getKhsByPA(mahasiswaId, semester);
     } catch (e) {
-      throw Exception('Gagal memuat KHS: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat KHS');
     }
   }
 
@@ -37,7 +38,7 @@ class LecturerAcademicService {
     try {
       return await _repository.downloadKhsByPA(mahasiswaId, semester);
     } catch (e) {
-      throw Exception('Gagal mengunduh KHS: $e');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
@@ -45,7 +46,7 @@ class LecturerAcademicService {
     try {
       return await _repository.getTranskripByPA(mahasiswaId);
     } catch (e) {
-      throw Exception('Gagal memuat transkrip: $e');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat transkrip');
     }
   }
 
@@ -53,7 +54,7 @@ class LecturerAcademicService {
     try {
       return await _repository.downloadTranskripByPA(mahasiswaId);
     } catch (e) {
-      throw Exception('Gagal mengunduh transkrip: $e');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }
