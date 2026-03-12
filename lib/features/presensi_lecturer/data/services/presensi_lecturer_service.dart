@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/config/endpoint.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/models.dart';
 
 abstract class PresensiLecturerService {
@@ -38,44 +39,62 @@ class PresensiLecturerServiceImpl implements PresensiLecturerService {
 
   @override
   Future<List<CourseListModel>> getLecturerCourses() async {
-    try {
-      final response = await _dioClient.get<List>('/elearning/lecturer/courses');
-      if (response == null) return [];
-      
-      return response
-          .map((item) => CourseListModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      throw Exception('Error loading lecturer courses: $e');
-    }
+    final raw = await _dioClient.get<dynamic>(Endpoint.lecturerCourses);
+    return ApiEnvelope.fromDynamic<List<CourseListModel>>(
+      raw,
+      dataParser: (data) {
+        if (data == null) {
+          return const [];
+        }
+        if (data is! List) {
+          throw const FormatException('Invalid response data format');
+        }
+        return data
+            .map((item) => CourseListModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      },
+    ).data;
   }
 
   @override
   Future<List<Map<String, dynamic>>> getCourseSessions(int kelasId) async {
-    try {
-      final response = await _dioClient.get<List>('/presensi/kelas/$kelasId/sessions');
-      if (response == null) return [];
-      
-      return List<Map<String, dynamic>>.from(response);
-    } catch (e) {
-      throw Exception('Error loading sessions: $e');
-    }
+    final raw = await _dioClient.get<dynamic>(
+      Endpoint.presensiKelasSessions(kelasId),
+    );
+    return ApiEnvelope.fromDynamic<List<Map<String, dynamic>>>(
+      raw,
+      dataParser: (data) {
+        if (data == null) {
+          return const [];
+        }
+        if (data is! List) {
+          throw const FormatException('Invalid response data format');
+        }
+        return data.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+      },
+    ).data;
   }
 
   @override
   Future<List<StudentInfoModel>> getCourseStudents(int kelasId, {int? sessionId}) async {
-    try {
-      final query = sessionId != null ? '?sessionId=$sessionId' : '';
-      final response = await _dioClient.get<List>('/presensi/kelas/$kelasId/mahasiswa$query');
-      
-      if (response == null) return [];
-      
-      return response
-          .map((item) => StudentInfoModel.fromJson(item as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      throw Exception('Error loading course students: $e');
-    }
+    final raw = await _dioClient.get<dynamic>(
+      Endpoint.presensiClassStudents(kelasId, sessionId: sessionId),
+    );
+
+    return ApiEnvelope.fromDynamic<List<StudentInfoModel>>(
+      raw,
+      dataParser: (data) {
+        if (data == null) {
+          return const [];
+        }
+        if (data is! List) {
+          throw const FormatException('Invalid response data format');
+        }
+        return data
+            .map((item) => StudentInfoModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      },
+    ).data;
   }
 
   @override
@@ -98,13 +117,18 @@ class PresensiLecturerServiceImpl implements PresensiLecturerService {
       data['deadlineTime'] = deadlineTime;
     }
 
-    final response = await _dioClient.post<Map<String, dynamic>>(
-      '/presensi/session',
+    final raw = await _dioClient.post<dynamic>(
+      Endpoint.presensiCreateSession,
       data: data,
     );
 
-    final id = response?['id'] as int?;
-    final token = response?['token']?.toString();
+    final response = ApiEnvelope.fromDynamic<Map<String, dynamic>>(
+      raw,
+      dataParser: ApiEnvelope.parseSingleMap,
+    ).data;
+
+    final id = response['id'] as int?;
+    final token = response['token']?.toString();
 
     if (id == null || token == null || token.isEmpty) {
       throw Exception('Kode presensi tidak ditemukan');
@@ -118,13 +142,18 @@ class PresensiLecturerServiceImpl implements PresensiLecturerService {
     required int sessionId,
     required int mahasiswaId,
   }) async {
-    await _dioClient.post<Map<String, dynamic>>(
-      '/presensi/manual',
+    final raw = await _dioClient.post<dynamic>(
+      '${Endpoint.presensi}/manual',
       data: {
         'sessionId': sessionId,
         'mahasiswaId': mahasiswaId,
         'status': 'HADIR',
       },
+    );
+
+    ApiEnvelope.fromDynamic<Object?>(
+      raw,
+      dataParser: (data) => data,
     );
   }
 
@@ -133,8 +162,13 @@ class PresensiLecturerServiceImpl implements PresensiLecturerService {
     required int sessionId,
     required int mahasiswaId,
   }) async {
-    await _dioClient.delete<Map<String, dynamic>>(
-      '/presensi/session/$sessionId/mahasiswa/$mahasiswaId',
+    final raw = await _dioClient.delete<dynamic>(
+      Endpoint.presensiRevokeAttendance(sessionId, mahasiswaId),
+    );
+
+    ApiEnvelope.fromDynamic<Object?>(
+      raw,
+      dataParser: (data) => data,
     );
   }
 }

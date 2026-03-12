@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/models.dart';
 import 'package:inspire/features/presensi/data/repositories/presensi_repository.dart';
 
@@ -14,23 +14,11 @@ class PresensiService {
 
   PresensiService(this._repository);
 
-  Future<PresensiRecordModel> submitPresensi(
+  Future<ApiEnvelope<PresensiRecordModel>> submitPresensi(
     SubmitPresensiRequestModel request,
-  ) async {
-    try {
-      return await _repository.submitPresensi(request);
-    } catch (e) {
-      rethrow;
-    }
-  }
+  ) => _repository.submitPresensi(request);
 
-  Future<PresensiSessionModel> createSession(
+  Future<ApiEnvelope<PresensiSessionModel>> createSession(
     CreatePresensiRequestModel request,
-  ) async {
-    try {
-      return await _repository.createSession(request);
-    } catch (e) {
-      rethrow;
-    }
-  }
+  ) => _repository.createSession(request);
 }

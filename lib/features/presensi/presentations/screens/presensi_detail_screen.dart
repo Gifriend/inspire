@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inspire/core/assets/assets.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/models/models.dart';
+import 'package:inspire/core/services/presensi_history_service.dart';
 import 'package:inspire/core/utils/extensions/extension.dart';
 import 'package:inspire/core/widgets/widgets.dart';
 
@@ -20,11 +22,14 @@ class PresensiDetailScreen extends ConsumerStatefulWidget {
 
 class _PresensiDetailScreenState extends ConsumerState<PresensiDetailScreen> {
   late final TextEditingController _presensiController;
+  List<PresensiHistoryItem> _history = const [];
+  bool _loadingHistory = true;
 
   @override
   void initState() {
     super.initState();
     _presensiController = TextEditingController();
+    Future.microtask(_loadHistory);
   }
 
   @override
@@ -34,17 +39,6 @@ class _PresensiDetailScreenState extends ConsumerState<PresensiDetailScreen> {
   }
 
   String _getTitle() {
-    switch (widget.type) {
-      case PresensiType.uas:
-        return 'Presensi UAS';
-      case PresensiType.kelas:
-        return 'Presensi Kelas';
-      case PresensiType.event:
-        return 'Presensi Event';
-    }
-  }
-
-  String _getSubtitle() {
     switch (widget.type) {
       case PresensiType.uas:
         return 'Presensi UAS';
@@ -75,6 +69,132 @@ class _PresensiDetailScreenState extends ConsumerState<PresensiDetailScreen> {
       case PresensiType.event:
         return 'Lihat Riwayat Presensi Event Anda';
     }
+  }
+
+  Future<void> _loadHistory() async {
+    final history = await ref
+        .read(presensiHistoryServiceProvider)
+        .getHistory(widget.type);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _history = history;
+      _loadingHistory = false;
+    });
+  }
+
+  void _useHistoryToken(
+    PresensiHistoryItem item,
+    PresensiDetailController controller,
+  ) {
+    final token = item.token.toUpperCase();
+    _presensiController.value = TextEditingValue(
+      text: token,
+      selection: TextSelection.collapsed(offset: token.length),
+    );
+    controller.updatePresensi(token);
+  }
+
+  Widget _buildHistorySection(PresensiDetailController controller) {
+    if (_loadingHistory) {
+      return Padding(
+        padding: EdgeInsets.only(top: BaseSize.h16),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_history.isEmpty) {
+      return Container(
+        width: double.infinity,
+        margin: EdgeInsets.only(top: BaseSize.h16),
+        padding: EdgeInsets.all(BaseSize.w16),
+        decoration: BoxDecoration(
+          color: BaseColor.white,
+          borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+        ),
+        child: Text(
+          'Belum ada riwayat kode presensi yang berhasil dikirim.',
+          style: BaseTypography.bodyMedium.toGrey,
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(top: BaseSize.h16),
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w16,
+        vertical: BaseSize.h8,
+      ),
+      decoration: BoxDecoration(
+        color: BaseColor.white,
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
+      child: Column(
+        children: _history
+            .map(
+              (item) => InkWell(
+                onTap: () => _useHistoryToken(item, controller),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: BaseSize.h12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        padding: EdgeInsets.all(BaseSize.w8),
+                        decoration: BoxDecoration(
+                          color: BaseColor.primaryInspire.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+                        ),
+                        child: Icon(
+                          Icons.history,
+                          size: 18,
+                          color: BaseColor.primaryInspire,
+                        ),
+                      ),
+                      Gap.w12,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.token,
+                              style: BaseTypography.titleMedium.toBold,
+                            ),
+                            Gap.h4,
+                            Text(
+                              item.message,
+                              style: BaseTypography.bodySmall.toGrey,
+                            ),
+                            Gap.h4,
+                            Text(
+                              '${item.submittedAt.slashDate} ${item.submittedAt.HHmm}',
+                              style: BaseTypography.bodySmall.toGrey,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Gap.w8,
+                      Text(
+                        'Gunakan',
+                        style: BaseTypography.bodySmall.copyWith(
+                          color: BaseColor.primaryInspire,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
   }
 
   void _handleSubmit(WidgetRef ref) {
@@ -111,6 +231,9 @@ class _PresensiDetailScreenState extends ConsumerState<PresensiDetailScreen> {
       final errorMessage = next.errorPresensi;
 
       if (successMessage != null && successMessage.isNotEmpty) {
+        _loadHistory();
+        _presensiController.clear();
+        controller.updatePresensi('');
         showSuccessAlertDialogWidget(
           context,
           title: successMessage,
@@ -118,7 +241,6 @@ class _PresensiDetailScreenState extends ConsumerState<PresensiDetailScreen> {
         ).then((_) {
           if (!context.mounted) return;
           controller.clearFeedback();
-          context.pop();
         });
         return;
       }
@@ -235,6 +357,7 @@ class _PresensiDetailScreenState extends ConsumerState<PresensiDetailScreen> {
                 style: BaseTypography.titleMedium,
                 textAlign: TextAlign.center,
               ),
+              _buildHistorySection(controller),
             ],
           ),
         ),

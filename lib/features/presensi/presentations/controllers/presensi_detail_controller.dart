@@ -1,6 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:inspire/core/constants/constants.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/models.dart';
+import 'package:inspire/core/services/presensi_history_service.dart';
 import 'package:inspire/core/services/presensi_service.dart';
 import 'package:inspire/features/presensi/presentations/states/presensi_detail_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -67,40 +68,34 @@ class PresensiDetailController extends _$PresensiDetailController {
         token: token,
       );
 
-      await ref.read(presensiServiceProvider).submitPresensi(request);
+      final response = await ref.read(presensiServiceProvider).submitPresensi(
+            request,
+          );
+
+      final successMessage = response.message.isNotEmpty
+          ? response.message
+          : 'Presensi berhasil dikirim.';
+
+      await ref.read(presensiHistoryServiceProvider).addHistory(
+            type: presensiType,
+            token: token,
+            message: successMessage,
+          );
 
       state = state.copyWith(
         errorSessionId: null,
         errorPresensi: null,
-        successMessage: 'Presensi berhasil dikirim.',
+        successMessage: successMessage,
       );
     } catch (e) {
-      final message = _extractErrorMessage(e);
-      _setError(message);
+      final apiError = ApiException.from(
+        e,
+        fallbackMessage: 'Presensi gagal dikirim.',
+      );
+      _setError(apiError.firstFieldError('token') ?? apiError.message);
     } finally {
       _setLoading(false);
     }
-  }
-
-  String _extractErrorMessage(Object error) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map<String, dynamic>) {
-        final message = data['message'];
-        if (message is String && message.trim().isNotEmpty) {
-          return message;
-        }
-        if (message is List && message.isNotEmpty) {
-          return message.join(', ');
-        }
-      }
-
-      if (error.message != null && error.message!.trim().isNotEmpty) {
-        return error.message!;
-      }
-    }
-
-    return error.toString().replaceAll('Exception: ', '');
   }
 
   // Fungsi submit untuk UAS

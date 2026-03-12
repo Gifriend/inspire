@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/models.dart';
 import 'package:inspire/features/presensi_lecturer/data/services/presensi_lecturer_service.dart';
 
@@ -53,7 +54,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingCourses: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }
@@ -82,7 +83,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingStudents: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }
@@ -153,7 +154,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingStudents: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }
@@ -217,7 +218,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isGeneratingCode: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }
@@ -279,7 +280,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isGeneratingCode: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }
@@ -304,7 +305,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isSubmittingManual: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }
@@ -332,7 +333,7 @@ class PresensiLecturerController extends StateNotifier<PresensiLecturerState> {
     } catch (e) {
       state = state.copyWith(
         isSubmittingManual: false,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: ApiException.from(e).message,
       );
     }
   }

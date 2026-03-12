@@ -124,4 +124,15 @@ class Endpoint {
     static String presensi = _baseUrl(path: "/presensi");
     static String presensiSubmit = '$presensi/submit';
     static String presensiCreateSession = '$presensi/session';
+    static String presensiKelasSessions(int kelasId) =>
+            '$presensi/kelas/$kelasId/sessions/kelas';
+    static String presensiClassStudents(int kelasId, {int? sessionId}) {
+        final basePath = '$presensi/kelas/$kelasId/mahasiswa';
+        if (sessionId == null) {
+            return basePath;
+        }
+        return '$basePath?sessionId=$sessionId';
+    }
+    static String presensiRevokeAttendance(int sessionId, int mahasiswaId) =>
+            '$presensi/session/$sessionId/mahasiswa/$mahasiswaId';
 }
