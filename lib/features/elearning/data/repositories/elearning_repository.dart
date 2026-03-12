@@ -9,6 +9,7 @@ import 'package:inspire/core/models/elearning/elearning_class_config_model.dart'
 import 'package:inspire/core/models/elearning/elearning_setup_models.dart';
 import 'package:inspire/core/models/elearning/student_participants_model.dart';
 import 'package:inspire/core/models/elearning/student_grades_model.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import '../../../../core/data_sources/network/dio_client.dart';
 
 class ElearningRepository {

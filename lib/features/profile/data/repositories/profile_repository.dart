@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/user/user_model.dart';
 
 abstract class ProfileRepository {
@@ -27,12 +28,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
         );
       }
 
-      return UserModel.fromJson(response);
+      final envelope = ApiEnvelope.fromDynamic<UserModel>(
+        response,
+        dataParser: (data) => UserModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat profil',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal memuat profil');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }

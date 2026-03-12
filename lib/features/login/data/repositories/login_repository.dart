@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/data_sources.dart';
 import 'package:inspire/core/models/models.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 
 part 'login_repository.g.dart';
 
@@ -37,12 +38,16 @@ class LoginRepositoryImpl implements LoginRepository {
         );
       }
 
-      return AuthData.fromJson(response);
+      final envelope = ApiEnvelope.fromDynamic<AuthData>(
+        response,
+        dataParser: (data) => AuthData.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Login gagal',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Identifier atau password salah');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Identifier atau password salah');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -63,12 +68,16 @@ class LoginRepositoryImpl implements LoginRepository {
         );
       }
 
-      return AuthData.fromJson(response);
+      final envelope = ApiEnvelope.fromDynamic<AuthData>(
+        response,
+        dataParser: (data) => AuthData.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Refresh token gagal',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Refresh token tidak valid');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Refresh token tidak valid');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }

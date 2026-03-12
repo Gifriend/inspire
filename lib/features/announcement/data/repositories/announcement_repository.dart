@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/constants/constants.dart';
 import 'package:inspire/core/data_sources/network/dio_client.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/announcement/announcement_model.dart';
 
 abstract class AnnouncementRepository {
@@ -29,7 +30,7 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   @override
   Future<List<AnnouncementModel>> getAnnouncements() async {
     try {
-      final response = await _dioClient.get<List<dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.announcementMahasiswa,
       );
 
@@ -40,16 +41,23 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         );
       }
 
-      return response
-          .map(
-            (json) => AnnouncementModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
+      final envelope = ApiEnvelope.fromDynamic<List<AnnouncementModel>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data
+                .map((e) => AnnouncementModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat pengumuman',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal memuat pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -69,15 +77,19 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         );
       }
 
-      return AnnouncementModel.fromJson(response);
+      final envelope = ApiEnvelope.fromDynamic<AnnouncementModel>(
+        response,
+        dataParser: (data) => AnnouncementModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat pengumuman',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      if (e.response?.statusCode == 404) {
-        throw Exception('Pengumuman tidak ditemukan');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, 
+          fallbackMessage: e.response?.statusCode == 404 
+              ? 'Pengumuman tidak ditemukan' 
+              : 'Gagal memuat pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -107,12 +119,16 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         );
       }
 
-      return AnnouncementModel.fromJson(response);
+      final envelope = ApiEnvelope.fromDynamic<AnnouncementModel>(
+        response,
+        dataParser: (data) => AnnouncementModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal membuat pengumuman',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal membuat pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -136,12 +152,16 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         );
       }
 
-      return AnnouncementModel.fromJson(response);
+      final envelope = ApiEnvelope.fromDynamic<AnnouncementModel>(
+        response,
+        dataParser: (data) => AnnouncementModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal membuat pengumuman',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal membuat pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -150,7 +170,7 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   @override
   Future<List<AnnouncementModel>> getCoordinatorAnnouncements() async {
     try {
-      final response = await _dioClient.get<List<dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         Endpoint.announcementCoordinatorAll,
       );
 
@@ -158,16 +178,23 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         return [];
       }
 
-      return response
-          .map(
-            (json) => AnnouncementModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
+      final envelope = ApiEnvelope.fromDynamic<List<AnnouncementModel>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data
+                .map((e) => AnnouncementModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat pengumuman',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal memuat pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -178,7 +205,7 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
     int? kelasId,
   }) async {
     try {
-      final response = await _dioClient.get<List<dynamic>>(
+      final response = await _dioClient.get<Map<String, dynamic>>(
         kelasId != null
             ? Endpoint.announcementLecturerByClass(kelasId)
             : Endpoint.announcementLecturerHistory,
@@ -188,16 +215,23 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         return [];
       }
 
-      return response
-          .map(
-            (json) => AnnouncementModel.fromJson(json as Map<String, dynamic>),
-          )
-          .toList();
+      final envelope = ApiEnvelope.fromDynamic<List<AnnouncementModel>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data
+                .map((e) => AnnouncementModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat pengumuman',
+      );
+
+      return envelope.data;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
-      }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal memuat pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
@@ -206,14 +240,20 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   @override
   Future<void> deleteAnnouncement(int id) async {
     try {
-      await _dioClient.delete<Map<String, dynamic>>(
+      final response = await _dioClient.delete<Map<String, dynamic>>(
         '${Endpoint.announcement}/$id',
       );
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('Unauthorized');
+
+      if (response != null) {
+        ApiEnvelope.fromDynamic<Object?>(
+          response,
+          dataParser: (_) => null,
+          defaultMessage: 'Gagal menghapus pengumuman',
+        );
       }
-      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan');
+    } on DioException catch (e) {
+      final apiException = ApiException.from(e, fallbackMessage: 'Gagal menghapus pengumuman');
+      throw Exception(apiException.message);
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
