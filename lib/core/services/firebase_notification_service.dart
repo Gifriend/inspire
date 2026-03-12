@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
+import 'package:inspire/core/routing/app_routing.dart';
 
 /// Handler for background messages — must be a top-level function
 @pragma('vm:entry-point')
@@ -110,6 +113,7 @@ class FirebaseNotificationService {
     final android = message.notification?.android;
 
     if (notification != null) {
+      final targetRoute = _resolveRoute(message.data['route']?.toString());
       await _localNotifications.show(
         notification.hashCode,
         notification.title,
@@ -130,7 +134,7 @@ class FirebaseNotificationService {
             presentSound: true,
           ),
         ),
-        payload: message.data['route'],
+        payload: targetRoute,
       );
     }
   }
@@ -138,13 +142,71 @@ class FirebaseNotificationService {
   /// Handle notification tap (payload = route string, e.g. '/elearning')
   void _handleNotificationTap(RemoteMessage message) {
     debugPrint('[FCM] Notification tapped: ${message.data}');
-    // TODO: navigate based on message.data['route'] using your GoRouter
-    // Example: navigatorKey.currentContext?.go(message.data['route'] ?? '/');
+    final targetRoute = _resolveRoute(message.data['route']?.toString());
+    if (targetRoute == null) return;
+    _navigateToRoute(targetRoute);
   }
 
   void _onLocalNotificationTap(NotificationResponse response) {
     debugPrint('[FCM] Local notification tapped: ${response.payload}');
-    // TODO: navigate based on response.payload
+    final targetRoute = _resolveRoute(response.payload);
+    if (targetRoute == null) return;
+    _navigateToRoute(targetRoute);
+  }
+
+  String? _resolveRoute(String? rawRoute) {
+    if (rawRoute == null || rawRoute.trim().isEmpty) {
+      return null;
+    }
+
+    final cleaned = rawRoute.trim();
+
+    if (cleaned.startsWith('/')) {
+      return cleaned;
+    }
+
+    final normalized = cleaned.toLowerCase();
+    switch (normalized) {
+      case 'announcement':
+      case 'announcements':
+      case 'pengumuman':
+        return '/announcement';
+      case 'elearning':
+      case 'e-learning':
+        return '/elearning';
+      case 'classroom':
+      case 'google-classroom':
+        return '/classroom-student';
+      case 'schedule':
+      case 'jadwal':
+        return '/schedule';
+      case 'khs':
+        return '/khs';
+      case 'transcript':
+      case 'transkrip':
+        return '/transcript';
+      default:
+        return '/$cleaned';
+    }
+  }
+
+  void _navigateToRoute(String route, {int attempt = 0}) {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      context.go(route);
+      debugPrint('[FCM] Navigated to: $route');
+      return;
+    }
+
+    if (attempt >= 8) {
+      debugPrint('[FCM] Gagal navigate, context belum tersedia: $route');
+      return;
+    }
+
+    Future<void>.delayed(
+      const Duration(milliseconds: 300),
+      () => _navigateToRoute(route, attempt: attempt + 1),
+    );
   }
 
   /// Get current FCM device token — send this to your backend to target notifications

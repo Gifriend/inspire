@@ -6,7 +6,7 @@ extension XString on String {
   }
 
   // DateTime? toFormattedDate({String format = "dd/mm/yyyy"}) {
-  //   //TODO not implemented, using jiffy
+  //   //not implemented, using jiffy
   //   return DateFormat(format).parse(this);
   // }
 
