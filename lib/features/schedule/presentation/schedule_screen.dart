@@ -35,10 +35,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   void _loadMonth() {
-    ref.read(scheduleControllerProvider.notifier).loadSchedule(
-          year: _focusedMonth.year,
-          month: _focusedMonth.month,
-        );
+    ref
+        .read(scheduleControllerProvider.notifier)
+        .loadSchedule(year: _focusedMonth.year, month: _focusedMonth.month);
     _loadHolidays(_focusedMonth.year);
   }
 
@@ -85,7 +84,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   /// Group events by date string "yyyy-MM-dd"
   Map<String, List<ScheduleEventModel>> _groupEvents(
-      List<ScheduleEventModel> events) {
+    List<ScheduleEventModel> events,
+  ) {
     final map = <String, List<ScheduleEventModel>>{};
     for (final e in events) {
       map.putIfAbsent(e.date, () => []).add(e);
@@ -169,7 +169,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           // show Google Calendar action only when schedule is loaded
           scheduleState.maybeWhen(
             loaded: (schedule) => IconButton(
-              icon: Icon(Icons.calendar_month, color: BaseColor.white,),
+              icon: Icon(Icons.calendar_month, color: BaseColor.white),
               onPressed: () => _showGoogleCalendarOptions(schedule.icalUrl),
               tooltip: 'Google Calendar',
             ),
@@ -195,8 +195,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final eventsForSelectedDay = _selectedDay != null
         ? eventsByDate[_dateKey(_selectedDay!)] ?? []
         : <ScheduleEventModel>[];
-    final selectedHoliday =
-        _selectedDay != null ? _holidays[_dateKey(_selectedDay!)] : null;
+    final selectedHoliday = _selectedDay != null
+        ? _holidays[_dateKey(_selectedDay!)]
+        : null;
 
     return Column(
       children: [
@@ -204,19 +205,18 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         _buildCalendarSection(schedule, eventsByDate, _holidays),
 
         // Divider
-        Container(
-          height: 1,
-          color: Colors.grey.shade200,
-        ),
+        Container(height: 1, color: Colors.grey.shade200),
 
         // Event list for selected day
         Expanded(
           child: _selectedDay == null
               ? _buildNoDateSelected(schedule)
               : eventsForSelectedDay.isEmpty
-                  ? _buildNoDayEvents(holiday: selectedHoliday)
-                  : _buildDayEventList(eventsForSelectedDay,
-                      holiday: selectedHoliday),
+              ? _buildNoDayEvents(holiday: selectedHoliday)
+              : _buildDayEventList(
+                  eventsForSelectedDay,
+                  holiday: selectedHoliday,
+                ),
         ),
       ],
     );
@@ -252,7 +252,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     // Count holidays in this month
     final monthHolidays = holidays.values.where((h) {
       return h.date.startsWith(
-          '${_focusedMonth.year}-${_focusedMonth.month.toString().padLeft(2, '0')}');
+        '${_focusedMonth.year}-${_focusedMonth.month.toString().padLeft(2, '0')}',
+      );
     }).toList();
 
     return Padding(
@@ -261,11 +262,23 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         children: [
           _legendDot(BaseColor.primaryInspire),
           const SizedBox(width: 4),
-          Text('Kelas', style: BaseTypography.bodySmall.copyWith(fontSize: 10, color: Colors.grey.shade600)),
+          Text(
+            'Kelas',
+            style: BaseTypography.bodySmall.copyWith(
+              fontSize: 10,
+              color: Colors.grey.shade600,
+            ),
+          ),
           const SizedBox(width: 12),
           _legendDot(Colors.red.shade400),
           const SizedBox(width: 4),
-          Text('Hari Libur Nasional', style: BaseTypography.bodySmall.copyWith(fontSize: 10, color: Colors.grey.shade600)),
+          Text(
+            'Hari Libur Nasional',
+            style: BaseTypography.bodySmall.copyWith(
+              fontSize: 10,
+              color: Colors.grey.shade600,
+            ),
+          ),
           if (monthHolidays.isNotEmpty) ...[
             const SizedBox(width: 6),
             Container(
@@ -301,7 +314,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _buildMonthNavigator(MonthlyScheduleModel schedule) {
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16, vertical: BaseSize.h12),
+        horizontal: BaseSize.w16,
+        vertical: BaseSize.h12,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -320,8 +335,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               ),
               Gap.h4,
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 2,
+                ),
                 decoration: BoxDecoration(
                   color: schedule.role == 'MAHASISWA'
                       ? Colors.blue.shade50
@@ -379,10 +396,16 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     Map<String, List<ScheduleEventModel>> eventsByDate,
     Map<String, HolidayModel> holidays,
   ) {
-    final firstDayOfMonth =
-        DateTime(_focusedMonth.year, _focusedMonth.month, 1);
-    final daysInMonth =
-        DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0).day;
+    final firstDayOfMonth = DateTime(
+      _focusedMonth.year,
+      _focusedMonth.month,
+      1,
+    );
+    final daysInMonth = DateTime(
+      _focusedMonth.year,
+      _focusedMonth.month + 1,
+      0,
+    ).day;
 
     // Monday=1 in DateTime.weekday → 0-indexed from Mon
     int startWeekday = firstDayOfMonth.weekday - 1;
@@ -400,10 +423,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       final eventCount = eventsByDate[key]?.length ?? 0;
       final holiday = holidays[key];
       final isHoliday = holiday != null;
-      final isToday = date.year == today.year &&
+      final isToday =
+          date.year == today.year &&
           date.month == today.month &&
           date.day == today.day;
-      final isSelected = _selectedDay != null &&
+      final isSelected =
+          _selectedDay != null &&
           date.year == _selectedDay!.year &&
           date.month == _selectedDay!.month &&
           date.day == _selectedDay!.day;
@@ -436,11 +461,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 border: isSelected
                     ? null
                     : isHoliday
-                        ? Border.all(color: Colors.red.shade200, width: 1)
-                        : isToday
-                            ? Border.all(
-                                color: BaseColor.primaryInspire, width: 1.5)
-                            : null,
+                    ? Border.all(color: Colors.red.shade200, width: 1)
+                    : isToday
+                    ? Border.all(color: BaseColor.primaryInspire, width: 1.5)
+                    : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -455,8 +479,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                       color: isSelected
                           ? Colors.white
                           : isHoliday || isWeekend
-                              ? Colors.red.shade500
-                              : Colors.black87,
+                          ? Colors.red.shade500
+                          : Colors.black87,
                     ),
                   ),
                   if (hasEvents || isHoliday) ...[
@@ -470,8 +494,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                             (i) => Container(
                               width: 5,
                               height: 5,
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 1),
+                              margin: const EdgeInsets.symmetric(horizontal: 1),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isSelected
@@ -592,8 +615,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                       color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.calendar_month,
-                        color: Colors.blue.shade600, size: 24),
+                    child: Icon(
+                      Icons.calendar_month,
+                      color: Colors.blue.shade600,
+                      size: 24,
+                    ),
                   ),
                   Gap.w12,
                   Expanded(
@@ -616,8 +642,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios,
-                      size: 14, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey.shade400,
+                  ),
                 ],
               ),
             ),
@@ -630,14 +659,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _buildNoDayEvents({HolidayModel? holiday}) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(BaseSize.w24),
+        padding: EdgeInsets.symmetric(horizontal: BaseSize.w24, vertical: BaseSize.h24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (holiday != null) ...[
-              _buildHolidayCard(holiday),
-              Gap.h20,
-            ],
+            if (holiday != null) ...[_buildHolidayCard(holiday), Gap.h20],
             Icon(Icons.event_available, size: 48, color: Colors.grey.shade300),
             Gap.h12,
             Text(
@@ -661,8 +687,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }) {
     final extraItems = holiday != null ? 1 : 0;
     return ListView.builder(
-      padding: EdgeInsets.all(BaseSize.w16),
-      itemCount: events.length + 1 + extraItems, // header + optional holiday + events
+      padding: EdgeInsets.symmetric(
+        horizontal: BaseSize.w16,
+        vertical: BaseSize.h16,
+      ),
+      itemCount:
+          events.length + 1 + extraItems, // header + optional holiday + events
       itemBuilder: (context, index) {
         // Header row (date + kelas count)
         if (index == 0) {
@@ -678,8 +708,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 ),
                 const Spacer(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: BaseColor.primaryInspire.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -711,6 +743,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   Widget _buildEventCard(ScheduleEventModel event) {
     return Container(
+      height: BaseSize.customHeight(175),
+      width: double.infinity,
       margin: EdgeInsets.only(bottom: BaseSize.h12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -742,113 +776,127 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                    // Time row
-                    Row(
-                      children: [
-                        Icon(Icons.access_time,
-                            size: 14, color: BaseColor.primaryInspire),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${event.startTime} - ${event.endTime}',
+                  // Time row
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: BaseColor.primaryInspire,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${event.startTime} - ${event.endTime}',
+                        style: BaseTypography.bodySmall.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: BaseColor.primaryInspire,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Gap.h8,
+                  // Mata kuliah name
+                  Text(
+                    event.mataKuliah,
+                    style: BaseTypography.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Gap.h4,
+                  // Kode MK & Kelas
+                  Text(
+                    '${event.kodeMK} — ${event.kelas}',
+                    style: BaseTypography.bodySmall.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  Gap.h8,
+                  // Dosen
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline,
+                        size: 14,
+                        color: Colors.grey.shade500,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          event.dosenNama,
                           style: BaseTypography.bodySmall.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: BaseColor.primaryInspire,
+                            color: Colors.grey.shade600,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                    Gap.h8,
-                    // Mata kuliah name
-                    Text(
-                      event.mataKuliah,
-                      style: BaseTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w700,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Gap.h4,
-                    // Kode MK & Kelas
-                    Text(
-                      '${event.kodeMK} — ${event.kelas}',
-                      style: BaseTypography.bodySmall.copyWith(
-                        color: Colors.grey.shade600,
+                    ],
+                  ),
+                  Gap.h4,
+                  // Ruangan
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: Colors.grey.shade500,
                       ),
-                    ),
-                    Gap.h8,
-                    // Dosen
-                    Row(
-                      children: [
-                        Icon(Icons.person_outline,
-                            size: 14, color: Colors.grey.shade500),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            event.dosenNama,
-                            style: BaseTypography.bodySmall.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          event.ruangan ?? 'Ruangan belum ditentukan',
+                          style: BaseTypography.bodySmall.copyWith(
+                            color: event.ruangan != null
+                                ? Colors.grey.shade600
+                                : Colors.orange.shade600,
+                            fontStyle: event.ruangan == null
+                                ? FontStyle.italic
+                                : FontStyle.normal,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                    Gap.h4,
-                    // Ruangan
-                    Row(
-                      children: [
-                        Icon(Icons.location_on_outlined,
-                            size: 14, color: Colors.grey.shade500),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            event.ruangan ?? 'Ruangan belum ditentukan',  
-                            style: BaseTypography.bodySmall.copyWith(
-                              color: event.ruangan != null
-                                  ? Colors.grey.shade600
-                                  : Colors.orange.shade600,
-                              fontStyle: event.ruangan == null
-                                  ? FontStyle.italic
-                                  : FontStyle.normal,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      ),
+                    ],
+                  ),
+                  Gap.h8,
+                  // Google Calendar button
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      onTap: () => _launchUrl(event.googleCalendarUrl),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
                         ),
-                      ],
-                    ),
-                    Gap.h8,
-                    // Google Calendar button
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: () => _launchUrl(event.googleCalendarUrl),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.add,
-                                  size: 14, color: Colors.blue.shade700),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Google Calendar',
-                                style: BaseTypography.bodySmall.copyWith(
-                                  color: Colors.blue.shade700,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 11,
-                                ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: 14,
+                              color: Colors.blue.shade700,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Google Calendar',
+                              style: BaseTypography.bodySmall.copyWith(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -863,8 +911,18 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   String _formatDateDisplay(DateTime d) {
     const months = [
       '',
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     return '${d.day} ${months[d.month]} ${d.year}';
   }
@@ -907,10 +965,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Langkah-langkah:',
-                      style: BaseTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      )),
+                  Text(
+                    'Langkah-langkah:',
+                    style: BaseTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   Gap.h8,
                   _buildStep('1', 'Buka Google Calendar di browser'),
                   _buildStep('2', 'Klik ⚙ Settings → Add calendar →\nFrom URL'),
@@ -995,16 +1055,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             child: Text(
               num,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700),
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child:
-                Text(text, style: BaseTypography.bodySmall),
-          ),
+          Expanded(child: Text(text, style: BaseTypography.bodySmall)),
         ],
       ),
     );
@@ -1025,7 +1083,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w16, vertical: BaseSize.h12),
+        horizontal: BaseSize.w16,
+        vertical: BaseSize.h12,
+      ),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(BaseSize.radiusMd),
@@ -1039,8 +1099,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               color: Colors.red.shade100,
               shape: BoxShape.circle,
             ),
-            child:
-                Icon(Icons.celebration, color: Colors.red.shade600, size: 20),
+            child: Icon(
+              Icons.celebration,
+              color: Colors.red.shade600,
+              size: 20,
+            ),
           ),
           Gap.w12,
           Expanded(
@@ -1083,10 +1146,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             textAlign: TextAlign.center,
           ),
           Gap.h16,
-          ElevatedButton(
-            onPressed: _loadMonth,
-            child: const Text('Coba Lagi'),
-          ),
+          ElevatedButton(onPressed: _loadMonth, child: const Text('Coba Lagi')),
         ],
       ),
     );

@@ -60,3 +60,6 @@ app.*.map.json
 google-services.json
 android/build/*
 firebase.json
+
+#logging device
+*.txt

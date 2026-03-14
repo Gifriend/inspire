@@ -32,7 +32,7 @@ class ScaffoldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget childWrapper = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 150),
       child: LoadingWrapper(
         paddingTop: BaseSize.h48,
         paddingBottom: BaseSize.h48,

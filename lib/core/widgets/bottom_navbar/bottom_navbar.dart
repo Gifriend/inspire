@@ -77,27 +77,37 @@ class BottomNavBar extends ConsumerWidget {
   }) {
     final isActive = currentIndex == index;
 
-    return GestureDetector(
-      onTap: () => onPressedItem(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: BaseSize.h24,
-            width: BaseSize.w24,
-            child: _buildIcon(icon, isActive),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(BaseSize.radiusMd),
+        onTap: () => onPressedItem(index),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: BaseSize.w8,
+            vertical: BaseSize.h8,
           ),
-          Gap.h4,
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isActive ? BaseColor.primaryInspire : Colors.grey,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: BaseSize.h24,
+                width: BaseSize.w24,
+                child: _buildIcon(icon, isActive),
+              ),
+              Gap.h4,
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isActive ? BaseColor.primaryInspire : Colors.grey,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

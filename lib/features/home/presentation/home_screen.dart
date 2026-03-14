@@ -46,8 +46,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     // PENTING: Tunggu profile selesai dimuat sebelum render dashboard
     return profileState.when(
-      initial: () => _buildLoadingScreen(),
-      loading: () => _buildLoadingScreen(),
+      initial: () => _buildLoadingSkeleton(context, state),
+      loading: () => _buildLoadingSkeleton(context, state),
       error: (message) => _buildErrorScreen(message),
       loaded: (user) {
         // Determine user role setelah profile berhasil dimuat
@@ -63,17 +63,127 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildLoadingScreen() {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            Gap.h16,
-            Text('Memuat profil...'),
-          ],
+  Widget _buildLoadingSkeleton(BuildContext context, dynamic state) {
+    return ScaffoldWidget(
+      disableSingleChildScrollView: true,
+      disablePadding: true,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildDashboardHeaderSkeleton(context),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+                    child: Transform.translate(
+                      offset: Offset(0, BaseSize.h12),
+                      child: _buildDashboardMenuSkeleton(),
+                    ),
+                  ),
+                  Gap.h24,
+                  _buildAnnouncementSkeleton(),
+                  Gap.h72,
+                ],
+              ),
+            ),
+          ),
+          if (state.selectedBottomNavIndex != 4)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, -5),
+                      ),
+                    ],
+                  ),
+                  child: BottomNavBar(
+                    currentIndex: state.selectedBottomNavIndex,
+                    onPressedItem: (_) {},
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboardHeaderSkeleton(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height / 2.75,
+      width: double.infinity,
+      padding: EdgeInsets.all(BaseSize.w20),
+      decoration: BoxDecoration(
+        color: BaseColor.primaryInspire,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(BaseSize.radiusXl),
+          bottomRight: Radius.circular(BaseSize.radiusXl),
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SkeletonLoading(height: 18, width: 120, borderRadius: 10),
+          Gap.h12,
+          const SkeletonLoading(height: 28, width: 220, borderRadius: 12),
+          Gap.h12,
+          const SkeletonLoading(height: 16, width: 180, borderRadius: 10),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboardMenuSkeleton() {
+    return Container(
+      padding: EdgeInsets.all(BaseSize.w16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(BaseSize.radiusLg),
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 8,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          crossAxisSpacing: BaseSize.w12,
+          mainAxisSpacing: BaseSize.h12,
+          childAspectRatio: 0.75,
+        ),
+        itemBuilder: (_, index) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SkeletonLoading(height: 48, width: 48, borderRadius: 14),
+              Gap.h8,
+              const SkeletonLoading(height: 10, width: 46, borderRadius: 8),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAnnouncementSkeleton() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: BaseSize.w16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SkeletonLoading(height: 20, width: 170, borderRadius: 10),
+          Gap.h12,
+          const SkeletonLoading(height: 120, borderRadius: 14),
+        ],
       ),
     );
   }
