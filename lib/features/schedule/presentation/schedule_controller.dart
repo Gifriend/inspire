@@ -1,55 +1,127 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inspire/core/models/models.dart';
-import 'package:inspire/features/schedule/domain/services/schedule_service.dart';
+import 'package:inspire/core/models/holiday/holiday_model.dart';
+import 'package:inspire/core/models/schedule/schedule_model.dart';
+import 'package:inspire/core/services/schedule_service.dart';
+import 'package:inspire/core/services/holiday_service.dart';
 import 'package:inspire/features/schedule/presentation/schedule_state.dart';
 
 class ScheduleController extends StateNotifier<ScheduleState> {
-  final ScheduleService _service;
+  final ScheduleService _scheduleService;
+  final HolidayService _holidayService;
   final Map<String, MonthlyScheduleModel> _monthCache = {};
   String? _activeRequestKey;
 
-  ScheduleController(this._service) : super(const ScheduleState.initial());
+  ScheduleController(this._scheduleService, this._holidayService)
+      : super(ScheduleState.initial()) {
+    loadCurrentMonth();
+  }
 
-  /// Load schedule for a given month/year.
-  Future<void> loadSchedule({required int year, required int month}) async {
+  Future<void> loadCurrentMonth({bool forceRefresh = false}) async {
+    final focusedMonth = state.focusedMonth;
+    final year = focusedMonth.year;
+    final month = focusedMonth.month;
     final requestKey = '$year-$month';
-    final cached = _monthCache[requestKey];
+    final cached = forceRefresh ? null : _monthCache[requestKey];
+
     if (cached != null) {
-      state = ScheduleState.loaded(cached);
+      state = state.copyWith(
+        status: ScheduleStatus.loaded,
+        schedule: cached,
+        errorMessage: null,
+      );
+      await _loadHolidays(year);
       return;
     }
 
     _activeRequestKey = requestKey;
 
-    final shouldShowBlockingLoader = state.maybeWhen(
-      initial: () => true,
-      error: (_) => true,
-      orElse: () => false,
+    state = state.copyWith(
+      status: ScheduleStatus.loading,
+      errorMessage: null,
     );
 
-    if (shouldShowBlockingLoader) {
-      state = const ScheduleState.loading();
-    }
-
     try {
-      final schedule =
-          await _service.getMonthlySchedule(year: year, month: month);
+      final schedule = await _scheduleService.getMonthlySchedule(
+        year: year,
+        month: month,
+      );
       _monthCache[requestKey] = schedule;
+
       if (_activeRequestKey != requestKey) {
         return;
       }
-      state = ScheduleState.loaded(schedule);
+
+      state = state.copyWith(
+        status: ScheduleStatus.loaded,
+        schedule: schedule,
+        errorMessage: null,
+      );
+
+      await _loadHolidays(year);
     } catch (e) {
       if (_activeRequestKey != requestKey) {
         return;
       }
-      state = ScheduleState.error(e.toString());
+
+      state = state.copyWith(
+        status: ScheduleStatus.error,
+        errorMessage: e.toString(),
+      );
     }
+  }
+
+  Future<void> _loadHolidays(int year) async {
+    if (state.loadedHolidayYears.contains(year)) {
+      return;
+    }
+
+    try {
+      final list = await _holidayService.getHolidays(year);
+      final holidaysMap = <String, HolidayModel>{
+        ...state.holidays,
+        for (final holiday in list) holiday.date: holiday,
+      };
+      final years = <int>{...state.loadedHolidayYears, year};
+
+      state = state.copyWith(
+        holidays: holidaysMap,
+        loadedHolidayYears: years,
+      );
+    } catch (_) {
+      // Keep screen usable even if holiday source fails.
+    }
+  }
+
+  Future<void> goToPreviousMonth() async {
+    final month = DateTime(state.focusedMonth.year, state.focusedMonth.month - 1);
+    state = state.copyWith(focusedMonth: month, selectedDay: null);
+    await loadCurrentMonth();
+  }
+
+  Future<void> goToNextMonth() async {
+    final month = DateTime(state.focusedMonth.year, state.focusedMonth.month + 1);
+    state = state.copyWith(focusedMonth: month, selectedDay: null);
+    await loadCurrentMonth();
+  }
+
+  Future<void> goToToday() async {
+    final now = DateTime.now();
+    state = state.copyWith(
+      focusedMonth: DateTime(now.year, now.month),
+      selectedDay: DateTime(now.year, now.month, now.day),
+      errorMessage: null,
+    );
+    await loadCurrentMonth();
+  }
+
+  void selectDay(DateTime date) {
+    state = state.copyWith(selectedDay: date, errorMessage: null);
   }
 }
 
 final scheduleControllerProvider =
     StateNotifierProvider<ScheduleController, ScheduleState>((ref) {
-  final service = ref.watch(scheduleServiceProvider);
-  return ScheduleController(service);
+  final scheduleService = ref.watch(scheduleServiceProvider);
+  final holidayService = ref.watch(holidayServiceProvider);
+  return ScheduleController(scheduleService, holidayService);
 });
