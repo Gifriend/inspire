@@ -58,6 +58,7 @@ app.*.map.json
 
 #related to firebase
 google-services.json
+GoogleService-Info.plist
 android/build/*
 firebase.json
 
