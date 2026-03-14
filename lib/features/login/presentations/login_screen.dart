@@ -17,24 +17,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _nimController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _nimController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
   void _handleLogin() {
-    if (_formKey.currentState?.validate() ?? false) {
-      ref.read(loginControllerProvider.notifier).login(
-            _nimController.text.trim(),
-            _passwordController.text,
-          );
-    }
+    ref.read(loginControllerProvider.notifier).login();
   }
 
   @override
@@ -43,43 +27,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final viewInsets = MediaQuery.of(context).viewInsets.bottom;
     final loginState = ref.watch(loginControllerProvider);
 
-    ref.listen<LoginState>(loginControllerProvider, (previous, next) {
-      next.maybeWhen(
-        success: () async {
-          await showSuccessAlertDialogWidget(
-            context,
-            title: 'Login berhasil',
-            actionButtonTitle: 'Lanjut',
-          );
+    ref.listen<LoginState>(loginControllerProvider, (previous, next) async {
+      final prevStatus = previous?.status;
+      final nextStatus = next.status;
 
-          if (!context.mounted) return;
+      if (prevStatus == nextStatus) {
+        return;
+      }
 
-          // Load user profile
-          final profileNotifier = ref.read(profileControllerProvider.notifier);
-          profileNotifier.clearCache();
-          await profileNotifier.loadProfile(forceRefresh: true);
+      if (nextStatus == LoginSubmitStatus.success) {
+        await showSuccessAlertDialogWidget(
+          context,
+          title: 'Login berhasil',
+          actionButtonTitle: 'Lanjut',
+        );
 
-          // Debug: Check loaded user
-          final user = profileNotifier.cachedUser;
-          if (user != null) {
-            debugPrint('🔑 Login - User loaded: ${user.name}, Role: ${user.role}');
-          }
+        if (!context.mounted) return;
 
-          if (!context.mounted) return;
+        final profileNotifier = ref.read(profileControllerProvider.notifier);
+        profileNotifier.clearCache();
+        await profileNotifier.loadProfile(forceRefresh: true);
 
-          // Redirect semua user ke home (baik mahasiswa maupun dosen)
-          // HomeScreen akan menampilkan konten sesuai role
-          context.goNamed(AppRoute.home);
-        },
-        error: (message) async {
-          await showErrorAlertDialogWidget(
-            context,
-            title: 'Login gagal',
-            subtitle: message,
-          );
-        },
-        orElse: () {},
-      );
+        final user = profileNotifier.cachedUser;
+        if (user != null) {
+          debugPrint('🔑 Login - User loaded: ${user.name}, Role: ${user.role}');
+        }
+
+        ref.read(loginControllerProvider.notifier).clearFeedback();
+
+        if (!context.mounted) return;
+        context.goNamed(AppRoute.home);
+        return;
+      }
+
+      if (nextStatus == LoginSubmitStatus.error &&
+          (next.errorMessage?.isNotEmpty ?? false)) {
+        await showErrorAlertDialogWidget(
+          context,
+          title: 'Login gagal',
+          subtitle: next.errorMessage!,
+        );
+        ref.read(loginControllerProvider.notifier).clearFeedback();
+      }
     });
 
     return ScaffoldWidget(
@@ -109,52 +98,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   top: 48.0,
                   bottom: viewInsets + 24,
                 ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Selamat Datang Kembali',
-                        style: BaseTypography.titleLarge,
-                      ),
-                      Gap.h6,
-                      Image.asset(
-                        Assets.icons.app.inspireLogoBlack.path,
-                        height: 64,
-                      ),
-                      Gap.h32,
-                      InputWidget.text(
-                        controller: _nimController,
-                        label: 'NIM / NIP',
-                        hint: 'Masukkan NIM atau NIP',
-                        leadIcon: Assets.icons.fill.user,
-                        borderColor: BaseColor.black,
-                      ),
-                      Gap.h16,
-                      InputWidget.text(
-                        controller: _passwordController,
-                        label: 'Kata Sandi',
-                        hint: 'Masukkan Kata Sandi',
-                        leadIcon: Assets.icons.fill.key,
-                        borderColor: BaseColor.black,
-                        obscureText: true,
-                      ),
-                      Gap.h40,
-                      loginState.maybeWhen(
-                        loading: () => const CircularProgressIndicator(),
-                        orElse: () => ButtonWidget.primary(
-                          text: 'Login',
-                          textColor: BaseColor.white,
-                          color: BaseColor.primaryInspire,
-                          focusColor: BaseColor.primaryInspire,
-                          overlayColor: BaseColor.primaryInspire,
-                          onTap: _handleLogin,
-                        ),
-                      ),
-                      Gap.h24,
-                    ],
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Selamat Datang Kembali',
+                      style: BaseTypography.titleLarge,
+                    ),
+                    Gap.h6,
+                    Image.asset(
+                      Assets.icons.app.inspireLogoBlack.path,
+                      height: 64,
+                    ),
+                    Gap.h32,
+                    InputWidget.text(
+                      currentInputValue: loginState.identifier,
+                      label: 'NIM / NIP',
+                      hint: 'Masukkan NIM atau NIP',
+                      leadIcon: Assets.icons.fill.user,
+                      borderColor: BaseColor.black,
+                      onChanged: (value) {
+                        ref
+                            .read(loginControllerProvider.notifier)
+                            .updateIdentifier(value.toString());
+                      },
+                    ),
+                    Gap.h16,
+                    InputWidget.text(
+                      currentInputValue: loginState.password,
+                      label: 'Kata Sandi',
+                      hint: 'Masukkan Kata Sandi',
+                      leadIcon: Assets.icons.fill.key,
+                      borderColor: BaseColor.black,
+                      obscureText: true,
+                      onChanged: (value) {
+                        ref
+                            .read(loginControllerProvider.notifier)
+                            .updatePassword(value.toString());
+                      },
+                    ),
+                    Gap.h40,
+                    loginState.status == LoginSubmitStatus.loading
+                        ? const CircularProgressIndicator()
+                        : ButtonWidget.primary(
+                            text: 'Login',
+                            textColor: BaseColor.white,
+                            color: BaseColor.primaryInspire,
+                            focusColor: BaseColor.primaryInspire,
+                            overlayColor: BaseColor.primaryInspire,
+                            onTap: _handleLogin,
+                          ),
+                    Gap.h24,
+                  ],
                 ),
               ),
             ),

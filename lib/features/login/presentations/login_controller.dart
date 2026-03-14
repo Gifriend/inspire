@@ -10,16 +10,46 @@ final loginControllerProvider =
 );
 
 class LoginController extends StateNotifier<LoginState> {
-  LoginController(this.ref) : super(const LoginState.initial());
+  LoginController(this.ref) : super(LoginState.initial());
 
   final Ref ref;
 
-  Future<void> login(String identifier, String password) async {
-    state = const LoginState.loading();
+  void updateIdentifier(String value) {
+    state = state.copyWith(
+      identifier: value,
+      status: LoginSubmitStatus.initial,
+      errorMessage: null,
+    );
+  }
+
+  void updatePassword(String value) {
+    state = state.copyWith(
+      password: value,
+      status: LoginSubmitStatus.initial,
+      errorMessage: null,
+    );
+  }
+
+  Future<void> login() async {
+    final identifier = state.identifier.trim();
+    final password = state.password;
+
+    if (identifier.isEmpty || password.isEmpty) {
+      state = state.copyWith(
+        status: LoginSubmitStatus.error,
+        errorMessage: 'NIM / NIP dan kata sandi wajib diisi',
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      status: LoginSubmitStatus.loading,
+      errorMessage: null,
+    );
+
     try {
       await ref.watch(hiveServiceProvider).ensureInitialized();
 
-      // Get FCM new fcm token, so the backend can save the device token on login.
       final fcmToken = await FirebaseNotificationService.instance
           .getToken()
           .timeout(const Duration(seconds: 5), onTimeout: () => null);
@@ -29,15 +59,29 @@ class LoginController extends StateNotifier<LoginState> {
             password: password,
             fcmToken: fcmToken,
           );
-      state = const LoginState.success();
+
+      state = state.copyWith(
+        status: LoginSubmitStatus.success,
+        errorMessage: null,
+      );
     } catch (e, st) {
       // ignore: avoid_print
       print('Login error: ${e.runtimeType} -> $e\n$st');
-      state = LoginState.error(e.toString().replaceAll('Exception: ', ''));
+      state = state.copyWith(
+        status: LoginSubmitStatus.error,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
   void resetState() {
-    state = const LoginState.initial();
+    state = LoginState.initial();
+  }
+
+  void clearFeedback() {
+    state = state.copyWith(
+      status: LoginSubmitStatus.initial,
+      errorMessage: null,
+    );
   }
 }
