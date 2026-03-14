@@ -6,6 +6,8 @@ import 'package:inspire/core/models/holiday/holiday_model.dart';
 /// Calls Nager.Date public API (no auth required).
 /// https://date.nager.at/api/v3/PublicHolidays/{year}/ID
 class HolidayRepository {
+  final Map<int, List<HolidayModel>> _cache = {};
+
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: 'https://date.nager.at',
@@ -15,6 +17,11 @@ class HolidayRepository {
   );
 
   Future<List<HolidayModel>> getHolidays(int year) async {
+    final cached = _cache[year];
+    if (cached != null) {
+      return cached;
+    }
+
     // Start with hardcoded holidays as the base (complete Indonesian holidays
     // including Islamic, Hindu, Buddhist, and Chinese holidays).
     final mergedMap = <String, HolidayModel>{
@@ -43,6 +50,7 @@ class HolidayRepository {
     // Sort by date and return
     final result = mergedMap.values.toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+    _cache[year] = result;
     return result;
   }
 

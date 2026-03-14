@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/features/presentation.dart';
@@ -53,12 +52,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       loaded: (user) {
         // Determine user role setelah profile berhasil dimuat
         final bool isLecturer = _isLecturerRole(user.role);
-
-        if (kDebugMode) {
-          print(
-            '🔍 HomeScreen - User: ${user.name}, Role: ${user.role}, isLecturer: $isLecturer',
-          );
-        }
 
         return _buildMainContent(
           context: context,

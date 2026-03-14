@@ -21,6 +21,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   late DateTime _focusedMonth;
   DateTime? _selectedDay;
   Map<String, HolidayModel> _holidays = {};
+  final Set<int> _loadedHolidayYears = {};
+  String? _lastGroupedEventsKey;
+  Map<String, List<ScheduleEventModel>> _groupedEventsCache = const {};
 
   @override
   void initState() {
@@ -40,10 +43,15 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   void _loadHolidays(int year) {
+    if (_loadedHolidayYears.contains(year)) {
+      return;
+    }
+
     // Call repository directly to avoid FutureProvider caching empty results
     ref.read(holidayRepositoryProvider).getHolidays(year).then((list) {
       if (mounted) {
         setState(() {
+          _loadedHolidayYears.add(year);
           _holidays = {for (final h in list) h.date: h};
         });
       }
@@ -83,6 +91,40 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       map.putIfAbsent(e.date, () => []).add(e);
     }
     return map;
+  }
+
+  Map<String, List<ScheduleEventModel>> _groupEventsCached(
+    MonthlyScheduleModel schedule,
+  ) {
+    final cacheKey =
+        '${schedule.year}-${schedule.month}-${schedule.totalEvents}-${schedule.events.length}';
+    if (_lastGroupedEventsKey == cacheKey) {
+      return _groupedEventsCache;
+    }
+
+    final grouped = _groupEvents(schedule.events);
+    _lastGroupedEventsKey = cacheKey;
+    _groupedEventsCache = grouped;
+    return grouped;
+  }
+
+  String _monthLabel(DateTime value) {
+    const months = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return '${months[value.month]} ${value.year}';
   }
 
   String _dateKey(DateTime d) {
@@ -149,7 +191,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   Widget _buildContent(MonthlyScheduleModel schedule) {
-    final eventsByDate = _groupEvents(schedule.events);
+    final eventsByDate = _groupEventsCached(schedule);
     final eventsForSelectedDay = _selectedDay != null
         ? eventsByDate[_dateKey(_selectedDay!)] ?? []
         : <ScheduleEventModel>[];
@@ -271,7 +313,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           Column(
             children: [
               Text(
-                '${schedule.monthName} ${schedule.year}',
+                _monthLabel(_focusedMonth),
                 style: BaseTypography.titleLarge.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -378,78 +420,83 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       }
 
       cells.add(
-        GestureDetector(
-          onTap: () => setState(() => _selectedDay = date),
-          child: Container(
-            margin: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(8),
-              border: isSelected
-                  ? null
-                  : isHoliday
-                      ? Border.all(color: Colors.red.shade200, width: 1)
-                      : isToday
-                          ? Border.all(
-                              color: BaseColor.primaryInspire, width: 1.5)
-                          : null,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '$day',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isToday || isSelected
-                        ? FontWeight.w700
-                        : FontWeight.w500,
-                    color: isSelected
-                        ? Colors.white
-                        : isHoliday || isWeekend
-                            ? Colors.red.shade500
-                            : Colors.black87,
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () {
+              if (_selectedDay == date) return;
+              setState(() => _selectedDay = date);
+            },
+            child: Container(
+              margin: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(8),
+                border: isSelected
+                    ? null
+                    : isHoliday
+                        ? Border.all(color: Colors.red.shade200, width: 1)
+                        : isToday
+                            ? Border.all(
+                                color: BaseColor.primaryInspire, width: 1.5)
+                            : null,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$day',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isToday || isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? Colors.white
+                          : isHoliday || isWeekend
+                              ? Colors.red.shade500
+                              : Colors.black87,
+                    ),
                   ),
-                ),
-                if (hasEvents || isHoliday) ...[
-                  Gap.h4,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Blue dots for classes (max 2)
-                      if (hasEvents)
-                        ...List.generate(
-                          eventCount.clamp(0, 2),
-                          (i) => Container(
+                  if (hasEvents || isHoliday) ...[
+                    Gap.h4,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (hasEvents)
+                          ...List.generate(
+                            eventCount.clamp(0, 2),
+                            (i) => Container(
+                              width: 5,
+                              height: 5,
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 1),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isSelected
+                                    ? Colors.white
+                                    : BaseColor.primaryInspire,
+                              ),
+                            ),
+                          ),
+                        if (isHoliday)
+                          Container(
                             width: 5,
                             height: 5,
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 1),
+                            margin: const EdgeInsets.symmetric(horizontal: 1),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: isSelected
                                   ? Colors.white
-                                  : BaseColor.primaryInspire,
+                                  : Colors.red.shade400,
                             ),
                           ),
-                        ),
-                      // Red dot for holiday
-                      if (isHoliday)
-                        Container(
-                          width: 5,
-                          height: 5,
-                          margin: const EdgeInsets.symmetric(horizontal: 1),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.red.shade400,
-                          ),
-                        ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -676,27 +723,25 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           ),
         ],
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            // Left color bar
-            Container(
-              width: 4,
-              decoration: BoxDecoration(
-                color: BaseColor.primaryInspire,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(BaseSize.radiusMd),
-                  bottomLeft: Radius.circular(BaseSize.radiusMd),
-                ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            width: 4,
+            decoration: BoxDecoration(
+              color: BaseColor.primaryInspire,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(BaseSize.radiusMd),
+                bottomLeft: Radius.circular(BaseSize.radiusMd),
               ),
             ),
-            // Content
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(BaseSize.w12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(BaseSize.w12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                     // Time row
                     Row(
                       children: [
@@ -804,12 +849,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
