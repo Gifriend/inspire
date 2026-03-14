@@ -12,6 +12,7 @@ class Endpoint {
   static String auth = _baseUrl(path: "/auth");
   static String signing = '$auth/signing';
   static String login = '$auth/login';
+    static String refresh = '$auth/refresh';
   static String profile = '$auth/profile';
 
   // Academic endpoints

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/krs/krs_lecturer_model.dart';
 import 'package:inspire/features/krs_lecturer/data/repositories/krs_lecturer_repository.dart';
 
@@ -17,7 +18,8 @@ class KrsLecturerService {
         academicYear: academicYear,
       );
     } catch (e) {
-      throw Exception('Gagal memuat daftar KRS mahasiswa: ${e.toString()}');
+      throw ApiException.from(e,
+          fallbackMessage: 'Gagal memuat daftar KRS mahasiswa');
     }
   }
 
@@ -25,7 +27,7 @@ class KrsLecturerService {
     try {
       return await _repository.getSubmissionDetail(krsId);
     } catch (e) {
-      throw Exception('Gagal memuat detail KRS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat detail KRS');
     }
   }
 
@@ -33,7 +35,7 @@ class KrsLecturerService {
     try {
       return await _repository.approveKrs(krsId, catatan: catatan);
     } catch (e) {
-      throw Exception('Gagal menyetujui KRS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal menyetujui KRS');
     }
   }
 
@@ -42,7 +44,7 @@ class KrsLecturerService {
     try {
       return await _repository.rejectKrs(krsId, catatan: catatan);
     } catch (e) {
-      throw Exception('Gagal menolak KRS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal menolak KRS');
     }
   }
 
@@ -51,7 +53,7 @@ class KrsLecturerService {
     try {
       return await _repository.cancelKrs(krsId, catatan: catatan);
     } catch (e) {
-      throw Exception('Gagal membatalkan KRS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal membatalkan KRS');
     }
   }
 }

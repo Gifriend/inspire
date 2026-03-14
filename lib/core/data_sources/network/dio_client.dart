@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:async';
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -9,8 +10,10 @@ import '../data_sources.dart';
 
 class DioClient {
   late Dio _dio;
+  late Dio _refreshDio;
   late String baseUrl;
   late HiveService hiveService;
+  Future<AuthData?>? _refreshingAuth;
 
   DioClient({
     required this.baseUrl,
@@ -21,11 +24,18 @@ class DioClient {
     Duration defaultReceiveTimeout = const Duration(minutes: 2),
   }) {
     _dio = dio;
+    _refreshDio = Dio();
     _dio
       ..options.baseUrl = baseUrl
       ..options.connectTimeout = defaultConnectTimeout
       ..options.receiveTimeout = defaultReceiveTimeout
       ..httpClientAdapter
+      ..options.headers = {'Content-Type': 'application/json; charset=UTF-8'};
+
+    _refreshDio
+      ..options.baseUrl = baseUrl
+      ..options.connectTimeout = defaultConnectTimeout
+      ..options.receiveTimeout = defaultReceiveTimeout
       ..options.headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
     // _tokenDio = Dio();
@@ -48,6 +58,35 @@ class DioClient {
             // If callers need special handling (e.g., multipart), they should
             // provide the appropriate `Options` or data format.
             handler.next(options);
+          },
+          onError: (
+            DioException error,
+            ErrorInterceptorHandler handler,
+          ) async {
+            final requestOptions = error.requestOptions;
+            final statusCode = error.response?.statusCode;
+            final alreadyRetried = requestOptions.extra['_retried'] == true;
+            final isAuthEndpoint = requestOptions.path.contains('/auth/login') ||
+                requestOptions.path.contains('/auth/refresh');
+
+            if (statusCode == 401 && !alreadyRetried && !isAuthEndpoint) {
+              try {
+                final refreshedAuth = await _refreshAuth();
+                if (refreshedAuth != null) {
+                  requestOptions.headers['Authorization'] =
+                      'Bearer ${refreshedAuth.accessToken}';
+                  requestOptions.extra['_retried'] = true;
+
+                  final response = await _dio.fetch<dynamic>(requestOptions);
+                  handler.resolve(response);
+                  return;
+                }
+              } catch (refreshError) {
+                debugPrint('[DioClient] Refresh token failed: $refreshError');
+              }
+            }
+
+            handler.next(error);
           },
         ),
       );
@@ -229,6 +268,48 @@ class DioClient {
       throw SocketException(e.toString());
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<AuthData?> _refreshAuth() async {
+    if (_refreshingAuth != null) {
+      return _refreshingAuth;
+    }
+
+    final completer = Completer<AuthData?>();
+    _refreshingAuth = completer.future;
+
+    try {
+      final currentAuth = await hiveService.getAuth();
+      if (currentAuth == null || currentAuth.refreshToken.isEmpty) {
+        completer.complete(null);
+        return completer.future;
+      }
+
+      final response = await _refreshDio.post<dynamic>(
+        Endpoint.refresh,
+        data: {'refreshToken': currentAuth.refreshToken},
+      );
+
+      final responseData = response.data;
+      if (responseData == null) {
+        throw const ApiException(message: 'Refresh token gagal');
+      }
+
+      final authData = ApiEnvelope.fromDynamic<AuthData>(
+        responseData,
+        dataParser: (data) => AuthData.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Refresh token gagal',
+      ).data;
+
+      await hiveService.saveAuth(authData);
+      completer.complete(authData);
+      return authData;
+    } catch (e) {
+      completer.completeError(e);
+      rethrow;
+    } finally {
+      _refreshingAuth = null;
     }
   }
 }

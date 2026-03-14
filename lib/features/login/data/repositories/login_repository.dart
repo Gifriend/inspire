@@ -25,7 +25,7 @@ class LoginRepositoryImpl implements LoginRepository {
   }) async {
     try {
       final request = LoginRequest(identifier: identifier, password: password, fcmToken: fcmToken);
-      final response = await _dioClient.post<Map<String, dynamic>>(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.login,
         data: request.toJson(),
       );
@@ -55,14 +55,14 @@ class LoginRepositoryImpl implements LoginRepository {
   @override
   Future<AuthData> refreshToken({required String refreshToken}) async {
     try {
-      final response = await _dioClient.post<Map<String, dynamic>>(
-        '/auth/refresh',
+      final response = await _dioClient.post<dynamic>(
+        Endpoint.refresh,
         data: {'refreshToken': refreshToken},
       );
 
       if (response == null) {
         throw DioException(
-          requestOptions: RequestOptions(path: '/auth/refresh'),
+          requestOptions: RequestOptions(path: Endpoint.refresh),
           error: 'Response is null',
         );
       }

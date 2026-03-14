@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inspire/core/config/endpoint.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/krs/krs_model.dart';
-
-import '../../../../core/data_sources/network/dio_client.dart';
 
 class KrsRepository {
   final DioClient _dioClient;
@@ -12,13 +11,19 @@ class KrsRepository {
   // Get KRS by semester
   Future<KrsModel> getKrs(String semester) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.krs(semester),
       );
-
-      return KrsModel.fromJson(data);
+      if (response == null) {
+        throw const ApiException(message: 'Data KRS kosong');
+      }
+      return ApiEnvelope.fromDynamic<KrsModel>(
+        response,
+        dataParser: (data) => KrsModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal memuat KRS',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat KRS');
     }
   }
 
@@ -28,33 +33,45 @@ class KrsRepository {
     required String semester,
   }) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.krsAddClass,
         data: {
           'kelasId': kelasId,
           'semester': semester,
         },
       );
-
-      return KrsModel.fromJson(data);
+      if (response == null) {
+        throw const ApiException(message: 'Respons kosong');
+      }
+      return ApiEnvelope.fromDynamic<KrsModel>(
+        response,
+        dataParser: (data) => KrsModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal menambahkan kelas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal menambahkan kelas');
     }
   }
 
   // Submit KRS for approval
   Future<KrsModel> submitKrs(String semester) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.krsSubmit,
         data: {
           'semester': semester,
         },
       );
-
-      return KrsModel.fromJson(data);
+      if (response == null) {
+        throw const ApiException(message: 'Respons kosong');
+      }
+      return ApiEnvelope.fromDynamic<KrsModel>(
+        response,
+        dataParser: (data) => KrsModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal mengajukan KRS',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal mengajukan KRS');
     }
   }
 
@@ -64,17 +81,23 @@ class KrsRepository {
     required String semester,
   }) async {
     try {
-      final data = await _dioClient.post(
+      final response = await _dioClient.post<dynamic>(
         Endpoint.krsRemoveClass,
         data: {
           'kelasId': kelasId,
           'semester': semester,
         },
       );
-
-      return KrsModel.fromJson(data);
+      if (response == null) {
+        throw const ApiException(message: 'Respons kosong');
+      }
+      return ApiEnvelope.fromDynamic<KrsModel>(
+        response,
+        dataParser: (data) => KrsModel.fromJson(ApiEnvelope.parseSingleMap(data)),
+        defaultMessage: 'Gagal menghapus kelas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal menghapus kelas');
     }
   }
 
@@ -84,23 +107,28 @@ class KrsRepository {
     int? prodiId,
   }) async {
     try {
-      final data = await _dioClient.get(
+      final response = await _dioClient.get<dynamic>(
         Endpoint.krsLoadAvailableCourses(academicYear),
         // queryParameters: {
         //   'semester': semester,
         //   if (prodiId != null) 'prodiId': prodiId,
         // },
       );
-
-      if (data is List) {
-        return data
-            .map((json) => KelasPerkuliahanModel.fromJson(json))
-            .toList();
-      } else {
-        throw Exception('Invalid response format');
-      }
+      if (response == null) return [];
+      return ApiEnvelope.fromDynamic<List<KelasPerkuliahanModel>>(
+        response,
+        dataParser: (data) {
+          if (data is List) {
+            return data
+                .map((json) => KelasPerkuliahanModel.fromJson(json as Map<String, dynamic>))
+                .toList();
+          }
+          return [];
+        },
+        defaultMessage: 'Gagal memuat daftar kelas',
+      ).data;
     } catch (e) {
-      rethrow;
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar kelas');
     }
   }
 }

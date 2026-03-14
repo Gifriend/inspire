@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/krs/krs_model.dart';
 import 'package:inspire/features/krs/data/repositories/krs_repository.dart';
 
@@ -12,7 +13,7 @@ class KrsService {
     try {
       return await _repository.getKrs(semester);
     } catch (e) {
-      throw Exception('Gagal memuat KRS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat KRS');
     }
   }
 
@@ -27,7 +28,7 @@ class KrsService {
         semester: semester,
       );
     } catch (e) {
-      throw Exception('Gagal menambahkan kelas: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal menambahkan kelas');
     }
   }
 
@@ -36,7 +37,7 @@ class KrsService {
     try {
       return await _repository.submitKrs(semester);
     } catch (e) {
-      throw Exception('Gagal mengajukan KRS: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal mengajukan KRS');
     }
   }
 
@@ -51,7 +52,7 @@ class KrsService {
         semester: semester,
       );
     } catch (e) {
-      throw Exception('Gagal menghapus kelas: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal menghapus kelas');
     }
   }
 
@@ -66,7 +67,7 @@ class KrsService {
         prodiId: prodiId,
       );
     } catch (e) {
-      throw Exception('Gagal memuat daftar kelas: ${e.toString()}');
+      throw ApiException.from(e, fallbackMessage: 'Gagal memuat daftar kelas');
     }
   }
 }
