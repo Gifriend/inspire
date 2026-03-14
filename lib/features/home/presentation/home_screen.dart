@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inspire/core/services/network_status_service.dart';
 import 'package:inspire/features/presentation.dart';
 import '../../../core/constants/constants.dart';
 import '../../../core/widgets/widgets.dart';
@@ -12,6 +13,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  ProviderSubscription<AsyncValue<bool>>? _networkStatusSubscription;
+  bool? _lastNetworkStatus;
+
   bool _isLecturerRole(String role) {
     final normalizedRole = role.trim().toUpperCase();
     return normalizedRole == 'DOSEN' ||
@@ -22,6 +26,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    _networkStatusSubscription = ref.listenManual<AsyncValue<bool>>(
+      networkStatusProvider,
+      (_, next) {
+        next.whenData(_handleNetworkStatusChange);
+      },
+    );
+
     // Load profile saat HomeScreen pertama kali dibuat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentProfileState = ref.read(profileControllerProvider);
@@ -36,6 +48,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.read(profileControllerProvider.notifier).loadProfile();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _networkStatusSubscription?.close();
+    super.dispose();
+  }
+
+  void _handleNetworkStatusChange(bool isOnline) {
+    if (!mounted) {
+      return;
+    }
+
+    if (_lastNetworkStatus == null) {
+      _lastNetworkStatus = isOnline;
+      if (!isOnline) {
+        _showOfflineSnackbar();
+      }
+      return;
+    }
+
+    if (_lastNetworkStatus == isOnline) {
+      return;
+    }
+
+    _lastNetworkStatus = isOnline;
+
+    if (isOnline) {
+      _showOnlineSnackbar();
+      _refreshDataAfterReconnect();
+    } else {
+      _showOfflineSnackbar();
+    }
+  }
+
+  void _refreshDataAfterReconnect() {
+    ref.read(profileControllerProvider.notifier).loadProfile(forceRefresh: true);
+    ref.invalidate(announcementControllerProvider);
+    ref.invalidate(scheduleControllerProvider);
+  }
+
+  void _showOfflineSnackbar() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Anda sedang offline'),
+          duration: Duration(days: 1),
+        ),
+      );
+  }
+
+  void _showOnlineSnackbar() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Anda kembali online'),
+          duration: Duration(seconds: 2),
+        ),
+      );
   }
 
   @override
