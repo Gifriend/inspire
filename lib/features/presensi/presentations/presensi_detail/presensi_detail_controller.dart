@@ -3,7 +3,7 @@ import 'package:inspire/core/data_sources/network/network.dart';
 import 'package:inspire/core/models/models.dart';
 import 'package:inspire/core/services/presensi_history_service.dart';
 import 'package:inspire/core/services/presensi_service.dart';
-import 'package:inspire/features/presensi/presentations/states/presensi_detail_state.dart';
+import 'package:inspire/features/presensi/presentations/presensi_detail/presensi_detail_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'presensi_detail_controller.g.dart';
