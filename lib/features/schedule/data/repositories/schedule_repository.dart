@@ -10,8 +10,28 @@ class ScheduleRepository {
 
   ScheduleRepository(this._dioClient, this._hiveService);
 
-  String _monthlyScheduleCacheKey({required int year, required int month}) =>
-      'schedule:monthly:$year:$month';
+  Future<String> _resolveScheduleOwnerCacheKey() async {
+    final user = await _hiveService.getUser();
+    if (user != null) {
+      final normalizedRole = user.role.trim().toUpperCase();
+      return 'user:${user.id}:$normalizedRole';
+    }
+
+    final auth = await _hiveService.getAuth();
+    if (auth != null && auth.accessToken.isNotEmpty) {
+      return 'token:${auth.accessToken.hashCode}';
+    }
+
+    return 'anonymous';
+  }
+
+  Future<String> _monthlyScheduleCacheKey({
+    required int year,
+    required int month,
+  }) async {
+    final ownerKey = await _resolveScheduleOwnerCacheKey();
+    return 'schedule:monthly:$ownerKey:$year:$month';
+  }
 
   /// Get monthly schedule (works for MAHASISWA and DOSEN).
   /// If [year]/[month] are omitted, backend defaults to current month.
@@ -22,7 +42,7 @@ class ScheduleRepository {
     final now = DateTime.now();
     final selectedYear = year ?? now.year;
     final selectedMonth = month ?? now.month;
-    final cacheKey = _monthlyScheduleCacheKey(
+    final cacheKey = await _monthlyScheduleCacheKey(
       year: selectedYear,
       month: selectedMonth,
     );

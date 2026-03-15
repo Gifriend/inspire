@@ -45,6 +45,7 @@ class LoginServiceImpl implements LoginService {
   Future<void> logout() async {
     try {
       await _hiveService.deleteAuth();
+      await _hiveService.deleteUser();
     } catch (e) {
       rethrow;
     }

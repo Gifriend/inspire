@@ -70,6 +70,15 @@ class ScheduleController extends StateNotifier<ScheduleState> {
     }
   }
 
+  Future<void> refreshCurrentMonth() async {
+    await loadCurrentMonth(forceRefresh: true);
+  }
+
+  void clearCache() {
+    _monthCache.clear();
+    _activeRequestKey = null;
+  }
+
   Future<void> _loadHolidays(int year) async {
     if (state.loadedHolidayYears.contains(year)) {
       return;

@@ -32,8 +32,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     });
   }
 
-  void _loadMonth() {
-    ref.read(scheduleControllerProvider.notifier).loadCurrentMonth();
+  Future<void> _refreshMonth() async {
+    await ref.read(scheduleControllerProvider.notifier).refreshCurrentMonth();
   }
 
   void _goToPreviousMonth() {
@@ -145,15 +145,31 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     MonthlyScheduleModel? schedule,
     ScheduleController controller,
   ) {
-    if (schedule != null) {
-      return _buildContent(schedule, state, controller);
-    }
+    return switch (state.status) {
+      ScheduleStatus.loaded when schedule != null => _buildContent(
+        schedule,
+        state,
+        controller,
+      ),
 
-    if (state.status == ScheduleStatus.error) {
-      return _buildError(state.errorMessage ?? 'Gagal memuat jadwal');
-    }
+      ScheduleStatus.loading =>
+        schedule != null
+            ? _buildContent(schedule, state, controller)
+            : _buildRefreshContainer(
+                const Center(child: Text('Memuat jadwal...')),
+              ),
 
-    return const Center(child: Text('Memuat jadwal...'));
+      ScheduleStatus.error => _buildRefreshContainer(
+        _buildError(state.errorMessage ?? 'Gagal memuat jadwal'),
+      ),
+
+      ScheduleStatus.initial || _ =>
+        schedule != null
+            ? _buildContent(schedule, state, controller)
+            : _buildRefreshContainer(
+                const Center(child: Text('Tarik ke bawah untuk memuat jadwal')),
+              ),
+    };
   }
 
   Widget _buildContent(
@@ -186,23 +202,42 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         Container(height: 1, color: Colors.grey.shade200),
 
         Expanded(
-          child: selectedDay == null
-              ? ScheduleNoDateSelectedView(
-                  schedule: schedule,
-                  onOpenGoogleCalendar: () => _showGoogleCalendarOptions(
-                    schedule.icalUrl,
+          child: RefreshIndicator(
+            onRefresh: _refreshMonth,
+            child: selectedDay == null
+                ? ScheduleNoDateSelectedView(
+                    schedule: schedule,
+                    onOpenGoogleCalendar: () =>
+                        _showGoogleCalendarOptions(schedule.icalUrl),
+                  )
+                : eventsForSelectedDay.isEmpty
+                ? ScheduleNoDayEventsView(holiday: selectedHoliday)
+                : ScheduleDayEventList(
+                    events: eventsForSelectedDay,
+                    selectedDay: selectedDay,
+                    holiday: selectedHoliday,
+                    onOpenCalendarUrl: _launchUrl,
                   ),
-                )
-              : eventsForSelectedDay.isEmpty
-              ? ScheduleNoDayEventsView(holiday: selectedHoliday)
-              : ScheduleDayEventList(
-                  events: eventsForSelectedDay,
-                  selectedDay: selectedDay,
-                  holiday: selectedHoliday,
-                  onOpenCalendarUrl: _launchUrl,
-                ),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRefreshContainer(Widget child) {
+    return RefreshIndicator(
+      onRefresh: _refreshMonth,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: child,
+          ),
+        ],
+      ),
     );
   }
 
@@ -230,7 +265,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             textAlign: TextAlign.center,
           ),
           Gap.h16,
-          ElevatedButton(onPressed: _loadMonth, child: const Text('Coba Lagi')),
+          ElevatedButton(
+            onPressed: () => _refreshMonth(),
+            child: const Text('Coba Lagi'),
+          ),
         ],
       ),
     );

@@ -26,3 +26,28 @@ abstract class ScheduleState with _$ScheduleState {
     );
   }
 }
+
+extension ScheduleStateMaybeWhenX on ScheduleState {
+  T maybeWhen<T>({
+    T Function(ScheduleState state)? initial,
+    T Function(ScheduleState state)? loading,
+    T Function(MonthlyScheduleModel schedule, ScheduleState state)? loaded,
+    T Function(String message, ScheduleState state)? error,
+    required T Function() orElse,
+  }) {
+    switch (status) {
+      case ScheduleStatus.initial:
+        return initial != null ? initial(this) : orElse();
+      case ScheduleStatus.loading:
+        return loading != null ? loading(this) : orElse();
+      case ScheduleStatus.loaded:
+        if (schedule != null && loaded != null) {
+          return loaded(schedule!, this);
+        }
+        return orElse();
+      case ScheduleStatus.error:
+        final message = errorMessage ?? 'Gagal memuat jadwal';
+        return error != null ? error(message, this) : orElse();
+    }
+  }
+}

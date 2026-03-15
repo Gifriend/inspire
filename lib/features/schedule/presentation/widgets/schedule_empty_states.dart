@@ -17,6 +17,9 @@ class ScheduleNoDateSelectedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       padding: EdgeInsets.all(BaseSize.w16),
       child: Column(
         children: [
@@ -133,30 +136,45 @@ class ScheduleNoDayEventsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: BaseSize.w24,
-          vertical: BaseSize.h24,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (holiday != null) ...[ScheduleHolidayCard(holiday: holiday!), Gap.h20],
-            Icon(Icons.event_available, size: 48, color: Colors.grey.shade300),
-            Gap.h12,
-            Text(
-              holiday != null
-                  ? 'Tidak ada jadwal kuliah di hari libur ini'
-                  : 'Tidak ada jadwal di tanggal ini',
-              style: BaseTypography.bodyMedium.copyWith(
-                color: Colors.grey.shade500,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: BaseSize.w24,
+                  vertical: BaseSize.h24,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (holiday != null) ...[
+                      ScheduleHolidayCard(holiday: holiday!),
+                      Gap.h20,
+                    ],
+                    Icon(Icons.event_available, size: 48, color: Colors.grey.shade300),
+                    Gap.h12,
+                    Text(
+                      holiday != null
+                          ? 'Tidak ada jadwal kuliah di hari libur ini'
+                          : 'Tidak ada jadwal di tanggal ini',
+                      style: BaseTypography.bodyMedium.copyWith(
+                        color: Colors.grey.shade500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -395,6 +395,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
         ref.invalidate(classroomAuthControllerProvider);
         ref.invalidate(classroomAuthLecturerControllerProvider);
+        ref.invalidate(scheduleControllerProvider);
 
         ref.read(profileControllerProvider.notifier).clearCache();
         if (context.mounted) {

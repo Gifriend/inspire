@@ -8,6 +8,7 @@ import 'package:inspire/core/widgets/widgets.dart';
 import 'package:inspire/features/login/presentations/login_controller.dart';
 import 'package:inspire/features/login/presentations/login_state.dart';
 import 'package:inspire/features/profile/presentation/profile_controller.dart';
+import 'package:inspire/features/schedule/presentation/schedule_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -47,6 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final profileNotifier = ref.read(profileControllerProvider.notifier);
         profileNotifier.clearCache();
         await profileNotifier.loadProfile(forceRefresh: true);
+        ref.invalidate(scheduleControllerProvider);
 
         final user = profileNotifier.cachedUser;
         if (user != null) {
